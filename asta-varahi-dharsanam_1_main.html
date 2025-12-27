@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asta Varahi  dharisanam Preview</title>
+        <link rel="icon" type="image/svg+xml" href="./assets/img/images_new/VARAHI LOGO.svg" />
+
+     <!-- Non-critical CSS (loaded asynchronously) -->
+    <link rel="stylesheet" href="assets/css/plugins/bootstrap.min.css" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="assets/css/plugins/slick.css" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="assets/css/plugins/slick-theme.css" media="print" onload="this.media='all'" />
+
+    <!-- Icon Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+
+    <!-- Template Style sheet -->
+    <link rel="stylesheet" href="assets/css/asta-varahi.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/responsive.css" />
+    <link rel="stylesheet" href="assets/css/about.css" />
+    <link rel="stylesheet" href="assets/css/styles1.css" />
+
+    <!-- Removed unnecessary CSS plugins:
+         - animate.min.css (can be replaced with CSS animations)
+         - magnific-popup.css (not used on this page)
+         - ion.rangeSlider.min.css (not used on this page)
+    -->
+    <style>/* 
+           GLOBAL VARIABLES & RESET 
+           (Kept these minimal items as the sections depend on them)
+        */
+       
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Typography Utilities used in sections */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--heading-font);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        h1 { font-size: 3rem; font-weight: 800; }
+        h2 { font-size: 2.5rem; position: relative; padding-bottom: 1rem; margin-bottom: 2rem; }
+        h3 { font-size: 1.8rem; }
+        h4 { font-size: 1.4rem; }
+        p { margin-bottom: 1rem; }
+
+        /* Button Utility (Used in Hero) */
+        .custom-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            font-family: var(--heading-font);
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(154, 59, 52, 0.2);
+        }
+
+        .custom-btn:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(154, 59, 52, 0.3);
+        }
+
+        /* =========================================
+           1. HERO SECTION CSS (Renamed: custom-hero)
+           ========================================= */
+        .custom-hero {
+            /* Placeholder image used for demonstration */
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('./assets/img/banner/banner2.jpg') center/cover no-repeat;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: var(--light-text);
+            padding-top: 80px;
+        }
+
+        .custom-hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--light-text);
+            text-transform: uppercase;
+        }
+
+        .custom-hero-content p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .custom-hero-dates {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 2rem;
+        }
+
+        .custom-date-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 4px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .custom-date-item h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .custom-date-item p {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* =========================================
+           2. PROMO SECTION CSS (Renamed: custom-promo)
+           ========================================= */
+        .custom-promo {
+            padding: 80px 0;
+            /* Placeholder image used for demonstration */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                        url('./assets/img/banner/3.jpg') center/cover no-repeat;
+            background-attachment: fixed;
+        }
+
+        .custom-promo-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .custom-promo-text h2 {
+            color: var(--light-text);
+            margin-bottom: 1.5rem;
+        }
+
+        .custom-promo-text h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background-color: var(--accent-color);
+        }
+
+        .custom-promo-text p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .custom-promo-feature {
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        
+        .custom-promo-feature i {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-right: 15px;
+            min-width: 30px;
+        }
+
+        .custom-promo-feature h4 {
+            color: var(--light-text);
+            margin-bottom: 0.3rem;
+        }
+
+        .custom-promo-feature p {
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .custom-promo-video {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .custom-promo-video iframe {
+            width: 100%;
+            height: 350px;
+            border: none;
+            display: block;
+        }
+
+        /* =========================================
+           RESPONSIVE MEDIA QUERIES
+           ========================================= */
+        @media (max-width: 992px) {
+            .custom-hero-content h1 { font-size: 2.5rem; }
+            .custom-promo-content { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.8rem; }
+            
+            .custom-hero-content h1 { font-size: 2rem; }
+            .custom-hero-content p { font-size: 1rem; }
+            
+            .custom-btn { padding: 10px 20px; font-size: 0.9rem; }
+            
+            .custom-date-item { padding: 10px 15px; }
+            .custom-date-item h3 { font-size: 1.4rem; }
+            .custom-hero-dates { gap: 15px; }
+
+            .custom-promo-video iframe { height: 250px; }
+        }
+
+        @media (max-width: 576px) {
+            .container { padding: 0 10px; }
+            
+            /* Stack dates vertically on very small screens */
+            .custom-hero-dates {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .custom-date-item { width: 100%; max-width: 250px; }
+            
+            h2::after { left: 50%; transform: translateX(-50%); }
+            .custom-promo-text h2 { text-align: center; }
+        }
+        
+/* --- 2. SPONSOR SECTION STYLES --- */
+.sponsor-section {
+  overflow: hidden;
+  padding: 60px 0;
+  background-color: var(--background-dark); 
+  border-top: 1px solid rgba(102, 51, 51, 0.1); /* Subtle border using secondary color */
+/*   border-bottom: 1px solid rgba(102, 51, 51, 0.1); */
+}
+
+.sponsor-track {
+  display: flex;
+  gap: 50px;
+  width: max-content;
+  transform: translateX(0);
+  will-change: transform;
+}
+
+.sponsor {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.sponsor img {
+  width: 140px;
+  height: auto;
+  max-height: 100px;
+  display: block;
+  object-fit: contain;
+  /* Start with Sepia/Greyscale to blend with wheat background */
+  /* filter: grayscale(100%) sepia(20%); */
+  opacity: 0.8;
+  transition: all 0.4s ease;
+  margin-bottom: 12px; 
+  }
+
+/* Hover Effect: Full Color & Lift */
+.sponsor:hover img {
+  transform: scale(1.05);
+/*   filter: grayscale(0%) sepia(0%); */
+  opacity: 1;
+/*   box-shadow: 0 10px 15px rgba(154, 59, 52, 0.2); /* Primary color shadow */ 
+}
+
+.sponsor-role {
+  font-size: 0.75rem;
+  color: var(--secondary-color); /* Dark red/brown text */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-top: 5px;
+  transition: color 0.3s ease;
+}
+
+.sponsor:hover .sponsor-role {
+  color: var(--primary-color); /* Brighter red on hover */
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .sponsor img { width: 100px; padding: 5px; }
+  .sponsor-track { gap: 30px; }
+  .sponsor-role { font-size: 0.65rem; }
+}
+  /* --- Scrolling Container --- */
+        #cg-scrolling {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        
+
+        /* --- Slider Track --- */
+        .cg-showcase {
+            width: 100%;
+            /* Cursor change to indicate interactivity */
+            cursor: grab;
+        }
+        
+        .cg-showcase:active {
+            cursor: grabbing;
+        }
+
+        .cg-slider-track {
+            display: flex;
+            width: max-content;
+            will-change: transform;
+            transform: translateX(0);
+        }
+
+        /* --- Card Design --- */
+        .cg-card {
+            width: var(--card-width);
+            height: var(--card-height); /* Fixed Height 400px */
+            background: #ffffff;
+            margin-right: var(--gap);
+            display: flex; 
+            /* box-shadow: 0 4px 20px rgba(0,0,0,0.08); */
+            /* border-radius: 8px;  */
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--background-medium);
+            flex-shrink: 0;
+        }
+
+       
+
+        /* Image Section (Left side) */
+        .cg-img-wrapper {
+            width: 42%;
+            height: 100%; /* Fill the 400px height */
+            position: relative;
+            overflow: hidden;
+            background-color: #eee;
+        }
+
+        .cg-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures image fills area without distortion */
+            transition: transform 0.5s ease;
+        }
+
+        
+        /* Content Section (Right side) */
+        .cg-content {
+            width: 58%;
+            height: 100%;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .cg-tag {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            background: rgba(232, 90, 79, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            align-self: flex-start;
+        }
+
+        .cg-title {
+            font-family: 'Merriweather', serif;
+            font-size: 1.3rem;
+            line-height: 1.3;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .cg-desc {
+            font-size: 0.95rem;
+            color: var(--text-color);
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 900px) {
+            .cg-card {
+                flex-direction: column; 
+                height: auto;
+                width: 300px;
+                min-height: 450px; /* Adjust height for mobile stack */
+            }
+            .cg-img-wrapper, .cg-content {
+                width: 100%;
+            }
+            .cg-img-wrapper {
+                height: 220px;
+            }
+            .cg-content {
+                padding: 1.5rem;
+            }
+        }
+
+</style>
+</head>
+
+<body>
+    <!-- Preloader Start -->
+    <div class="sigma_preloader">
+        <img src="./assets/img/images_new/VARAHI LOGO.svg" alt="preloader" width="80" height="80" />
+    </div>
+    <!-- Preloader End -->
+
+    <!-- Main Navbar -->
+    <nav class="main-navigation">
+        <div class="site-container">
+            <!-- Logo on the left -->
+            <div class="site-branding">
+                <a href="index.html">
+                    <img src="./assets/img/images_new/VARAHI LOGO.svg" alt="Jai Varahi Peedam" class="site-logo" width="120" height="60">
+                </a>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <div class="desktop-navigation">
+                <ul class="desktop-menu">
+                    <li class="menu-item"><a href="index.html" class="menu-link">Home</a></li>
+                    <li class="menu-item"><a href="about.html" class="menu-link">About</a></li>
+                    <li class="menu-item"><a href="varahimalai.html" class="menu-link">Blog</a></li>
+                    <li class="menu-item menu-item-has-children">
+                        <a href="#" class="menu-link">Kosala</a>
+                        <ul class="desktop-dropdown">
+                            <li class="menu-item"><a href="payment.html" class="menu-link">Donation</a></li>
+                            <li class="menu-item"><a href="payment.html" class="menu-link">Donation Archive</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item menu-item-has-children">
+                        <a href="#" class="menu-link">Jothidam</a>
+                        <ul class="desktop-dropdown">
+                            <li class="menu-item"><a href="Vidyalayam.html" class="menu-link">Astrology prediction</a>
+                            </li>
+                            <li class="menu-item"><a href="comingsoon.html" class="menu-link">Sri Varahi Jothida
+                                    Vidyalayam</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item menu-item-has-children">
+                        <a href="#" class="menu-link">Events</a>
+                        <ul class="desktop-dropdown">
+                            <li class="menu-item"><a href="asta-varahi-dharsan.html" class="menu-link">Asta Varahi
+                                    Dharshanam</a></li>
+                            <li class="menu-item"><a href="comingsoon.html" class="menu-link">Asta Varahi 2.0</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item"><a href="comingsoon.html" class="menu-link">Latest Updates</a></li>
+                </ul>
+            </div>
+
+            <!-- Desktop Actions -->
+            <div class="desktop-actions">
+                <a href="tel:+919092878389" class="icon-btn" aria-label="Call">
+                    <i class="fas fa-phone"></i>
+                </a>
+                <a href="payment.html" class="donate-btn">Donate Now</a>
+                <a href="Calendar.html" class="icon-btn" aria-label="Calendar">
+                    <i class="fas fa-calendar-days"></i>
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="mobile-menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav">
+        <div class="mobile-nav-header">
+            <div class="site-branding">
+                <a href="payment.html" class="donate-btn">Donate Now</a>
+            </div>
+            <button class="mobile-nav-close">
+            <i class="fas fa-times"></i>
+        </button>
+        </div>
+
+        <ul class="mobile-nav-list">
+            <li class="menu-item"><a href="index.html" class="menu-link">Home</a></li>
+            <li class="menu-item"><a href="about.html" class="menu-link">About</a></li>
+            <li class="menu-item"><a href="varahimalai.html" class="menu-link">Blog</a></li>
+            <li class="menu-item menu-item-has-children">
+                <a href="#" class="menu-link">Kosala</a>
+                <ul class="mobile-dropdown">
+                    <li class="menu-item"><a href="payment.html" class="menu-link">Donation</a></li>
+                    <li class="menu-item"><a href="payment.html" class="menu-link">Donation Archive</a></li>
+                </ul>
+            </li>
+            <li class="menu-item menu-item-has-children">
+                <a href="#" class="menu-link">Jothidam</a>
+                <ul class="mobile-dropdown">
+                    <li class="menu-item"><a href="Vidyalayam.html" class="menu-link">Astrology prediction</a></li>
+                    <li class="menu-item"><a href="comingsoon.html" class="menu-link">Sri Varahi Jothida Vidyalayam</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item menu-item-has-children">
+                <a href="#" class="menu-link">Events</a>
+                <ul class="mobile-dropdown">
+                    <li class="menu-item"><a href="asta-varahi-dharsan.html" class="menu-link">Asta Varahi
+                            Dharshanam</a></li>
+                    <li class="menu-item"><a href="comingsoon.html" class="menu-link">Asta Varahi 2.0</a></li>
+                </ul>
+            </li>
+            <li class="menu-item"><a href="comingsoon.html" class="menu-link">Latest Updates</a></li>
+        </ul>
+
+        <div class="mobile-nav-actions">
+            <a href="tel:+919092878389" class="icon-btn" aria-label="Call">
+                <i class="fas fa-phone"></i>
+            </a>
+            <a href="Calendar.html" class="icon-btn" aria-label="Calendar">
+                <i class="fas fa-calendar-days"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="mobile-nav-overlay"></div>
+    <!-- Main Navbar End -->
+
+    <!-- SECTION 1: HERO (Renamed classes) -->
+    <section class="custom-hero" id="home">
+        <div class="container">
+            <div class="custom-hero-content">
+                <h1>Asta Varahi Dharishanam</h1>
+                <p>Join us for the most auspicious spiritual event of the year. Experience divine blessings and spiritual enlightenment at our grand celebration.</p>
+                
+                <div class="custom-hero-dates">
+                    <div class="custom-date-item">
+                        <h3>10-11</h3>
+                        <p>May 2025</p>
+                    </div>
+                    <div class="custom-date-item">
+                        <h3>Deiveegam Thirumana<br> Mandapam</h3>
+                        <p>Salem</p>
+                    </div>
+                    <div class="custom-date-item">
+                        <h3>2 Days</h3>
+                        <p>Event</p>
+                    </div>
+                </div>
+                
+                <!-- Button class renamed to custom-btn -->
+                <!-- <a href="#booking" class="custom-btn">Book Now</a> -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: PROMO (Renamed classes) -->
+    <section class="custom-promo" id="about">
+        <div class="container">
+            <div class="custom-promo-content">
+                <div class="custom-promo-text">
+                    <h2>About Asta Varahi Dharishanam</h2>
+                    <p>Asta Varahi Dharishanam is a grand spiritual celebration that brings together devotees from across the world to experience the divine presence of Sri Kottai Varahi Amman. This two-day event features powerful rituals, spiritual discourses, and cultural programs.</p>
+
+                    <div class="custom-promo-features">
+                        <div class="custom-promo-feature">
+                            <i class="fas fa-star"></i>
+                            <div>
+                                <h4>Divine Blessings</h4>
+                                <p>Experience the powerful blessings of Varahi Amman</p>
+                            </div>
+                        </div>
+                        <div class="custom-promo-feature">
+                            <i class="fas fa-om"></i>
+                            <div>
+                                <h4>Sacred Rituals</h4>
+                                <p>Participate in ancient Vedic ceremonies</p>
+                            </div>
+                        </div>
+                        <div class="custom-promo-feature">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <h4>Community Gathering</h4>
+                                <p>Connect with devotees from around the world</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="custom-promo-video">
+                    <!-- Using a safe placeholder video for demo purposes -->
+                    <iframe src="https://www.youtube.com/embed/nEUdyU8nmPE" title="Asta Varahi 2.0 Promo Video" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- chief guest SCROLLING -->
+    
+    <section id="cg-scrolling">
+        <div class="cg-showcase">
+            <div class="cg-slider-track">
+                
+                <!-- Guest 1 -->
+                <div class="cg-card">
+                    <div class="cg-img-wrapper">
+                        <img src="./assets/img/ig/insta-3.png" alt="Suganthi Sudarsanam">
+                    </div>
+                    <div class="cg-content">
+                        <span class="cg-tag">Special Guest</span>
+                        <h3 class="cg-title">Suganthi Sudarsanam</h3>
+                        <p class="cg-desc">Suganthi Sudarsanam is a Salem-based business leader at AVR Swarna Mahal Jewellers, devotional singer, and cultural patron promoting classical music, arts, and heritage.</p>
+                        <a href="https://www.google.com/search?q=suganthi+sudhasanam&sca_esv=d6fe2b63f560471c&biw=1536&bih=742&sxsrf=AE3TifN_jEuqcQwpLwQTZttSqnW-im0n8Q%3A1766840153310&ei=WddPaYjWEvHhseMPyNrMiQ0&ved=0ahUKEwjI5tm96N2RAxXxcGwGHUgtM9EQ4dUDCBE&uact=5&oq=suganthi+sudhasanam&gs_lp=Egxnd3Mtd2l6LXNlcnAiE3N1Z2FudGhpIHN1ZGhhc2FuYW0yBxAhGKABGAoyBxAhGKABGApI3rIBUPEGWP2tAXADeACQAQCYAbMCoAG0H6oBCDAuNy4xMS4xuAEDyAEA-AEC-AEBmAIWoALGIMICBxAAGLADGB7CAggQABiwAxjvBcICChAjGIAEGCcYigXCAgQQIxgnwgIKEAAYgAQYQxiKBcICChAuGIAEGEMYigXCAgsQABiABBiRAhiKBcICEBAAGIAEGLEDGEMYgwEYigXCAggQABiABBixA8ICDhAuGIAEGJECGLEDGIoFwgIIEC4YgAQYsQPCAgUQABiABMICGRAuGIAEGEMYigUYlwUY3AQY3gQY4ATYAQHCAgsQLhiABBiRAhiKBcICEBAuGIAEGEMYxwEYigUYrwHCAgsQABiABBixAxiKBcICHxAuGIAEGEMYxwEYigUYrwEYlwUY3AQY3gQY4ATYAQHCAgsQLhiABBjHARivAcICERAuGIAEGMcBGJgFGJkFGK8BwgIFEC4YgATCAgsQABiABBiGAxiKBcICBRAhGKABmAMAiAYBkAYFugYGCAEQARgUkgcIMy41LjEzLjGgB6rCAbIHCDAuNS4xMy4xuAe3IMIHCDAuNC4xNi4yyAdlgAgA&sclient=gws-wiz-serp" class="read-more">Read More</a>
+                    </div>
+                </div>
+
+                <!-- Guest 2 -->
+                <div class="cg-card">
+                    <div class="cg-img-wrapper">
+                        <img src="./assets/img/ig/rasiksaravanan.jpg" alt="Rasiksaravanan">
+                    </div>
+                    <div class="cg-content">
+                        <span class="cg-tag">Chief Guest</span>
+                        <h3 class="cg-title">Rasiksaravanan</h3>
+                        <p class="cg-desc">Rasi Saravanan from Salem, Tamil Nadu is a social activist and key member of the Salem Amateur Trust, known for community service, cultural promotion, and involvement in the textile industry through Raasi Yarns Pvt. Ltd.</p>
+                        <a href="https://www.google.com/search?q=rasi+saravanan+salem&sca_esv=d6fe2b63f560471c&prmd=ivns&sxsrf=AE3TifMsvcOqpp19hhk20p3W7CiZlx4s7g:1766840097552&source=lnms&sa=X&ved=2ahUKEwie0Y6j6N2RAxXgSGcHHfgaH4AQ0pQJegQIBRAF&biw=1536&bih=742&dpr=1.25" class="read-more">Read More</a>
+                    </div>
+                </div>
+
+                <!-- Guest 1 -->
+                <div class="cg-card">
+                    <div class="cg-img-wrapper">
+                        <img src="./assets/img/ig/insta-3.png" alt="Suganthi Sudarsanam">
+                    </div>
+                    <div class="cg-content">
+                        <span class="cg-tag">Special Guest</span>
+                        <h3 class="cg-title">Suganthi Sudarsanam</h3>
+                        <p class="cg-desc">Suganthi Sudarsanam is a Salem-based business leader at AVR Swarna Mahal Jewellers, devotional singer, and cultural patron promoting classical music, arts, and heritage.</p>
+                        <a href="https://www.google.com/search?q=suganthi+sudhasanam&sca_esv=d6fe2b63f560471c&biw=1536&bih=742&sxsrf=AE3TifN_jEuqcQwpLwQTZttSqnW-im0n8Q%3A1766840153310&ei=WddPaYjWEvHhseMPyNrMiQ0&ved=0ahUKEwjI5tm96N2RAxXxcGwGHUgtM9EQ4dUDCBE&uact=5&oq=suganthi+sudhasanam&gs_lp=Egxnd3Mtd2l6LXNlcnAiE3N1Z2FudGhpIHN1ZGhhc2FuYW0yBxAhGKABGAoyBxAhGKABGApI3rIBUPEGWP2tAXADeACQAQCYAbMCoAG0H6oBCDAuNy4xMS4xuAEDyAEA-AEC-AEBmAIWoALGIMICBxAAGLADGB7CAggQABiwAxjvBcICChAjGIAEGCcYigXCAgQQIxgnwgIKEAAYgAQYQxiKBcICChAuGIAEGEMYigXCAgsQABiABBiRAhiKBcICEBAAGIAEGLEDGEMYgwEYigXCAggQABiABBixA8ICDhAuGIAEGJECGLEDGIoFwgIIEC4YgAQYsQPCAgUQABiABMICGRAuGIAEGEMYigUYlwUY3AQY3gQY4ATYAQHCAgsQLhiABBiRAhiKBcICEBAuGIAEGEMYxwEYigUYrwHCAgsQABiABBixAxiKBcICHxAuGIAEGEMYxwEYigUYrwEYlwUY3AQY3gQY4ATYAQHCAgsQLhiABBjHARivAcICERAuGIAEGMcBGJgFGJkFGK8BwgIFEC4YgATCAgsQABiABBiGAxiKBcICBRAhGKABmAMAiAYBkAYFugYGCAEQARgUkgcIMy41LjEzLjGgB6rCAbIHCDAuNS4xMy4xuAe3IMIHCDAuNC4xNi4yyAdlgAgA&sclient=gws-wiz-serp" class="read-more">Read More</a>
+                    </div>
+                </div>
+
+                <!-- Guest 2 -->
+                <div class="cg-card">
+                    <div class="cg-img-wrapper">
+                        <img src="./assets/img/ig/rasiksaravanan.jpg" alt="Rasiksaravanan">
+                    </div>
+                    <div class="cg-content">
+                        <span class="cg-tag">Chief Guest</span>
+                        <h3 class="cg-title">Rasiksaravanan</h3>
+                        <p class="cg-desc">Rasi Saravanan from Salem, Tamil Nadu is a social activist and key member of the Salem Amateur Trust, known for community service, cultural promotion, and involvement in the textile industry through Raasi Yarns Pvt. Ltd.</p>
+                        <a href="https://www.google.com/search?q=rasi+saravanan+salem&sca_esv=d6fe2b63f560471c&prmd=ivns&sxsrf=AE3TifMsvcOqpp19hhk20p3W7CiZlx4s7g:1766840097552&source=lnms&sa=X&ved=2ahUKEwie0Y6j6N2RAxXgSGcHHfgaH4AQ0pQJegQIBRAF&biw=1536&bih=742&dpr=1.25" class="read-more">Read More</a>
+                    </div>
+                </div>
+
+                <!-- Duplicate Cards for Infinite Loop -->
+                <!-- Guest 1 copy -->
+                <div class="cg-card">
+                    <div class="cg-img-wrapper">
+                        <img src="./assets/img/ig/insta-3.png" alt="Suganthi Sudarsanam">
+                    </div>
+                    <div class="cg-content">
+                        <span class="cg-tag">Special Guest</span>
+                        <h3 class="cg-title">Suganthi Sudarsanam</h3>
+                        <p class="cg-desc">Suganthi Sudarsanam is a Salem-based business leader at AVR Swarna Mahal Jewellers, devotional singer, and cultural patron promoting classical music, arts, and heritage.</p>
+                        <a href="https://www.google.com/search?q=suganthi+sudhasanam&sca_esv=d6fe2b63f560471c&biw=1536&bih=742&sxsrf=AE3TifN_jEuqcQwpLwQTZttSqnW-im0n8Q%3A1766840153310&ei=WddPaYjWEvHhseMPyNrMiQ0&ved=0ahUKEwjI5tm96N2RAxXxcGwGHUgtM9EQ4dUDCBE&uact=5&oq=suganthi+sudhasanam&gs_lp=Egxnd3Mtd2l6LXNlcnAiE3N1Z2FudGhpIHN1ZGhhc2FuYW0yBxAhGKABGAoyBxAhGKABGApI3rIBUPEGWP2tAXADeACQAQCYAbMCoAG0H6oBCDAuNy4xMS4xuAEDyAEA-AEC-AEBmAIWoALGIMICBxAAGLADGB7CAggQABiwAxjvBcICChAjGIAEGCcYigXCAgQQIxgnwgIKEAAYgAQYQxiKBcICChAuGIAEGEMYigXCAgsQABiABBiRAhiKBcICEBAAGIAEGLEDGEMYgwEYigXCAggQABiABBixA8ICDhAuGIAEGJECGLEDGIoFwgIIEC4YgAQYsQPCAgUQABiABMICGRAuGIAEGEMYigUYlwUY3AQY3gQY4ATYAQHCAgsQLhiABBiRAhiKBcICEBAuGIAEGEMYxwEYigUYrwHCAgsQABiABBixAxiKBcICHxAuGIAEGEMYxwEYigUYrwEYlwUY3AQY3gQY4ATYAQHCAgsQLhiABBjHARivAcICERAuGIAEGMcBGJgFGJkFGK8BwgIFEC4YgATCAgsQABiABBiGAxiKBcICBRAhGKABmAMAiAYBkAYFugYGCAEQARgUkgcIMy41LjEzLjGgB6rCAbIHCDAuNS4xMy4xuAe3IMIHCDAuNC4xNi4yyAdlgAgA&sclient=gws-wiz-serp" class="read-more">Read More</a>
+                    </div>
+                </div>
+
+                <!-- Guest 2 copy-->
+                <div class="cg-card">
+                    <div class="cg-img-wrapper">
+                        <img src="./assets/img/ig/rasiksaravanan.jpg" alt="Rasiksaravanan">
+                    </div>
+                    <div class="cg-content">
+                        <span class="cg-tag">Chief Guest</span>
+                        <h3 class="cg-title">Rasiksaravanan</h3>
+                        <p class="cg-desc">Rasi Saravanan from Salem, Tamil Nadu is a social activist and key member of the Salem Amateur Trust, known for community service, cultural promotion, and involvement in the textile industry through Raasi Yarns Pvt. Ltd.</p>
+                        <a href="https://www.google.com/search?q=rasi+saravanan+salem&sca_esv=d6fe2b63f560471c&prmd=ivns&sxsrf=AE3TifMsvcOqpp19hhk20p3W7CiZlx4s7g:1766840097552&source=lnms&sa=X&ved=2ahUKEwie0Y6j6N2RAxXgSGcHHfgaH4AQ0pQJegQIBRAF&biw=1536&bih=742&dpr=1.25" class="read-more">Read More</a>
+                    </div>
+                </div>
+
+                <!-- Guest 1 copy -->
+                <div class="cg-card">
+                    <div class="cg-img-wrapper">
+                        <img src="./assets/img/ig/insta-3.png" alt="Suganthi Sudarsanam">
+                    </div>
+                    <div class="cg-content">
+                        <span class="cg-tag">Special Guest</span>
+                        <h3 class="cg-title">Suganthi Sudarsanam</h3>
+                        <p class="cg-desc">Suganthi Sudarsanam is a Salem-based business leader at AVR Swarna Mahal Jewellers, devotional singer, and cultural patron promoting classical music, arts, and heritage.</p>
+                        <a href="https://www.google.com/search?q=suganthi+sudhasanam&sca_esv=d6fe2b63f560471c&biw=1536&bih=742&sxsrf=AE3TifN_jEuqcQwpLwQTZttSqnW-im0n8Q%3A1766840153310&ei=WddPaYjWEvHhseMPyNrMiQ0&ved=0ahUKEwjI5tm96N2RAxXxcGwGHUgtM9EQ4dUDCBE&uact=5&oq=suganthi+sudhasanam&gs_lp=Egxnd3Mtd2l6LXNlcnAiE3N1Z2FudGhpIHN1ZGhhc2FuYW0yBxAhGKABGAoyBxAhGKABGApI3rIBUPEGWP2tAXADeACQAQCYAbMCoAG0H6oBCDAuNy4xMS4xuAEDyAEA-AEC-AEBmAIWoALGIMICBxAAGLADGB7CAggQABiwAxjvBcICChAjGIAEGCcYigXCAgQQIxgnwgIKEAAYgAQYQxiKBcICChAuGIAEGEMYigXCAgsQABiABBiRAhiKBcICEBAAGIAEGLEDGEMYgwEYigXCAggQABiABBixA8ICDhAuGIAEGJECGLEDGIoFwgIIEC4YgAQYsQPCAgUQABiABMICGRAuGIAEGEMYigUYlwUY3AQY3gQY4ATYAQHCAgsQLhiABBiRAhiKBcICEBAuGIAEGEMYxwEYigUYrwHCAgsQABiABBixAxiKBcICHxAuGIAEGEMYxwEYigUYrwEYlwUY3AQY3gQY4ATYAQHCAgsQLhiABBjHARivAcICERAuGIAEGMcBGJgFGJkFGK8BwgIFEC4YgATCAgsQABiABBiGAxiKBcICBRAhGKABmAMAiAYBkAYFugYGCAEQARgUkgcIMy41LjEzLjGgB6rCAbIHCDAuNS4xMy4xuAe3IMIHCDAuNC4xNi4yyAdlgAgA&sclient=gws-wiz-serp" class="read-more">Read More</a>
+                    </div>
+                </div>
+
+                <!-- Guest 2 copy-->
+                <div class="cg-card">
+                    <div class="cg-img-wrapper">
+                        <img src="./assets/img/ig/rasiksaravanan.jpg" alt="Rasiksaravanan">
+                    </div>
+                    <div class="cg-content">
+                        <span class="cg-tag">Chief Guest</span>
+                        <h3 class="cg-title">Rasiksaravanan</h3>
+                        <p class="cg-desc">Rasi Saravanan from Salem, Tamil Nadu is a social activist and key member of the Salem Amateur Trust, known for community service, cultural promotion, and involvement in the textile industry through Raasi Yarns Pvt. Ltd.</p>
+                        <a href="https://www.google.com/search?q=rasi+saravanan+salem&sca_esv=d6fe2b63f560471c&prmd=ivns&sxsrf=AE3TifMsvcOqpp19hhk20p3W7CiZlx4s7g:1766840097552&source=lnms&sa=X&ved=2ahUKEwie0Y6j6N2RAxXgSGcHHfgaH4AQ0pQJegQIBRAF&biw=1536&bih=742&dpr=1.25" class="read-more">Read More</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <section id="our-impacts" class="pb-5">
+        <div class="container">
+            <!-- Impact Statistics -->
+            <div class="stats-container">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <h3 class="text-center">OUR IMPACTS IN NUMBERS</h3>
+                </div>
+
+                <div class="stat-card trees-card">
+                    <div class="stat-icon trees-icon">
+                        <i class="icon">🌳</i>
+                    </div>
+                    <div class="stat-counter trees-counter" data-target="1000">0</div>
+                    <div class="stat-title">Trees Planted</div>
+                </div>
+
+                <div class="stat-card visitors-card">
+                    <div class="stat-icon visitors-icon">
+                        <i class="icon">👥</i>
+                    </div>
+                    <div class="stat-counter visitors-counter" data-target="5000">
+                        0
+                    </div>
+                    <div class="stat-title">Visitors</div>
+                </div>
+
+                <div class="stat-card families-card">
+                    <div class="stat-icon families-icon">
+                        <i class="icon">🍽️</i>
+                    </div>
+                    <div class="stat-counter families-counter" data-target="750">0</div>
+                    <div class="stat-title">Families Fed</div>
+                </div>
+
+                <div class="stat-card vendors-card">
+                    <div class="stat-icon vendors-icon">
+                        <i class="icon">🛒</i>
+                    </div>
+                    <div class="stat-counter vendors-counter" data-target="50">0</div>
+                    <div class="stat-title">Vendor Stalls</div>
+                </div>
+            </div>
+            <!-- What We Planned vs What We Achieved -->
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sd-12 header-varahi pt-5 pb-2">
+                    <h1 class="text-center">OUR IMPACTS</h1>
+                    <div class="heading-underline mx-auto"></div>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <div class="col-lg-6 mb-4">
+                    <div class="impact-card h-100">
+                        <div class="impact-card-header">
+                            <h2 class="text-center">What We Planned</h2>
+                        </div>
+                        <div class="impact-card-body">
+                            <ul class="impact-list">
+                                <li>
+                                    <i class="fa-solid fa-leaf"></i> Plant 500 trees across the
+                                    community
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-users"></i> Reach 1,000 visitors to
+                                    our event
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-utensils"></i> Provide food supplies
+                                    to 200 families
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-cart-shopping"></i> Host 25 local
+                                    vendor stalls
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-handshake"></i> Engage 50 local
+                                    volunteers
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="impact-card h-100">
+                        <div class="impact-card-header success">
+                            <h2 class="text-center">What We Achieved</h2>
+                        </div>
+                        <div class="impact-card-body">
+                            <ul class="impact-list success">
+                                <li>
+                                    <i class="fa-solid fa-leaf"></i> Planted and distributed
+                                    <strong class="px-1">1000+ trees</strong>
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-users"></i> Welcomed
+                                    <strong class="px-1">5000+ visitors</strong> to our event
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-utensils"></i> Provided food supplies
+                                    to
+                                    <strong class="px-1">750+ families</strong>
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-cart-shopping"></i> Filled all
+                                    <strong class="px-1">50 stall bookings</strong> with local
+                                    vendors
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-handshake"></i> Engaged
+                                    <strong class="px-1">100+ dedicated volunteers</strong>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--event highlights Image Gallery -->
+            <div class="row mb-5">
+                <div class="col-12 text-center mb-4">
+                    <h2>Event Highlights</h2>
+                </div>
+                <div class="col-md-4 col-6 mb-4">
+                    <div class="impact-image">
+                        <img
+                src="./assets/img/highlights/treeplantation1.png"
+                alt="Tree Planting Ceremony"
+                class="img-fluid rounded"
+                width="400"
+                height="300"
+                loading="lazy"
+              />
+                        <div class="image-caption">Tree Planting Ceremony</div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6 mb-4">
+                    <div class="impact-image">
+                        <img
+                src="./assets/img/highlights/food distribution.png"
+                alt="Food Distribution Drive"
+                class="img-fluid rounded"
+                width="400"
+                height="300"
+                loading="lazy"
+              />
+                        <div class="image-caption">Food Distribution Drive</div>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6 mb-4">
+                    <div class="impact-image">
+                        <img
+                src="./assets/img/highlights/vendar.jpg"
+                alt="Local Vendor Stalls"
+                class="img-fluid rounded"
+                width="400"
+                height="300"
+                loading="lazy"
+              />
+                        <div class="image-caption">Local Vendor Stalls</div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-12 mb-4">
+                    <div class="impact-image">
+                        <img
+                src="./assets/img/highlights/community gathering.jpg"
+                alt="Community Gathering"
+                class="img-fluid rounded"
+                width="600"
+                height="400"
+                loading="lazy"
+              />
+                        <div class="image-caption">Community Gathering</div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-12 mb-4">
+                    <div class="impact-image">
+                        <img
+                src="./assets/img/highlights/cultural performance.png"
+                alt="Cultural Performances"
+                class="img-fluid rounded"
+                width="600"
+                height="400"
+                loading="lazy"
+              />
+                        <div class="image-caption">Cultural Performances</div>
+                    </div>
+                </div>
+            </div>
+            </section>
+            <section class="sponsor-section">
+  <div class="sponsor-track" id="sponsorTrack">
+    
+
+    <!-- 3. Air Saai Tours -->
+    <div class="sponsor">
+      <img src="./assets/img/sponser_logo/air logo.jpg" alt="Air Saai Tours">
+      <span class="sponsor-role"><br></span>
+    </div>
+
+    <!-- 4. Aradhana Music School -->
+    <div class="sponsor">
+      <img src="./assets/img/sponser_logo/sree aradhana.png" alt="Aradhana Music School">
+      <span class="sponsor-role">Cultural Sponsor</span>
+    </div>
+
+    <!-- 5. Queens Hotel -->
+    <div class="sponsor">
+      <img src="./assets/img/sponser_logo/cropped-Final-LOGO-Queens-Hotel.png" alt="Queens Hotel">
+      <span class="sponsor-role"><br></span>
+    </div>
+
+    <!-- 6. Usha -->
+    <div class="sponsor">
+      <img src="./assets/img/sponser_logo/USHA.png" alt="Usha">
+      <span class="sponsor-role">Food Sponsor</span>
+    </div>
+
+    <!-- 7. Nisha City Developers & Builders -->
+    <div class="sponsor">
+      <img src="./assets/img/sponser_logo/nisha city.png" alt="Nisha City Developers">
+      <span class="sponsor-role">Associate Sponsor</span>
+    </div>
+
+    <!-- 8. Vetri Builders -->
+    <div class="sponsor">
+      <img src="./assets/img/sponser_logo/VETRI BUILDERS.png" alt="Vetri Builders">
+      <span class="sponsor-role">Associate Sponsor</span>
+    </div>
+
+    <!-- 9. Nisha TV -->
+    <div class="sponsor">
+      <img src="./assets/img/sponser_logo/nisha tv.png" alt="Nisha TV">
+      <span class="sponsor-role">Media Sponsor</span>
+    </div>
+
+    <!-- 10. Sri Sai Associates -->
+    <div class="sponsor">
+      <img src="./assets/img/sponser_logo/sree sai assosiate.png" alt="Sri Sai Associates">
+      <span class="sponsor-role">Co-ordinator</span>
+    </div>
+
+    <!-- 11. SHRC -->
+    <div class="sponsor">
+      <img src="./assets/img/sponser_logo/shrc logo.png" alt="SHRC">
+      <span class="sponsor-role">Co-Presented</span>
+    </div>
+
+    <!-- 12. jH FOUNDATION -->
+    <div class="sponsor">
+      <img src="./assets/img/sponser_logo/john logo.png" alt="jH Foundation">
+      <span class="sponsor-role"><br></span>
+    </div>
+
+    <!-- 13. Saevahen ara kattalai -->
+    <div class="sponsor">
+      <img src="./assets/img/sponser_logo/Saevahen ara kattalai.PNG" alt="Saevahen ara kattalai">
+      <span class="sponsor-role">Plants Sponser</span>
+    </div>
+
+  </div>
+</section>
+            <section id="container" class="pb-4" >
+
+            <!-- Testimonials -->
+            <div class="row mb-5" style="padding: 60px;">
+                <div class="col-12 text-center mb-4">
+                    <h2>What People Say</h2>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>
+                                "The tree planting initiative by Jai Varahi peedam has
+                                transformed our neighborhood. It's wonderful to see such
+                                positive environmental impact."
+                            </p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img
+                    src="./assets/img/testimonial/foodvender.jpg"
+                    alt="Local Resident"
+                    class="rounded-circle"
+                    width="60"
+                    height="60"
+                    loading="lazy"
+                  />
+                            </div>
+                            <div class="author-info">
+                                <h4>Sevagan Boopathi</h4>
+                                <p>Local Resident</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>
+                                "As a stall vendor, I was amazed by the organization and the
+                                footfall. My business gained great exposure through this
+                                event."
+                            </p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img
+                    src="./assets/img/testimonial/bala.jpg"
+                    alt="Stall Vendor"
+                    class="rounded-circle"
+                    width="60"
+                    height="60"
+                    loading="lazy"
+                  />
+                            </div>
+                            <div class="author-info">
+                                <h4>Bala chandran</h4>
+                                <p>Stall Vendor</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>
+                                "The food donation drive reached many families who truly
+                                needed support. This organization has made a real difference
+                                in our community."
+                            </p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img
+                    src="./assets/img/ig/insta-3.png"
+                    alt="Community Leader"
+                    class="rounded-circle"
+                    width="60"
+                    height="60"
+                    loading="lazy"
+                  />
+                            </div>
+                            <div class="author-info">
+                                <h4>Sumangali</h4>
+                                <p>Community Leader</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div class="impact-cta">
+                        <h2>Join Us in Making a Difference</h2>
+                        <p>
+                            Be part of our next initiative and help us create even greater
+                            impact in our community.
+                        </p>
+                        <a href="#contact" class="btn btn-primary btn-lg">Get Involved</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- SECTION 8: Statistics Counters -->
+
+    <section id="brand-scrolling">
+      <div class="jv-brand-showcase">
+        <div class="jv-brand-slider">
+          <!-- Brand 1 -->
+          <div class="jv-brand-card">
+            <iframe  src="https://www.youtube.com/embed/VIDEO_ID" loading="lazy" allowfullscreen></iframe>
+              <div class="jv-brand-content">
+              <h3 class="jv-brand-title">
+                UN Climate Change is on board to Save Soil
+              </h3>
+              <p class="jv-brand-description">
+                Ovais Sarmad, Deputy Executive Secretary, UNFCCC, welcomes
+                Sadhguru and supports concrete on-the-ground implementation.
+              </p>
+              <a href="#" class="jv-brand-cta">LEARN MORE</a>
+            </div>
+          </div>
+
+          <!-- Brand 2 -->
+          <div class="jv-brand-card">
+            <iframe  src="https://www.youtube.com/embed/VIDEO_ID" loading="lazy" allowfullscreen></iframe>
+            <div class="jv-brand-content">
+              <h3 class="jv-brand-title">
+                UNEP - Faith for Earth partners with #SaveSoil
+              </h3>
+              <p class="jv-brand-description">
+                Dr. Iyad Abumoghli, Founder and Director, UNEP - Faith for Earth
+                expresses his support.
+              </p>
+              <a href="#" class="jv-brand-cta">LEARN MORE</a>
+            </div>
+          </div>
+
+          <!-- Brand 3 -->
+          <div class="jv-brand-card">
+            <iframe  src="https://www.youtube.com/embed/VIDEO_ID" loading="lazy" allowfullscreen></iframe>
+            <div class="jv-brand-content">
+              <h3 class="jv-brand-title">
+                UN WFP India signed Soil Health MoU
+              </h3>
+              <p class="jv-brand-description">
+                The United Nations World Food Programme commits to enact
+                policies that restore & safeguard soil.
+              </p>
+              <a href="#" class="jv-brand-cta">LEARN MORE</a>
+            </div>
+          </div>
+
+          <!-- Brand 4 -->
+          <div class="jv-brand-card">
+            <img
+              src="./assets/img/ig/insta-4.png"
+              alt="IUCN"
+              class="jv-brand-logo"
+            />
+            <div class="jv-brand-content">
+              <h3 class="jv-brand-title">IUCN Supports Soil Conservation</h3>
+              <p class="jv-brand-description">
+                International Union for Conservation of Nature partners with
+                global initiatives for sustainable soil practices.
+              </p>
+              <a href="#" class="jv-brand-cta">LEARN MORE</a>
+            </div>
+          </div>
+
+          <!-- Duplicate cards for smooth infinite scrolling -->
+          <!-- Brand 1 Copy -->
+          <div class="jv-brand-card">
+            <img
+              src="./assets/img/ig/insta-1.png"
+              alt="UN Climate Change"
+              class="jv-brand-logo"
+            />
+            <div class="jv-brand-content">
+              <h3 class="jv-brand-title">
+                UN Climate Change is on board to Save Soil
+              </h3>
+              <p class="jv-brand-description">
+                Ovais Sarmad, Deputy Executive Secretary, UNFCCC, welcomes
+                Sadhguru and supports concrete on-the-ground implementation.
+              </p>
+              <a href="#" class="jv-brand-cta">LEARN MORE</a>
+            </div>
+          </div>
+
+          <!-- Brand 2 Copy -->
+          <div class="jv-brand-card">
+            <img
+              src="./assets/img/ig/insta-2.png"
+              alt="UNEP"
+              class="jv-brand-logo"
+            />
+            <div class="jv-brand-content">
+              <h3 class="jv-brand-title">
+                UNEP - Faith for Earth partners with #SaveSoil
+              </h3>
+              <p class="jv-brand-description">
+                Dr. Iyad Abumoghli, Founder and Director, UNEP - Faith for Earth
+                expresses his support.
+              </p>
+              <a href="#" class="jv-brand-cta">LEARN MORE</a>
+            </div>
+          </div>
+
+          <!-- Brand 3 Copy -->
+          <div class="jv-brand-card">
+            <img
+              src="./assets/img/ig/insta-3.png"
+              alt="UN WFP"
+              class="jv-brand-logo"
+            />
+            <div class="jv-brand-content">
+              <h3 class="jv-brand-title">
+                UN WFP India signed Soil Health MoU
+              </h3>
+              <p class="jv-brand-description">
+                The United Nations World Food Programme commits to enact
+                policies that restore & safeguard soil.
+              </p>
+              <a href="#" class="jv-brand-cta">LEARN MORE</a>
+            </div>
+          </div>
+
+          <!-- Brand 4 Copy -->
+          <div class="jv-brand-card">
+            <img
+              src="./assets/img/ig/insta-4.png"
+              alt="IUCN"
+              class="jv-brand-logo"
+            />
+            <div class="jv-brand-content">
+              <h3 class="jv-brand-title">IUCN Supports Soil Conservation</h3>
+              <p class="jv-brand-description">
+                International Union for Conservation of Nature partners with
+                global initiatives for sustainable soil practices.
+              </p>
+              <a href="#" class="jv-brand-cta">LEARN MORE</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    
+    <!-- float whatsapp and Back To Top Start -->
+    <a href="https://wa.me/919092878389?text=Hi, I'm interested in Donation" class="whatsapp-float" target="_blank"
+        aria-label="Chat with us on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <div class="sigma_top style-5" id="backToTop">
+        <i class="fa-solid fa-angle-double-up"></i>
+    </div>
+    <!-- Back To Top End -->
+
+    <div class="demo-wrapper">
+        <footer class="spiritual-footer">
+            <div class="spiritual-container">
+                <div class="spiritual-footer-grid">
+                    <!-- About Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            about Us
+                        </h3>
+                        <div class="spiritual-about-card">
+                            <div class="spiritual-about-header">
+                                <img id="spiritualLogo" src="./assets/img/images_new/VARAHI LOGO.svg" alt="Jai Varahi Peedam Logo" class="spiritual-logo" width="120" height="60">
+                                <div class="spiritual-trust-name">Jai Varahi Peedam</div>
+                            </div>
+                            <div class="spiritual-about-description">
+                                Jai Varahi Peedam is a sacred spiritual center for the worship of Goddess Varahi,
+                                providing authentic guidance, rituals, and services in a peaceful temple environment for
+                                spiritual growth and meditation.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            Quick Links
+                        </h3>
+                        <ul class="spiritual-nav-list">
+                            <li class="spiritual-nav-item">
+                                <a href="index.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Home
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="about.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    About Us
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="asta-varahi-dharsan.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Asta Varahi Dharshanam
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="varahimalai.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Blog
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="comingsoon.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Latest Updates
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Customer Service Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            Information
+                        </h3>
+                        <ul class="spiritual-nav-list">
+                            <li class="spiritual-nav-item">
+                                <a href="comingsoon.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Kosala
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="Vidyalayam.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Vidyalayam
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="comingsoon.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Pooja
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="Privacy-Policy.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Privacy Policy
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="terms-condition.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Terms & Conditions
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Contact Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            Contact Us
+                        </h3>
+                        <div class="spiritual-contact-info">
+                            <div class="spiritual-contact-item">
+                                <i class="fa-solid fa-map-marker-alt spiritual-contact-icon"></i>
+                                <div>
+                                    Jai Varahi
+                                    Peedam<br>Sri Kottai Varahi Amman temple street<br>Arumparuthi, Katpadi,<br>Vellore, 632106.
+                                </div>
+                            </div>
+                            <div class="spiritual-contact-item">
+                                <i class="fa-solid fa-phone spiritual-contact-icon"></i>
+                                <div>+91 90928 78389</div>
+                            </div>
+                            <div class="spiritual-contact-item">
+                                <i class="fa-solid fa-envelope spiritual-contact-icon"></i>
+                                <div>varahikottai@gmail.com</div>
+                            </div>
+                        </div>
+                        <div class="spiritual-social-links">
+                            <a href="https://www.facebook.com/PallurVarahiDhasan" class="spiritual-social-link">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://www.instagram.com/jai_varahi_peedam?igsh=bmhqcWtiYXlnc25p"
+                                class="spiritual-social-link">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="https://www.youtube.com/@kottaivarahiTV" class="spiritual-social-link">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="spiritual-footer-bottom">
+                <p class="spiritual-copyright">
+                    &copy; 2025 Jai Varahi Peedam. All Rights Reserved.
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Optimized JavaScript Loading -->
+    <script src="assets/js/plugins/jquery-3.4.1.min.js"></script>
+    <script src="assets/js/plugins/bootstrap.min.js"></script>
+    <!-- <script src="assets/js/plugins/popper.min.js"></script>
+    <script src="assets/js/plugins/slick.min.js"></script> -->
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+  const track = document.getElementById('sponsorTrack');
+
+  // Duplicate content twice to create a long enough strip for seamless scrolling
+  const originalContent = track.innerHTML;
+  track.innerHTML += originalContent; 
+  track.innerHTML += originalContent; 
+
+  let scrollPos = 0;
+  const speed = 1.35; // Adjust speed: 0.5 (slow), 1 (normal), 2 (fast)
+  let isPaused = false;
+
+  function scrollSponsors() {
+    if (!isPaused) {
+      scrollPos -= speed;
+      
+      // Calculate the width of one set of sponsors
+      // We divided total width by 3 because we tripled the content above
+      const singleSetWidth = track.scrollWidth / 3;
+
+      // If we scroll past the first set, reset to 0 instantly
+      if (Math.abs(scrollPos) >= singleSetWidth) {
+        scrollPos = 0;
+      }
+
+      track.style.transform = `translateX(${scrollPos}px)`;
+    }
+    requestAnimationFrame(scrollSponsors);
+  }
+
+  // Start animation
+  scrollSponsors();
+
+  // Pause on hover
+  track.addEventListener('mouseenter', () => isPaused = true);
+  track.addEventListener('mouseleave', () => isPaused = false);
+});
+</script>
+    <!-- Custom Scripts -->
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/brand-scrolling.js"></script>
+    <script src="assets/js/asta-counter.js"></script>
+
+</body>
+</html>

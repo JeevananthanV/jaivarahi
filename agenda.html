@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3 Days Agenda</title>
+  <style>
+    :root {
+      --primary-color: #9a3b34;
+      --secondary-color: #663333;
+      --accent-color: #e85a4f;
+      --text-color: #333;
+      --background-light: #f8f8f8;
+      --background-medium: #f2f2f2;
+      --background-dark: #fffaf0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--background-light);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .agenda-section {
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .agenda-section h2 {
+      font-size: 32px;
+      margin-bottom: 40px;
+      color: var(--primary-color);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .agenda-cards {
+      display: flex;
+      gap: 0.51rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .agenda-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+      padding: 25px 20px;
+      width: 300px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .agenda-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.18);
+    }
+
+    .agenda-card h3 {
+      background: var(--primary-color);
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .agenda-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+
+    .agenda-list li {
+      margin-bottom: 14px;
+      padding: 12px 15px;
+      background: var(--background-medium);
+      border-left: 5px solid var(--primary-color);
+      border-radius: 6px;
+      font-size: 15px;
+      display: flex;
+      align-items: flex-start;
+      line-height: 1.4;
+    }
+
+    .agenda-time {
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-right: 10px;
+      min-width: 140px;
+      display: inline-block;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .agenda-card {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .agenda-cards {
+        flex-direction: column;
+        align-items: center;
+      }
+      .agenda-time {
+        min-width: 120px;
+        font-size: 14px;
+      }
+    }
+
+ 
+/* Sponsor Section */
+.sponsor-section {
+  overflow: hidden;
+  padding: 40px 0;
+  background: var(--background-dark);
+  border-top: 1px solid var(--background-medium);
+  border-bottom: 1px solid var(--background-medium);
+}
+
+/* Sponsor Track */
+.sponsor-track {
+  display: flex;
+  gap: 50px;
+  width: max-content;
+  transform: translateX(0);
+}
+
+/* Individual Sponsor Card */
+.sponsor {
+  flex: 0 0 auto;
+}
+
+.sponsor img {
+  width: 150px;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  filter: grayscale(20%);
+}
+
+/* Hover effect */
+.sponsor img:hover {
+  transform: scale(1.1);
+  filter: grayscale(0%);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .sponsor img {
+    width: 120px;
+  }
+
+  .sponsor-track {
+    gap: 30px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .sponsor img {
+    width: 100px;
+  }
+
+  .sponsor-track {
+    gap: 20px;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <section class="agenda-section">
+    <h2>3 Days Event Agenda</h2>
+    <div class="agenda-cards">
+
+      <!-- Day 1 -->
+      <div class="agenda-card">
+        <h3>Day 1 - Introduction</h3>
+        <ul class="agenda-list">
+          <li><span class="agenda-time">09:00 - 10:00</span> Registration & Welcome</li>
+          <li><span class="agenda-time">10:00 - 11:30</span> Keynote Speech</li>
+          <li><span class="agenda-time">11:30 - 01:00</span> Ice-breaking Session</li>
+          <li><span class="agenda-time">01:00 - 02:00</span> Lunch Break</li>
+          <li><span class="agenda-time">02:00 - 05:00</span> Workshop: Web Development</li>
+          <li><span class="agenda-time">05:00 - 06:00</span> Networking</li>
+        </ul>
+      </div>
+
+      <!-- Day 2 -->
+      <div class="agenda-card">
+        <h3>Day 2 - Learning</h3>
+        <ul class="agenda-list">
+          <li><span class="agenda-time">09:30 - 11:00</span> Panel Discussion</li>
+          <li><span class="agenda-time">11:00 - 12:30</span> Technical Session 1</li>
+          <li><span class="agenda-time">12:30 - 01:30</span> Lunch Break</li>
+          <li><span class="agenda-time">01:30 - 03:30</span> Technical Session 2</li>
+          <li><span class="agenda-time">03:30 - 05:30</span> Hands-on Workshop</li>
+          <li><span class="agenda-time">05:30 - 06:30</span> Group Activities</li>
+        </ul>
+      </div>
+
+      <!-- Day 3 -->
+      <div class="agenda-card">
+        <h3>Day 3 - Conclusion</h3>
+        <ul class="agenda-list">
+          <li><span class="agenda-time">09:00 - 10:30</span> Recap of Previous Days</li>
+          <li><span class="agenda-time">10:30 - 12:00</span> Success Stories</li>
+          <li><span class="agenda-time">12:00 - 01:00</span> Lunch Break</li>
+          <li><span class="agenda-time">01:00 - 03:30</span> Final Project Presentations</li>
+          <li><span class="agenda-time">03:30 - 04:30</span> Closing Ceremony</li>
+          <li><span class="agenda-time">04:30 - 05:00</span> Certificate Distribution</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+ <section class="sponsor-section">
+    <div class="sponsor-track" id="sponsorTrack">
+      <div class="sponsor"><img src="assets/img/sponsor1.png" alt="Sponsor 1"></div>
+      <div class="sponsor"><img src="assets/img/sponsor2.png" alt="Sponsor 2"></div>
+      <div class="sponsor"><img src="assets/img/sponsor3.png" alt="Sponsor 3"></div>
+      <div class="sponsor"><img src="assets/img/sponsor4.png" alt="Sponsor 4"></div>
+      <div class="sponsor"><img src="assets/img/sponsor5.png" alt="Sponsor 5"></div>
+    </div>
+  </section>
+<script>
+   const track = document.getElementById('sponsorTrack');
+
+// Duplicate content for seamless scroll
+track.innerHTML += track.innerHTML;
+
+let scrollPos = 0;
+const speed = 1; // adjust speed
+
+function scrollSponsors() {
+  scrollPos += speed;
+  if (scrollPos >= track.scrollWidth / 2) {
+    scrollPos = 0;
+  }
+  track.style.transform = `translateX(-${scrollPos}px)`;
+  requestAnimationFrame(scrollSponsors);
+}
+
+scrollSponsors();
+
+// Optional: pause on hover
+track.addEventListener('mouseover', () => track.style.animationPlayState = 'paused');
+track.addEventListener('mouseout', () => track.style.animationPlayState = 'running');
+
+
+</script>
+
+</body>
+</html>

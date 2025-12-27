@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asta Varahi 2.0 - Jai Varahi Peedam</title>
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Color Variables */
+      --primary-color: #9a3b34;
+      --secondary-color: #663333;
+      --accent-color: #e85a4f;
+      --gold-color: #c5a059; 
+      --text-color: #333;
+      --light-text: #fff;
+      --background-light: #f8f8f8;
+      --background-medium: #e6e6e6;
+      --background-dark: #f4e4bc;
+      --navbar-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+      
+      /* Font Variables */
+      --heading-font: 'Montserrat', sans-serif;
+      --body-font: 'Open Sans', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--body-font);
+      color: var(--text-color);
+      line-height: 1.6;
+      overflow-x: hidden;
+      background-color: #fff;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+
+    /* Typography */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--heading-font);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+    }
+
+    h1 { font-size: 3rem; font-weight: 800; }
+    h2 { font-size: 2.5rem; position: relative; padding-bottom: 1rem; margin-bottom: 2rem; text-align: center; }
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background-color: var(--primary-color);
+    }
+    h3 { font-size: 1.8rem; }
+    h4 { font-size: 1.4rem; }
+    p { margin-bottom: 1rem; }
+
+    /* Buttons */
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: var(--primary-color);
+      color: var(--light-text);
+      font-family: var(--heading-font);
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: var(--transition);
+      box-shadow: 0 4px 6px rgba(154, 59, 52, 0.2);
+    }
+    .btn:hover {
+      background-color: var(--accent-color);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 8px rgba(154, 59, 52, 0.3);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+    .btn-outline:hover {
+      background: var(--primary-color);
+      color: #fff;
+    }
+
+    /* --- 1. HERO SECTION --- */
+    .hero {
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+      url('./assets/img/banner/1.jpg') center/cover;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--light-text);
+      padding-top: 80px;
+    }
+    .hero-content h1 { font-size: 3.5rem; margin-bottom: 1.5rem; color: var(--light-text); }
+    .hero-content p { font-size: 1.2rem; max-width: 700px; margin: 0 auto 2rem; color: rgba(255, 255, 255, 0.9); }
+    .hero-dates { display: flex; justify-content: center; gap: 30px; margin-bottom: 2rem; flex-wrap: wrap; }
+    .date-item { background-color: rgba(255, 255, 255, 0.1); padding: 15px 25px; border-radius: 4px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
+    .date-item h3 { margin-bottom: 0.5rem; color: var(--gold-color); }
+    .date-item p { margin: 0; color: #fff; }
+    .countdown-container { text-align: center; }
+    .countdown-title { font-size: 1.5rem; color: var(--light-text); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+    .countdown { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+    .countdown-item { background-color: rgba(255, 255, 255, 0.15); backdrop-filter: blur(5px); border-radius: 8px; padding: 20px; min-width: 100px; border: 1px solid rgba(255,255,255,0.2); }
+    .countdown-value { font-size: 2.5rem; font-weight: 800; color: var(--gold-color); line-height: 1; font-family: var(--heading-font); }
+    .countdown-label { font-size: 0.8rem; text-transform: uppercase; color: #fff; margin-top: 5px; }
+
+    /* --- 2. ABOUT EVENT --- */
+    .about-section { padding: 80px 0; background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('./assets/img/banner/website.png') center/cover fixed; color: #fff; }
+    .about-content { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
+    .about-text h2 { color: #fff; text-align: left; }
+    .about-text h2::after { background-color: var(--accent-color); left: 0; transform: none; }
+    .about-text p { color: rgba(255, 255, 255, 0.9); }
+    .about-features { margin-top: 2rem; }
+    .about-feature { display: flex; align-items: center; margin-bottom: 1rem; }
+    .about-feature i { font-size: 1.5rem; color: var(--accent-color); margin-right: 15px; }
+    .about-feature h4 { color: var(--light-text); margin-bottom: 0.3rem; }
+    .about-feature p { color: rgba(255, 255, 255, 0.8); margin: 0; font-size: 0.9rem;}
+    .about-video { position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+    .about-video iframe { width: 100%; height: 350px; border: none; }
+
+    /* --- 3. EVENT STORY --- */
+    .story-section { padding: 80px 0; background-color: #fff; }
+    .story-grid { display: grid; gap: 60px; }
+    .story-block { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+    .story-block.reverse .story-text { order: 2; }
+    .story-block.reverse .story-img { order: 1; }
+    .story-text h3 { color: var(--primary-color); position: relative; padding-left: 15px; border-left: 4px solid var(--gold-color); }
+    .story-img img { width: 100%; border-radius: 8px; box-shadow: var(--navbar-shadow); }
+
+    /* --- 4. HIGHLIGHTS --- */
+    .highlights-section { padding: 80px 0; background-color: var(--background-light); }
+    .highlights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+    .highlight-card { background: #fff; padding: 30px; border-radius: 8px; text-align: center; box-shadow: var(--navbar-shadow); transition: var(--transition); }
+    .highlight-card:hover { transform: translateY(-10px); }
+    .highlight-icon { font-size: 2.5rem; color: var(--primary-color); margin-bottom: 20px; }
+
+    /* --- 5. SCHEDULE --- */
+    .schedule { padding: 80px 0; background-color: #fff; }
+    .schedule-table { width: 100%; border-collapse: collapse; background-color: var(--light-text); box-shadow: var(--navbar-shadow); border-radius: 8px; overflow: hidden; }
+    .schedule-table th, .schedule-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--background-medium); }
+    .schedule-table th { background-color: var(--primary-color); color: var(--light-text); font-family: var(--heading-font); font-weight: 600; }
+    .schedule-table tr:last-child td { border-bottom: none; }
+    .schedule-table tr:hover { background-color: var(--background-light); }
+    .time-slot { font-weight: 600; color: var(--primary-color); width: 120px; }
+    .lunch-break { background-color: var(--background-light) !important; }
+    .lunch-break td { font-weight: 600; color: var(--primary-color); text-align: center; }
+
+    /* --- 6. SPEAKERS --- */
+    .speakers-section { padding: 80px 0; background-color: var(--background-light); }
+    .speakers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+    .speaker-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: var(--navbar-shadow); text-align: center; }
+    .speaker-img { height: 250px; overflow: hidden; }
+    .speaker-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+    .speaker-card:hover .speaker-img img { transform: scale(1.1); }
+    .speaker-info { padding: 20px; }
+    .speaker-role { color: var(--accent-color); font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 10px; }
+
+    /* --- 7. VENUE --- */
+    .venue-section { padding: 80px 0; background: linear-gradient(rgba(154, 59, 52, 0.53), rgba(102, 51, 51, 0)), url('./assets/img/banner/header-1.png') center/cover; color: #fff; }
+    .venue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .venue-details h2, .venue-details h3 { color: #fff; }
+    .venue-details h2::after { background-color: var(--gold-color); left: 0; transform: none; }
+    .venue-list { list-style: none; margin: 20px 0; }
+    .venue-list li { margin-bottom: 15px; display: flex; align-items: center; }
+    .venue-list i { margin-right: 15px; color: var(--gold-color); width: 25px; }
+    .venue-map iframe { width: 100%; height: 300px; border-radius: 8px; border: none; }
+
+    /* --- 8. TICKETS / BOOKING (GLASSMORPHIC & PREMIUM) --- */
+    .booking {
+      padding: 120px 0;
+      /* Deep spiritual gradient background to show through the glass */
+      background: radial-gradient(circle at 50% 50%, #db7c75 0%, #500503 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Overlay texture for premium feel */
+    .booking::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image: url("./assets/img/banner/1.jpg") center/cover;
+      pointer-events: none;
+    }
+
+    .booking h2 {
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 2;
+    }
+
+    .booking-grid {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      flex-wrap: wrap;
+      gap: 25px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .booking-card {
+      /* Glass Effect Core */
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-top: 1px solid rgba(255, 255, 255, 0.8);
+      
+      border-radius: 20px;
+      padding: 40px 25px;
+      text-align: center;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+      transition: all 0.4s ease;
+      position: relative;
+      flex: 1;
+      min-width: 260px;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .booking-card:hover {
+      /* transform: translateY(-10px); */
+      /* background: rgba(255, 255, 255, 0.9); */
+      /* box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3); */
+    }
+
+    /* Premium Special Card */
+    .booking-card.special {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid var(--gold-color);
+      box-shadow: 0 0 25px rgba(197, 160, 89, 0.3);
+      transform: scale(1.05);
+      z-index: 3;
+    }
+
+    .booking-card.special:hover {
+      /* transform: scale(1.08) translateY(-10px); */
+      /* box-shadow: 0 0 35px rgba(197, 160, 89, 0.5); */
+    }
+
+    /* Badge */
+    .badge-popular {
+      position: absolute;
+      top: -1px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--gold-color), #b89255);
+      color: #4a1210;
+      padding: 6px 20px;
+      border-bottom-left-radius: 15px;
+      border-bottom-right-radius: 15px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 10px rgba(197, 160, 89, 0.4);
+      z-index: 4;
+    }
+
+    /* Icon */
+    .booking-icon {
+      font-size: 3rem;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      background: rgba(255,255,255,0.5);
+      width: 80px;
+      height: 80px;
+      line-height: 80px;
+      border-radius: 50%;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .booking-card.special .booking-icon {
+      background: linear-gradient(135deg, var(--gold-color), #a68348);
+      color: #fff;
+    }
+
+    .booking-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: #2b0e0c; /* Very dark red for text */
+    }
+
+    .booking-card p {
+      font-size: 0.9rem;
+      color: #5e2b29; /* Darker red-grey */
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    /* Counter */
+    .remaining-tickets {
+      margin-bottom: 25px;
+      padding: 12px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 10px;
+      border: 1px dashed rgba(154, 59, 52, 0.2);
+    }
+
+    .tickets-remaining {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      font-family: var(--heading-font);
+      display: block;
+    }
+
+    .tickets-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--secondary-color);
+      letter-spacing: 1px;
+      display: block;
+      margin-top: 5px;
+    }
+
+    .booking-card.special .tickets-remaining { color: #8f7238; } /* Darker gold for readability on white bg */
+
+    /* Button */
+    .booking-btn {
+      margin-top: auto;
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--primary-color), #6e2b26);
+      color: var(--light-text);
+      border: none;
+      border-radius: 12px;
+      font-family: var(--heading-font);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px rgba(154, 59, 52, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Shine effect on button */
+    .booking-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 50%; height: 100%;
+      /* background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.3), rgba(255,255,255,0)); */
+      /* transform: skewX(-25deg); */
+      transition: 0.5s;
+    }
+
+    .booking-btn:hover::after {
+      /* left: 150%; */
+    }
+
+    .booking-btn:hover {
+      /* background: linear-gradient(135deg, var(--accent-color), var(--primary-color)); */
+      /* transform: translateY(-2px); */
+      /* box-shadow: 0 8px 25px rgba(154, 59, 52, 0.5); */
+    }
+
+    .booking-card.special .booking-btn {
+      background: linear-gradient(135deg, var(--gold-color), #a68348);
+      color: #2b0e0c;
+      box-shadow: 0 4px 15px rgba(197, 160, 89, 0.4);
+    }
+    .booking-card.special .booking-btn:hover {
+      background: linear-gradient(135deg, #dfc387, var(--gold-color));
+      box-shadow: 0 8px 25px rgba(197, 160, 89, 0.6);
+    }
+
+    /* --- 9. GALLERY --- */
+    .gallery-section { padding: 80px 0; background: #fff; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+    .gallery-item { position: relative; overflow: hidden; border-radius: 8px; height: 200px; }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+    .gallery-item:hover img { transform: scale(1.1); }
+    .testimonial-box { margin-top: 50px; background: var(--background-light); padding: 40px; border-radius: 8px; text-align: center; border-left: 5px solid var(--primary-color); }
+    .testimonial-text { font-style: italic; font-size: 1.1rem; margin-bottom: 20px; }
+    .testimonial-author { font-weight: 700; color: var(--primary-color); }
+
+    /* --- 10. FAQ --- */
+    .faq-section { padding: 80px 0; background-color: var(--background-light); }
+    .faq-container { max-width: 800px; margin: 0 auto; }
+    details { background: #fff; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; }
+    summary { padding: 20px; cursor: pointer; font-weight: 600; color: var(--primary-color); position: relative; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: '+'; font-size: 1.5rem; font-weight: 300; }
+    details[open] summary::after { content: '-'; }
+    .faq-answer { padding: 0 20px 20px 20px; color: #555; border-top: 1px solid #eee; margin-top: 10px; padding-top: 15px; }
+
+    /* --- 11. SPONSOR INFINITE SCROLL --- */
+    .sponsor-section {
+      overflow: hidden; /* Hides the scrollbar and overflow */
+      white-space: nowrap; /* Ensures items stay in one line */
+      padding: 50px 0;
+      background: #fff;
+    }
+
+    .sponsor-track {
+      display: inline-flex;
+      animation: scroll 25s linear infinite;
+    }
+
+    .sponsor {
+      padding: 0 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sponsor img {
+      max-width: 150px;
+      height: auto;
+      display: block;
+      /* filter: grayscale(100%); Optional: Makes logos look uniform */
+      /* transition: filter 0.3s; */
+    }
+
+    .sponsor:hover img {
+      /* filter: grayscale(0%); Color on hover */
+    }
+
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    /* Pause on hover for better UX */
+    .sponsor-track:hover {
+      animation-play-state: paused;
+    }
+
+    /* --- 12. FINAL CTA --- */
+    .final-cta { padding: 100px 0; background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('./assets/img/banner/1.jpg') center/cover; text-align: center; color: #fff; }
+    .final-cta h2 { color: #fff; }
+    .final-cta p { font-size: 1.2rem; margin-bottom: 30px; color: rgba(255,255,255,0.9); }
+
+    /* Floating Buttons */
+    .whatsapp-float, .sigma_top { position: fixed; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000; transition: all 0.3s ease; box-shadow: 2px 2px 6px rgba(0,0,0,0.4); }
+    .whatsapp-float { bottom: 40px; right: 40px; background-color: #25d366; color: #FFF; font-size: 30px; }
+    .whatsapp-float:hover { background-color: #128C7E; transform: scale(1.1); }
+    .sigma_top { bottom: 110px; right: 40px; background-color: var(--accent-color); color: var(--light-text); opacity: 0; visibility: hidden; }
+    .sigma_top.show { opacity: 1; visibility: visible; }
+    .sigma_top:hover { background-color: var(--primary-color); transform: scale(1.1); }
+    .sigma_top::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle, rgba(232, 90, 79, 0.8) 0%, rgba(232, 90, 79, 0) 70%); opacity: 0; transition: opacity 0.3s ease; z-index: -1; }
+    .sigma_top:hover::after { opacity: 1; }
+    .sigma_top.divine-ascent { animation: divine-ascent 1.5s ease-in-out forwards; pointer-events: none; }
+    @keyframes divine-ascent { 0% { transform: translateY(0) scale(1); } 20% { transform: translateY(-50px) scale(1.1); } 100% { transform: translateY(-150vh) scale(0.5); opacity: 0; } }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .hero-content h1 { font-size: 2.5rem; }
+      .about-content, .story-block, .venue-grid { grid-template-columns: 1fr; }
+      .story-block.reverse .story-text { order: 1; }
+      .story-block.reverse .story-img { order: 2; }
+      .venue-map { order: 2; }
+    }
+    @media (max-width: 768px) {
+      h1 { font-size: 2rem; } h2 { font-size: 1.8rem; }
+      .schedule-table { font-size: 0.9rem; }
+      .time-slot { width: 80px; }
+      .whatsapp-float, .sigma_top { width: 50px; height: 50px; bottom: 20px; right: 20px; }
+      .sigma_top { bottom: 80px; }
+      .whatsapp-float { font-size: 24px; }
+    }
+    @media (max-width: 576px) {
+      .container { padding: 0 10px; }
+      .booking-card.special { transform: scale(1); }
+      .booking-grid { flex-direction: column; align-items: center; }
+      .booking-card { width: 100%; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. HERO SECTION -->
+  <section class="hero" id="home">
+    <div class="container">
+      <div class="hero-content">
+        <h1>Asta Varahi 2.0</h1>
+        <p>Join us for the most auspicious spiritual event of the year. Experience divine blessings and spiritual enlightenment at our grand celebration.</p>
+        
+        <div class="hero-dates">
+          <div class="date-item">
+            <h3>28-30</h3>
+            <p>feb 2026</p>
+          </div>
+          <div class="date-item">
+            <h3>Arumparuthi</h3>
+            <p>Vellore</p>
+          </div>
+          <div class="date-item">
+            <h3>3 Days</h3>
+            <p>Event</p>
+          </div>
+        </div>
+        
+        <div class="countdown-container">
+          <h2 class="countdown-title">Event Starts In</h2>
+          <div class="countdown" id="countdown">
+            <div class="countdown-item"><div class="countdown-value" id="days">00</div><div class="countdown-label">Days</div></div>
+            <div class="countdown-item"><div class="countdown-value" id="hours">00</div><div class="countdown-label">Hours</div></div>
+            <div class="countdown-item"><div class="countdown-value" id="minutes">00</div><div class="countdown-label">Minutes</div></div>
+            <div class="countdown-item"><div class="countdown-value" id="seconds">00</div><div class="countdown-label">Seconds</div></div>
+          </div>
+        </div>
+        
+        <a href="#tickets" class="btn">Book Now</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. ABOUT EVENT -->
+  <section class="about-section" id="about">
+    <div class="container">
+      <div class="about-content">
+        <div class="about-text">
+          <h2>About Asta Varahi 2.0</h2>
+          <p>Asta Varahi 2.0 is a grand spiritual celebration that brings together devotees from across the world to experience the divine presence of Sri Kottai Varahi Amman. This three-day event features powerful rituals, spiritual discourses, and cultural programs that uplift the soul and bring prosperity to all participants.</p>
+          
+          <div class="about-features">
+            <div class="about-feature"><i class="fas fa-star"></i><div><h4>Divine Blessings</h4><p>Experience the powerful blessings of Varahi Amman</p></div></div>
+            <div class="about-feature"><i class="fas fa-om"></i><div><h4>Sacred Rituals</h4><p>Participate in ancient Vedic ceremonies</p></div></div>
+            <div class="about-feature"><i class="fas fa-users"></i><div><h4>Community Gathering</h4><p>Connect with devotees from around the world</p></div></div>
+          </div>
+        </div>
+        
+        <div class="about-video">
+                                    <iframe src="https://www.youtube.com/embed/nEUdyU8nmPE" title="YouTube video player"
+            frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
+
+                    </iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. EVENT STORY -->
+  <section class="story-section" id="story">
+    <div class="container">
+      <h2>The Story of the Event</h2>
+      <div class="story-grid">
+        <div class="story-block">
+          <div class="story-text">
+            <h3>The Inception</h3>
+            <p>Founded to revive ancient Tamil spiritual culture, the Asta Varahi event was created to spread Sri Varahi Amman worship through traditional Tamil rituals and Siddhar-inspired practices. Rooted in devotion and heritage, this sacred movement preserves Tamil culture, strengthens spiritual consciousness, and reconnects devotees with timeless divine traditions.</p>
+          </div>
+          <div class="story-img"><img src="./assets/img/about/about-1.png" alt="Inception"></div>
+        </div>
+        <div class="story-block reverse">
+          <div class="story-text">
+            <h3>Evolution to 2.0</h3>
+            <p>Entering a new phase of growth, the Asta Varahi event expands its sacred mission to revive ancient Tamil spiritual culture and spread Sri Varahi Amman worship beyond boundaries. Guided by traditional Tamil rituals and Siddhar wisdom, this journey strengthens Tamil heritage, deepens devotion, and carries timeless spiritual practices to future generations.</p>
+          </div>
+          <div class="story-img"><img src="./assets/img/about/about-2.png" alt="Evolution"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. HIGHLIGHTS -->
+  <!-- <section class="highlights-section" id="highlights">
+    <div class="container">
+      <h2>Event Highlights</h2>
+      <div class="highlights-grid">
+        <div class="highlight-card"><i class="fas fa-fire-alt highlight-icon"></i><h3>Maha Yagnam</h3><p>A grand fire ritual for universal peace and prosperity.</p></div>
+        <div class="highlight-card"><i class="fas fa-hands-praying highlight-icon"></i><h3>Group Meditation</h3><p>Guided meditation sessions to calm the mind and soul.</p></div>
+        <div class="highlight-card"><i class="fas fa-drum highlight-icon"></i><h3>Cultural Night</h3><p>Traditional music and dance performances honoring the deity.</p></div>
+        <div class="highlight-card"><i class="fas fa-hand-holding-heart highlight-icon"></i><h3>Annadanam</h3><p>Free sacred meals served to thousands of devotees.</p></div>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- 5. SCHEDULE -->
+  <section class="schedule" id="schedule">
+    <div class="container">
+      <h2>Event Schedule</h2>
+      <table class="schedule-table">
+        <thead><tr><th>Time</th><th>Day 1 Schedule</th><th>Day 2 Schedule</th><th>Day 3 Schedule</th></tr></thead>
+        <tbody>
+          <tr><td class="time-slot">6:00 AM</td><td>Morning Abhishekam</td><td>Early Morning Pooja</td><td>Ganapathi Homam</td></tr>
+          <tr><td class="time-slot">8:00 AM</td><td>Special Pooja</td><td>Surya Namaskar</td><td>Sahasranama Archana</td></tr>
+          <tr><td class="time-slot">10:00 AM</td><td>Homam Ceremony</td><td>Varahi Jayanti Celebrations</td><td>Kumbhabhishekam</td></tr>
+          <tr><td class="time-slot">12:00 PM</td><td>Maha Prasad</td><td>Annadanam</td><td>Maha Annadanam</td></tr>
+          <tr class="lunch-break"><td class="time-slot">1:00 PM</td><td colspan="3">Lunch Break</td></tr>
+          <tr><td class="time-slot">2:00 PM</td><td>Satsang</td><td>Exhibition Hall Opens</td><td>Satsang with Saints</td></tr>
+          <tr><td class="time-slot">4:00 PM</td><td>Aarti Ceremony</td><td>Deeparadhana</td><td>Maha Aarti</td></tr>
+          <tr><td class="time-slot">6:00 PM</td><td>Bhajan Sandhya</td><td>Cultural Program</td><td>Pallaki Seva</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 6. SPEAKERS -->
+  <section class="speakers-section" id="speakers">
+    <div class="container">
+      <h2>Eminent Speakers</h2>
+      <div class="speakers-grid">
+        <div class="speaker-card">
+          <div class="speaker-img"><img src="./assets/img/ig/insta-3.png" alt="Speaker"></div>
+          <div class="speaker-info"><h4>Swami Vedananda</h4><span class="speaker-role">Head Priest</span><p>Expert in Vedic rituals and Tantra Shastra.</p></div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-img"><img src="./assets/img/ig/rasiksaravanan.jpg" alt="Speaker"></div>
+          <div class="speaker-info"><h4>Brahmachari Rajesh</h4><span class="speaker-role">Spiritual Guide</span><p>Known for his discourses on the Bhagavad Gita.</p></div>
+        </div>
+        <div class="speaker-card">
+          <div class="speaker-img"><img src="./assets/img/ig/insta-3.png" alt="Speaker"></div>
+          <div class="speaker-info"><h4>Smt. Lakshmi Devi</h4><span class="speaker-role">Classical Artist</span><p>Renowned singer leading the devotional sessions.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. VENUE -->
+  <section class="venue-section" id="venue">
+    <div class="container">
+      <div class="venue-grid">
+        <div class="venue-details">
+          <h2>Venue Location</h2>
+          <h3>Jai Varahi Peedam</h3>
+          <p>Nestled in the spiritual town of Arumparuthi, our peedam provides the perfect serene atmosphere for this divine conclave.</p>
+          <ul class="venue-list">
+            <li><i class="fas fa-map-marker-alt"></i> Arumparuthi, Vellore, Tamil Nadu</li>
+            <li><i class="fas fa-phone-alt"></i> +91 90928 78389</li>
+            <li><i class="fas fa-envelope"></i> varahikottai@gmail.com</li>
+          </ul>
+          <a href="#" class="btn btn-outline">Get Directions</a>
+        </div>
+        <div class="venue-map">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d124424.06663483906!2d79.01658539999999!3d12.9168085!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bad53ddf0c7a23d%3A0xec62f149a6c8328!2sVellore%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1709224567890!5m2!1sen!2sin" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. TICKETS / BOOKING (Glassmorphic & Premium) -->
+  <section class="booking" id="tickets">
+    <div class="container">
+      <h2>Event Booking</h2>
+      <div class="booking-grid">
+        <!-- Free Ticket -->
+        <div class="booking-card">
+          <div class="booking-icon">
+            <i class="fas fa-ticket-alt"></i>
+          </div>
+          <h3>Event Free Ticket</h3>
+          <p>Free entry to all events and ceremonies</p>
+          
+          <div class="remaining-tickets">
+            <div class="tickets-remaining" id="free-ticket">1247</div>
+            <span class="tickets-label">Tickets Remaining</span>
+          </div>
+          
+          <button class="booking-btn" onclick="bookTicket('free-ticket')">Book Now</button>
+        </div>
+        
+        <!-- Stall Booking -->
+        <div class="booking-card">
+          <div class="booking-icon">
+            <i class="fas fa-store"></i>
+          </div>
+          <h3>Stall Booking</h3>
+          <p>Book a stall for selling products or services</p>
+          
+          <div class="remaining-tickets">
+            <div class="tickets-remaining" id="stall">7</div>
+            <span class="tickets-label">Stalls Remaining</span>
+          </div>
+          
+          <button class="booking-btn" onclick="bookTicket('stall')">Book Now</button>
+        </div>
+        
+        <!-- Special Ticket (Highlighted) -->
+        <div class="booking-card special">
+          <div class="badge-popular">Recommended</div>
+          <div class="booking-icon">
+            <i class="fas fa-crown"></i>
+          </div>
+          <h3>Special Ticket</h3>
+          <p>VIP access to special ceremonies and events</p>
+          
+          <div class="remaining-tickets">
+            <div class="tickets-remaining" id="special">342</div>
+            <span class="tickets-label">Tickets Remaining</span>
+          </div>
+          
+          <button class="booking-btn" onclick="bookTicket('special')">Book Now</button>
+        </div>
+        
+        <!-- Sponsor Booking -->
+        <div class="booking-card">
+          <div class="booking-icon">
+            <i class="fas fa-handshake"></i>
+          </div>
+          <h3>Sponsor Booking</h3>
+          <p>Sponsor the event and gain special recognition</p>
+          
+          <button class="booking-btn" onclick="bookTicket('sponsor')">Book Now</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. GALLERY & TESTIMONIALS -->
+  <!-- <section class="gallery-section" id="gallery">
+    <div class="container">
+      <h2>Gallery & Devotee Voices</h2>
+      <div class="gallery-grid">
+        <div class="gallery-item"><img src="https://picsum.photos/seed/gal1/400/300" alt="Gallery"></div>
+        <div class="gallery-item"><img src="https://picsum.photos/seed/gal2/400/300" alt="Gallery"></div>
+        <div class="gallery-item"><img src="https://picsum.photos/seed/gal3/400/300" alt="Gallery"></div>
+        <div class="gallery-item"><img src="https://picsum.photos/seed/gal4/400/300" alt="Gallery"></div>
+      </div>
+      <div class="testimonial-box">
+        <p class="testimonial-text">"The energy at Asta Varahi was palpable. My family felt a profound sense of peace. The arrangements were flawless."</p>
+        <p class="testimonial-author">- Ravichandran, Devotee</p>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- 10. FAQ -->
+  <!-- <section class="faq-section" id="faq">
+    <div class="container">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-container">
+        <details><summary>Is prior registration mandatory?</summary><div class="faq-answer">While free entry is allowed, prior registration helps us manage prasad distribution and seating arrangements effectively.</div></details>
+        <details><summary>Is accommodation provided?</summary><div class="faq-answer">We do not provide on-site accommodation, but we have partnered with nearby hotels offering discounted rates for attendees.</div></details>
+        <details><summary>What is the dress code?</summary><div class="faq-answer">Traditional Indian attire (Dhoti/Saree/Salwar) is preferred to maintain sanctity of temple premises.</div></details>
+      </div>
+    </div> -->
+  </section>
+
+  <!-- 11. SPONSORS (Updated Infinite Scroll) -->
+  <section class="sponsor-section" id="sponsors">
+    <div class="sponsor-track" id="sponsorTrack">
+      <!-- Images are listed once. The script will duplicate them automatically for the seamless loop. -->
+      <div class="sponsor"><img src="https://picsum.photos/seed/spon1/200/100" alt="Sponsor 1"></div>
+      <div class="sponsor"><img src="https://picsum.photos/seed/spon2/200/100" alt="Sponsor 2"></div>
+      <div class="sponsor"><img src="https://picsum.photos/seed/spon3/200/100" alt="Sponsor 3"></div>
+      <div class="sponsor"><img src="https://picsum.photos/seed/spon4/200/100" alt="Sponsor 4"></div>
+      <div class="sponsor"><img src="https://picsum.photos/seed/spon5/200/100" alt="Sponsor 5"></div>
+    </div>
+  </section>
+
+  <!-- 12. FINAL CTA -->
+  <section class="final-cta" id="cta">
+    <div class="container">
+      <h2>Join the Divine Celebration</h2>
+      <p>Secure your place for a transformative spiritual experience.</p>
+      <a href="#tickets" class="btn" style="background-color: var(--gold-color); color: #000;">Book My Spot</a>
+    </div>
+  </section>
+
+  <!-- WhatsApp Button -->
+  <a href="https://wa.me/919092878389?text=Hi, I'm interested in Asta Varahi 2.0." class="whatsapp-float" target="_blank" aria-label="Chat with us on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+
+  <!-- Back to Top Button -->
+  <div class="sigma_top style-5" id="backToTop"><i class="fas fa-om"></i></div>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- 1. Ticket Booking Logic ---
+    window.bookTicket = function(type) {
+      const ticketElement = document.getElementById(type);
+      
+      // Handle Sponsor click separately
+      if (type === 'sponsor') {
+        alert(`Thank you for your interest in Sponsoring! We will contact you shortly.`);
+        return;
+      }
+
+      // Get current ticket count
+      const currentTickets = parseInt(ticketElement.textContent);
+
+      // Check if tickets are available
+      if (currentTickets > 0) {
+        // Subtract exactly 1 ticket
+        const newTicketCount = currentTickets - 1;
+        
+        // Update the display
+        ticketElement.textContent = newTicketCount;
+        
+        alert(`Booking successful! Thank you for booking with Asta Varahi 2.0.`);
+      } else {
+        alert('Sorry, no more tickets available for this category.');
+      }
+    };
+
+    // --- 2. Sponsor Infinite Scroll Setup (Updated) ---
+    const sponsorTrack = document.getElementById('sponsorTrack');
+    if (sponsorTrack) {
+      // Clone content and append to itself. This ensures the track is double width.
+      // Combined with CSS transform: translateX(-50%), this creates a seamless loop.
+      sponsorTrack.innerHTML += sponsorTrack.innerHTML;
+    }
+
+    // --- 3. Smooth Scrolling for Anchor Links ---
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) { 
+          window.scrollTo({ 
+            top: target.offsetTop - 80, 
+            behavior: 'smooth' 
+          }); 
+        }
+      });
+    });
+
+    // --- 4. Countdown Timer ---
+    const countDownDate = new Date("February 28, 2026 06:00:00").getTime();
+    const x = setInterval(function() {
+      const now = new Date().getTime();
+      const distance = countDownDate - now;
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      const daysEl = document.getElementById("days");
+      const hoursEl = document.getElementById("hours");
+      const minutesEl = document.getElementById("minutes");
+      const secondsEl = document.getElementById("seconds");
+
+      if(daysEl) daysEl.textContent = days < 10 ? "0" + days : days;
+      if(hoursEl) hoursEl.textContent = hours < 10 ? "0" + hours : hours;
+      if(minutesEl) minutesEl.textContent = minutes < 10 ? "0" + minutes : minutes;
+      if(secondsEl) secondsEl.textContent = seconds < 10 ? "0" + seconds : seconds;
+
+      if (distance < 0) { 
+        clearInterval(x); 
+        const titleEl = document.querySelector(".countdown-title");
+        if(titleEl) titleEl.innerHTML = "Event is Now Live!"; 
+      }
+    }, 1000);
+
+    // --- 5. Back To Top Button ---
+    const backToTopButton = document.getElementById('backToTop');
+    
+    if (backToTopButton) {
+      window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) { 
+          backToTopButton.classList.add('show'); 
+        } else { 
+          backToTopButton.classList.remove('show'); 
+        }
+      });
+
+      backToTopButton.addEventListener('click', function(e) {
+        e.preventDefault(); 
+        backToTopButton.classList.add('divine-ascent');
+        setTimeout(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, 200);
+        setTimeout(() => { backToTopButton.classList.remove('divine-ascent'); }, 1500);
+      });
+    }
+
+  });
+</script>
+</body>
+</html>

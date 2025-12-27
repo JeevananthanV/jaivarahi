@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sri Panchami Gosala — Jai Varahi Peedam</title>
+
+  <style>
+    /* -------------------------
+       EDITABLE TOP: change site title, contact, or text below
+       ------------------------- */
+
+    :root {
+      --primary-color: #9a3b34;
+      --secondary-color: #663333;
+      --accent-color: #e85a4f;
+      --text-color: #333;
+      --light-text: #fff;
+      --background-light: #f8f8f8;
+      --background-medium: #e6e6e6;
+      --background-dark: wheat;
+
+      /* layout sizing */
+      --max-width: 1100px;
+      --g: 16px;
+      --card-radius: 12px;
+    }
+
+    /* Basic reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--background-light);
+      color: var(--text-color);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height: 1.5;
+      padding-bottom: 120px; /* room for floating CTA */
+    }
+
+    /* Container */
+    .container {
+      max-width: var(--max-width);
+      margin: 36px auto;
+      padding: 24px;
+    }
+
+    header.site-hero {
+      background: linear-gradient(180deg, rgba(154,59,52,0.08), rgba(232,90,79,0.02));
+      border-radius: var(--card-radius);
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--primary-color);
+      letter-spacing: 0.4px;
+    }
+
+    header p.lead {
+      margin: 6px 0 0;
+      color: #444;
+      max-width: 68ch;
+    }
+
+    /* Right-side metadata */
+    .meta {
+      text-align: right;
+      font-size: 14px;
+    }
+    .meta .tag {
+      display: inline-block;
+      background: var(--primary-color);
+      color: var(--light-text);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    main {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Main content card */
+    .card {
+      background: #fff;
+      border-radius: var(--card-radius);
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    }
+
+    h2.section-title {
+      margin: 0 0 12px 0;
+      color: var(--secondary-color);
+      font-size: 18px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+
+    .section-body { margin-top: 8px; color: #333; }
+
+    .highlight {
+      background: linear-gradient(90deg, rgba(154,59,52,0.12), rgba(230,230,230,0.02));
+      padding: 12px;
+      border-left: 4px solid var(--primary-color);
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    ul.clean {
+      padding-left: 18px;
+      margin: 8px 0 16px 0;
+    }
+
+    ol.numbered { padding-left: 18px; margin: 8px 0 16px 0; }
+
+    /* Right column (aside) */
+    aside.side {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+
+    .card.small {
+      padding: 14px;
+    }
+
+    .price-row {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      margin: 8px 0;
+    }
+
+    .price {
+      font-weight:700;
+      color:var(--primary-color);
+    }
+
+    .btn {
+      display:inline-block;
+      background:var(--primary-color);
+      color:var(--light-text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      text-decoration:none;
+      font-weight:600;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+    }
+
+    /* Mantra box + copy */
+    .mantra {
+      font-style: italic;
+      background: var(--background-medium);
+      padding: 12px;
+      border-radius: 8px;
+      position: relative;
+    }
+    .mantra pre {
+      white-space: pre-wrap;
+      margin: 0;
+      font-family: inherit;
+    }
+    .copy-btn {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      background: transparent;
+      border: none;
+      color: var(--primary-color);
+      font-weight:600;
+      cursor:pointer;
+    }
+
+    /* Collapse toggles */
+    .toggle {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      cursor: pointer;
+      user-select:none;
+    }
+    .toggle small { color: #666; }
+
+    .collapsed { display:none; }
+
+    /* Booking CTA (floating) */
+    .book-cta {
+      position: fixed;
+      right: 20px;
+      bottom: 22px;
+      z-index: 1200;
+      display: inline-flex;
+      gap: 10px;
+      align-items:center;
+    }
+    .book-cta .btn {
+      padding: 14px 18px;
+      border-radius: 999px;
+      box-shadow: 0 10px 20px rgba(154,59,52,0.12);
+    }
+    .book-cta .tel {
+      background: var(--accent-color);
+      color: var(--light-text);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-weight:700;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items:center;
+      justify-content:center;
+      z-index: 1300;
+      padding: 24px;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      max-width: 520px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.3);
+    }
+    .modal h3 { margin: 0 0 10px 0; color: var(--primary-color); }
+    .modal .form-row { display:flex; gap:10px; margin-bottom:10px; }
+    .modal input, .modal textarea, .modal select {
+      width:100%;
+      padding:10px;
+      border-radius:6px;
+      border:1px solid #ddd;
+      font-size:14px;
+    }
+    .modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
+
+    /* small helpers */
+    .muted { color: #666; font-size: 14px; }
+    .success { color: green; font-weight:700; }
+    .print-btn { background: transparent; border:1px solid #ccc; padding:6px 10px; border-radius:6px; cursor:pointer; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+      header.site-hero { grid-template-columns: 1fr; text-align: left; }
+      .meta { text-align: left; }
+    }
+
+    /* Print friendly */
+    @media print {
+      body { background: #fff; color: #000; }
+      .book-cta, .modal-backdrop, .btn { display: none !important; }
+      header, .card { box-shadow: none; border: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="top">
+    <!-- HERO / header -->
+    <header class="site-hero card" role="banner" aria-label="Sri Panchami Gosala information">
+      <div>
+        <h1>Sri Panchami Gosala — Jai Varahi Peedam</h1>
+        <p class="lead">Om Namo Kottai Varahi Ambal Ashirwatham<br>
+        Dear Gomatha Asthikas, Monthly Amavasai Pooja has been completed. On this auspicious day, we will be offering arisi (rice), paruppu (dal), vellam (jaggery), ellu (sesame seeds), vaazhaipazham (banana), and Agathi keerai (greens) to all our Gomathas. Those who wish to participate in this seva are kindly requested to book in advance.</p>
+      </div>
+      <div class="meta" aria-hidden="false">
+        <div class="tag" aria-hidden="true">Gomatha Seva</div>
+        <div class="muted" style="margin-top:10px">Contact: <strong>+91 90xxxxxxx</strong></div>
+        <div class="muted">Location: Jai Varahi Peedam</div>
+      </div>
+    </header>
+
+    <main>
+      <!-- MAIN CONTENT -->
+      <section class="card" aria-labelledby="overview">
+        <h2 id="overview" class="section-title">Overview
+          <button class="print-btn" onclick="window.print()" title="Print this page">Print</button>
+        </h2>
+        <div class="section-body">
+          <div class="highlight">
+            <strong>Offerings:</strong> arisi (rice), paruppu (dal), vellam (jaggery), ellu (sesame seeds), vaazhaipazham (banana), Agathi keerai (greens). <br>
+            <strong>Seva notes:</strong> Ellu punnakku (sesame oil cake) to Gomathas & bulls — auspicious for career issues, male child blessings, relief from Pitru Dhosam, and for those wishing to adopt cows (Go Dhanam).
+          </div>
+
+          <h3 style="margin-top:12px">Important for Devotees</h3>
+          <ol class="numbered">
+            <li>Those experiencing instability or challenges in their profession or jobs.</li>
+            <li>Families praying for the blessing of a male child.</li>
+            <li>Relief from Pitru Dhosam (ancestral issues) caused by not performing karmas properly. Many devotees have shared positive experiences after performing this seva.</li>
+            <li>Those willing to do Go Dhanam or adopt a cow.</li>
+          </ol>
+
+          <hr style="border:none;border-top:1px solid #eee;margin:18px 0">
+
+          <h3 class="section-title" style="font-size:16px">Kamadhenu Pooja Procedure (Vidhanam)</h3>
+          <div class="section-body">
+            <p>Kamadhenu Pooja is dedicated to the Holy Cow Kamadhenu, the mother of all cows on earth. She is equated with Mother Earth as she nourishes and sustains all living beings. Kamadhenu is also known as Surabhi and Nandini. The word “Kam” in her name signifies her power to fulfill the wishes of her devotees. All gods and goddesses in the Hindu pantheon reside within Kamadhenu.</p>
+
+            <div style="margin-top:8px">
+              <strong>Kamadhenu Pooja Mantra</strong>
+              <div class="mantra" aria-live="polite">
+                <pre id="mantraText">Om Sarvadevamaye Devi Lokanam Shubandini
+Matru Mama Bhishitam Safalam Kuru Nandini.</pre>
+                <button class="copy-btn" id="copyMantra" aria-label="Copy mantra to clipboard">Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="section-title" style="font-size:16px;margin-top:16px">Benefits of Worshipping Kamadhenu (Goddess Gomatha)</h3>
+          <ul class="clean">
+            <li><strong>Wealth:</strong> Bestows abundant prosperity and financial stability.</li>
+            <li><strong>Happiness:</strong> Grants peace, harmony, and joy in life.</li>
+            <li><strong>Prosperity:</strong> Blesses the devotee with success and growth in all aspects of life.</li>
+          </ul>
+
+          <div style="margin-top:12px">
+            <h3 class="section-title" style="font-size:16px">How to Perform Kamadhenu Pooja</h3>
+            <div class="section-body">
+              <ul class="clean">
+                <li>The puja should be performed in the afternoon, facing north.</li>
+                <li>Light a lamp with ghee mixed with turmeric.</li>
+                <li>Offer fragrant dhoop and apply tilak using kesar.</li>
+                <li>Use marigold (ghenda) flowers for worship.</li>
+                <li>Prepare food using besan (gram flour) on this day.</li>
+                <li>Chant the given mantra 108 times using a sandalwood mala.</li>
+                <li>Feed the cow with fresh grass, jaggery, and bananas.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <h3 class="section-title" style="font-size:16px">Special Offerings</h3>
+            <ul class="clean">
+              <li>Offer urad dal ki kachori (black gram delicacy) to a black cow for sin redemption.</li>
+              <li>Feed fresh green grains and grass to a cow for wish fulfillment.</li>
+              <li>Offer jaggery to a black cow for relief from difficulties.</li>
+            </ul>
+          </div>
+
+          <div style="margin-top:12px">
+            <h3 class="section-title" style="font-size:16px">Seva Contributions</h3>
+            <div class="section-body">
+              <div class="price-row"><div>Full Gomatha Seva (as above)</div><div class="price">₹1001</div></div>
+              <div class="price-row"><div>Ellu Punnakku offering alone</div><div class="price">₹975</div></div>
+              <div class="price-row"><div>Full feeding of all Gomathas on a specific thithi + Sri Kamadhenu Homam</div><div class="price">₹7501</div></div>
+            </div>
+          </div>
+
+          <p style="margin-top:16px; font-weight:600">✨ By serving Gomatha, one receives the blessings of Goddess Kamadhenu, bringing peace, prosperity, and divine grace to the family. ✨</p>
+        </div>
+      </section>
+
+      <!-- ASIDE -->
+      <aside class="side" aria-labelledby="asideHeading">
+        <div class="card small" id="asideHeading">
+          <h4 style="margin:0 0 8px 0;color:var(--primary-color)">Quick Actions</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" id="openBooking">Book Seva</button>
+            <a href="#top" class="btn secondary" onclick="smoothScroll('#top')">Back to Top</a>
+            <button class="btn secondary" onclick="window.print()">Print</button>
+          </div>
+        </div>
+
+        <div class="card small" aria-hidden="false">
+          <h4 style="margin:0 0 8px 0;color:var(--primary-color)">Mantra</h4>
+          <div class="muted" style="margin-bottom:8px">Chant 108 times with sandalwood mala</div>
+          <div class="mantra">
+            <pre style="margin:0">Om Sarvadevamaye Devi Lokanam Shubandini
+Matru Mama Bhishitam Safalam Kuru Nandini.</pre>
+            <button class="copy-btn" data-target="#mantraText" aria-label="Copy mantra">Copy</button>
+          </div>
+        </div>
+
+        <div class="card small">
+          <h4 style="margin:0 0 8px 0;color:var(--primary-color)">Contact & Donation</h4>
+          <div class="muted">For bookings and seva donations:</div>
+          <div style="margin-top:8px">
+            <div><strong>Phone:</strong> +91 90xxxxxxx</div>
+            <div style="margin-top:6px"><strong>Email:</strong> info@jaivarahi.org</div>
+          </div>
+        </div>
+
+      </aside>
+    </main>
+  </div>
+
+  <!-- Floating CTA -->
+  <div class="book-cta" aria-hidden="false">
+    <button class="btn" id="openBookingFloating" title="Book Seva">Book Seva</button>
+    <a class="tel muted" href="tel:+91xxxxxxx" aria-label="Call for booking">📞 Call</a>
+  </div>
+
+  <!-- Modal (booking) -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document" aria-labelledby="modalTitle">
+      <h3 id="modalTitle">Book Gomatha Seva</h3>
+      <p class="muted" style="margin-top:0">Fill details below — this is a local client-side demo. No payment processed.</p>
+
+      <form id="bookingForm" novalidate>
+        <div class="form-row">
+          <input type="text" id="name" name="name" placeholder="Full name *" required aria-required="true" />
+        </div>
+        <div class="form-row">
+          <input type="tel" id="phone" name="phone" placeholder="Phone number *" required aria-required="true" />
+        </div>
+        <div class="form-row">
+          <input type="email" id="email" name="email" placeholder="Email (optional)" />
+        </div>
+        <div class="form-row">
+          <select id="serviceType" name="serviceType" required>
+            <option value="">Select seva</option>
+            <option value="full">Full Gomatha Seva — ₹1001</option>
+            <option value="ellu">Ellu Punnakku offering alone — ₹975</option>
+            <option value="fullthithi">Full feeding + Homam — ₹7501</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <input type="date" id="date" name="date" required />
+        </div>
+        <div class="form-row">
+          <textarea id="notes" name="notes" placeholder="Additional details (optional)" rows="3"></textarea>
+        </div>
+
+        <div id="formMessage" class="muted" aria-live="polite" style="min-height:1.2em"></div>
+
+        <div class="actions">
+          <button type="button" class="btn secondary" id="closeModal">Cancel</button>
+          <button type="submit" class="btn">Confirm Booking</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ===== Helper UI functions =====
+    function $(sel, ctx=document) { return ctx.querySelector(sel); }
+    function $all(sel, ctx=document) { return Array.from(ctx.querySelectorAll(sel)); }
+
+    // Smooth scroll used by some buttons
+    function smoothScroll(hash){
+      const el = document.querySelector(hash);
+      if(!el) return;
+      el.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    // Modal open/close
+    const modal = $('#modalBackdrop');
+    const openBtns = [$('#openBooking'), $('#openBookingFloating'), $('#openBooking')].filter(Boolean);
+    function openModal(){
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden','false');
+      // focus first input
+      setTimeout(()=> { $('#name').focus(); }, 120);
+    }
+    function closeModal(){
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden','true');
+      $('#formMessage').textContent = '';
+      $('#bookingForm').reset();
+    }
+
+    $all('#openBooking, #openBookingFloating').forEach(btn=>{
+      if(btn) btn.addEventListener('click', openModal);
+    });
+    $('#closeModal').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=> {
+      if(e.target === modal) closeModal();
+    });
+
+    // Copy-to-clipboard for mantra
+    function copyTextFromSelector(selectorOrEl){
+      const el = (typeof selectorOrEl === 'string') ? document.querySelector(selectorOrEl) : selectorOrEl;
+      if(!el) return;
+      const text = el.innerText || el.textContent || '';
+      navigator.clipboard?.writeText(text.trim()).then(()=> {
+        alert('Mantra copied to clipboard');
+      }).catch(()=> {
+        // fallback
+        window.prompt('Copy the mantra (Ctrl+C / Cmd+C):', text);
+      });
+    }
+
+    $all('.copy-btn').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const target = btn.dataset.target || '#mantraText';
+        const el = document.querySelector(target) || document.querySelector('.mantra pre');
+        copyTextFromSelector(el);
+      });
+    });
+
+    // Booking form validation
+    const form = $('#bookingForm');
+    form.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      const name = $('#name').value.trim();
+      const phone = $('#phone').value.trim();
+      const service = $('#serviceType').value;
+      const date = $('#date').value;
+
+      const msg = $('#formMessage');
+
+      if(!name || !phone || !service || !date){
+        msg.textContent = 'Please fill the required fields (name, phone, service, date).';
+        msg.style.color = 'crimson';
+        return;
+      }
+
+      // Simple phone validation (basic)
+      if(!/^\+?\d{7,15}$/.test(phone.replace(/\s+/g,''))){
+        msg.textContent = 'Enter a valid phone number (digits only).';
+        msg.style.color = 'crimson';
+        return;
+      }
+
+      // Simulate booking success
+      msg.style.color = 'green';
+      msg.textContent = 'Booking confirmed locally. Confirmation sent to provided phone/email (demo).';
+
+      // Show a friendly message, close modal after a short delay
+      setTimeout(()=> {
+        alert('Thank you! Your booking request has been received.');
+        closeModal();
+      }, 900);
+    });
+
+    // Keyboard accessibility: close modal on ESC
+    document.addEventListener('keydown', (e)=> {
+      if(e.key === 'Escape' && modal.style.display === 'flex') closeModal();
+    });
+
+    // Optional: make external links smooth scroll if href starts with #
+    $all('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        const href = a.getAttribute('href');
+        if(href && href.startsWith('#')){
+          e.preventDefault();
+          smoothScroll(href);
+        }
+      });
+    });
+
+    // Small enhancement: reduce motion for users who prefer reduced motion
+    try {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if(mq.matches) document.documentElement.style.scrollBehavior = 'auto';
+    } catch(e){ /* ignore */ }
+
+  </script>
+</body>
+</html>

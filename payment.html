@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Varahi Temple - Donation Page</title>
+  <link rel="shortcut icon" href="./assets/img/images_new/VARAHI LOGO.svg" type="image/x-icon" />
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="assets/js/payment.js"></script>
+  <script src="assets/js/ultra-fast-loader.js" async></script>
+
+      
+
+
+  <style>
+    body {
+      font-family: "Arial", sans-serif;
+      background-color: #f5f1e8;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      
+    }
+
+    .donation-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+
+    }
+
+    .donation-header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 2px solid #ff9933;
+    }
+
+    .donation-header h1 {
+      color: #8b2131;
+      margin: 0;
+    }
+
+    .donation-header p {
+      color: #5d4037;
+      margin: 10px 0 0;
+    }
+
+    .donation-form-wrapper {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-top: 30px;
+    }
+
+    .donation-field {
+      margin-bottom: 20px;
+    }
+
+    .donation-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #5d4037;
+    }
+
+    .donation-input[type="text"],
+    .donation-input[type="email"],
+    .donation-input[type="tel"],
+    .donation-input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    .donation-button {
+      background-color: #ff9933;
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      width: 100%;
+      transition: background-color 0.3s;
+    }
+
+    .donation-button:hover {
+      background-color: #e88a2a;
+    }
+
+    .donation-button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .donation-response {
+      display: none;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .donation-response.success {
+      display: block;
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .donation-response.error {
+      display: block;
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .temple-image-wrapper {
+      text-align: center;
+      margin: 20px 0;
+    }
+  </style>
+  <!-- partial:partial/__stylesheets.html -->
+  <link rel="stylesheet" href="assets/css/plugins/bootstrap.min.css" />
+  <link rel="stylesheet" href="assets/css/plugins/animate.min.css" />
+  <link rel="stylesheet" href="assets/css/plugins/magnific-popup.css" />
+  <link rel="stylesheet" href="assets/css/plugins/slick.css" />
+  <link rel="stylesheet" href="assets/css/plugins/slick-theme.css" />
+  <link rel="stylesheet" href="assets/css/plugins/ion.rangeSlider.min.css" />
+  <script src="https://kit.fontawesome.com/9d0642729c.js" crossorigin="anonymous"></script>
+  <!-- Icon Fonts -->
+  <link rel="stylesheet" href="assets/css/plugins/font-awesome.min.css" />
+  <!-- Template Style sheet -->
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+</head>
+
+<body>
+  <!-- Preloader Start -->
+    <div class="sigma_preloader">
+        <img src="./assets/img/images_new/VARAHI LOGO.svg" alt="preloader" width="200px" />
+    </div>
+    <!-- Preloader End -->
+    <!-- Main Navbar -->
+    <nav class="main-navigation">
+        <div class="site-container">
+            <!-- Logo on the left -->
+            <div class="site-branding">
+                <a href="index.html">
+                    <img src="./assets/img/images_new/VARAHI LOGO.svg" alt="Jai Varahi Peedam" class="site-logo">
+                </a>
+            </div>
+            <!-- Desktop Navigation -->
+            <div class="desktop-navigation">
+                <ul class="desktop-menu">
+                    <li class="menu-item"><a href="index.html" class="menu-link">Home</a></li>
+                    <li class="menu-item"><a href="about.html" class="menu-link">About</a></li>
+                    <li class="menu-item"><a href="varahimalai.html" class="menu-link">Blog</a></li>
+                    <li class="menu-item menu-item-has-children">
+                        <a href="#" class="menu-link">Kosala</a>
+                        <ul class="desktop-dropdown">
+                            <li class="menu-item"><a href="payment.html" class="menu-link">cow feed Donation</a></li>
+                            <li class="menu-item"><a href="payment.html" class="menu-link">cow Donation Accepted</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item menu-item-has-children">
+                        <a href="#" class="menu-link">Jothidam</a>
+                        <ul class="desktop-dropdown">
+                            <li class="menu-item"><a href="comingsoon.html" class="menu-link">Astrology
+                                    prediction</a></li>
+                            <li class="menu-item"><a href="Vidyalayam.html" class="menu-link">Sri Varahi Jothida
+                                    Vidyalayam</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item menu-item-has-children">
+                        <a href="#" class="menu-link">Events</a>
+                        <ul class="desktop-dropdown">
+                            <li class="menu-item"><a href="asta-varahi-dharsan.html" class="menu-link">Asta Varahi
+                                    Dharshanam</a></li>
+                            <li class="menu-item"><a href="comingsoon.html" class="menu-link">Asta Varahi 2.0</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item"><a href="comingsoon.html" class="menu-link">Latest Updates</a></li>
+                </ul>
+            </div>
+            <!-- Desktop Actions -->
+            <div class="desktop-actions">
+                <a href="tel:+919092878389" class="icon-btn" aria-label="Call">
+                    <i class="fas fa-phone"></i>
+                </a>
+                <a href="payment.html" class="donate-btn" id="donate-bttn">Donate Now</a>
+                <a href="Calendar.html" class="icon-btn" aria-label="Calendar">
+                    <i class="fas fa-calendar-days"></i>
+                </a>
+            </div>
+            <!-- Mobile Menu Button -->
+            <div class="mobile-menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav">
+        <div class="mobile-nav-header">
+            <div class="site-branding">
+                <!-- <img src="./assets/img/images_new/VARAHI LOGO.svg" alt="Jai Varahi Peedam" class="site-logo" style="height: 40px; padding-left: 0;"> -->
+                <a href="payment.html" class="donate-btn" id="donate-bttn">Donate Now</a>
+            </div>
+            <button class="mobile-nav-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <ul class="mobile-nav-list">
+            <li class="menu-item"><a href="index.html" class="menu-link">Home</a></li>
+            <li class="menu-item"><a href="about.html" class="menu-link">About</a></li>
+            <li class="menu-item"><a href="varahimalai.html" class="menu-link">Blog</a></li>
+            <li class="menu-item menu-item-has-children">
+                <a href="#" class="menu-link">Kosala</a>
+                <ul class="mobile-dropdown">
+                    <li class="menu-item"><a href="payment.html" class="menu-link">Donation</a></li>
+                    <li class="menu-item"><a href="payment.html" class="menu-link">Donation Archive</a></li>
+                </ul>
+            </li>
+            <li class="menu-item menu-item-has-children">
+                <a href="#" class="menu-link">Jothidam</a>
+                <ul class="mobile-dropdown">
+                    <li class="menu-item"><a href="comingsoon.html" class="menu-link">Astrology prediction</a>
+                    </li>
+                    <li class="menu-item"><a href="Vidyalayam.html" class="menu-link">Sri Varahi Jothida Vidyalayam</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item menu-item-has-children">
+                <a href="#" class="menu-link">Events</a>
+                <ul class="mobile-dropdown">
+                    <li class="menu-item"><a href="asta-varahi-dharsan.html" class="menu-link">Asta Varahi
+                            Dharshanam</a></li>
+                    <li class="menu-item"><a href="comingsoon.html" class="menu-link">Asta Varahi 2.0</a></li>
+                </ul>
+            </li>
+            <li class="menu-item"><a href="comingsoon.html" class="menu-link">Latest Updates</a></li>
+        </ul>
+        <div class="mobile-nav-actions">
+            <!-- <a href="payment.html" class="donate-btn">Donate Now</a> -->
+            <!-- <div> -->
+            <a href="tel:+919092878389" class="icon-btn" aria-label="Call">
+                <i class="fas fa-phone"></i>
+            </a>
+            <a href="Calendar.html" class="icon-btn" aria-label="Calendar">
+                <i class="fas fa-calendar-days"></i>
+            </a>
+        </div>
+    </div>
+    </div>
+
+    <div class="mobile-nav-overlay"></div>
+  <div class="donation-container">
+    <div class="donation-header">
+      <h1>Sri Kottai Varahi Temple</h1>
+      <p>Support our temple through your generous donations</p>
+    </div>
+
+    <div class="temple-image-wrapper">
+      <img src="./assets/img/banner/website.png" width="400px" alt="Varahi Temple" />
+    </div>
+
+    <div class="donation-form-wrapper">
+      <h2>Make a Donation</h2>
+      <p>
+        Please fill in the details below to make your contribution to Sri
+        Varahi Temple.
+      </p>
+
+      <form id="donation-form">
+
+        <div class="donation-field">
+          <label class="donation-label" for="amount">Donation Amount (₹)</label>
+          <input type="number" id="amount" name="amount" class="donation-input" placeholder="Enter donation amount"
+            min="1" required />
+        </div>
+
+        <button type="button" id="pay-btn" class="donation-button">
+          Make Donation
+        </button>
+      </form>
+
+      <div id="payment-response" class="donation-response"></div>
+    </div>
+  </div>
+  <div class="demo-wrapper">
+        <footer class="spiritual-footer">
+            <div class="spiritual-container">
+                <div class="spiritual-footer-grid">
+                    <!-- About Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            about Us
+                        </h3>
+                        <div class="spiritual-about-card">
+                            <div class="spiritual-about-header">
+<img id="spiritualLogo" src="./assets/img/images_new/VARAHI LOGO.svg" alt="Jai Varahi Peedam Logo" class="spiritual-logo">
+                                <div class="spiritual-trust-name">Jai Varahi Peedam</div>
+                            </div>
+                            <div class="spiritual-about-description">
+                                Jai Varahi Peedam is a sacred spiritual center for the worship of Goddess Varahi,
+                                providing authentic guidance, rituals, and services in a peaceful temple environment for
+                                spiritual growth and meditation.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            Quick Links
+                        </h3>
+                        <ul class="spiritual-nav-list">
+                            <li class="spiritual-nav-item">
+                                <a href="index.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Home
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="about.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    About Us
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="asta-varahi-dharsan.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Asta Varahi Dharshanam
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="varahimalai.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Blog
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="comingsoon.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Latest Updates
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Customer Service Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            Information
+                        </h3>
+                        <ul class="spiritual-nav-list">
+                            <li class="spiritual-nav-item">
+                                <a href="comingsoon.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Kosala
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="Vidyalayam.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Vidyalayam
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="comingsoon.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Pooja
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="Privacy-Policy.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Privacy Policy
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="terms-condition.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Terms & Conditions
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Contact Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            Contact Us
+                        </h3>
+                        <div class="spiritual-contact-info">
+                            <div class="spiritual-contact-item">
+                                <i class="fa-solid fa-map-marker-alt spiritual-contact-icon"></i>
+                                <div>
+                                    Jai Varahi Peedam<br>Sri Kottai Varahi Amman temple street<br>Arumparuthi, Katpadi,<br>Vellore, 632106.
+                                </div>
+                            </div>
+                            <div class="spiritual-contact-item">
+                                <i class="fa-solid fa-phone spiritual-contact-icon"></i>
+                                <div>+91 90928 78389</div>
+                            </div>
+                            <div class="spiritual-contact-item">
+                                <i class="fa-solid fa-envelope spiritual-contact-icon"></i>
+                                <div>varahikottai@gmail.com</div>
+                            </div>
+                        </div>
+                        <div class="spiritual-social-links">
+                            <a href="https://www.facebook.com/PallurVarahiDhasan" class="spiritual-social-link">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://www.instagram.com/jai_varahi_peedam?igsh=bmhqcWtiYXlnc25p"
+                                class="spiritual-social-link">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="https://www.youtube.com/@kottaivarahiTV" class="spiritual-social-link">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="spiritual-footer-bottom">
+                <p class="spiritual-copyright">
+                    &copy; 2025 Jai Varahi Peedam. All Rights Reserved.
+                </p>
+            </div>
+        </footer>
+    </div>
+    <script src="assets/js/plugins/jquery-3.4.1.min.js"></script>
+    <script src="assets/js/plugins/popper.min.js"></script>
+    <script src="assets/js/plugins/bootstrap.min.js"></script>
+    <script src="assets/js/plugins/imagesloaded.min.js"></script>
+    <script src="assets/js/plugins/jquery.magnific-popup.min.js"></script>
+    <script src="assets/js/plugins/jquery.countdown.min.js"></script>
+    <script src="assets/js/plugins/jquery.waypoints.min.js"></script>
+    <script src="assets/js/plugins/jquery.counterup.min.js"></script>
+    <script src="assets/js/plugins/jquery.zoom.min.js"></script>
+    <script src="assets/js/plugins/jquery.inview.min.js"></script>
+    <script src="assets/js/plugins/jquery.event.move.js"></script>
+    <script src="assets/js/plugins/wow.min.js"></script>
+    <script src="assets/js/plugins/isotope.pkgd.min.js"></script>
+    <script src="assets/js/plugins/slick.min.js"></script>
+    <script src="assets/js/plugins/ion.rangeSlider.min.js"></script>
+    <!-- partial:partia/__scripts.html -->
+    
+
+    <script src="assets/js/main.js"></script>
+    <script src="./assets/js/demo.js"></script>
+
+<script>
+    document.getElementById('pay-btn').addEventListener('click', function () {
+    let amountValue = document.getElementById('amount').value.trim();
+    let amount = parseFloat(amountValue);
+    if (isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid amount");
+        return;
+    }
+    startPayment(amount);
+});
+</script>
+</body>
+
+</html>

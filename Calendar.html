@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pallur Varahi & Jai Varahi Calendar</title>
+    <meta name="description" content="Amavasai and Pournami pooja dates at Sri Kottai Varahi Temple , Jai Varahi Peedam ">
+    <meta name="keywords" content="Varahi, Amavasai, Pournami, Pooja, Pallur, Temple">
+    <meta name="author" content="Pallur Varahi & Jai Varahi Temple">
+    
+    <meta property="og:title" content="Pallur Varahi & Jai Varahi Calendar">
+    <meta property="og:description" content="Amavasai and Pournami pooja dates">
+    <meta property="og:type" content="website">
+
+   <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./assets/img./assets/img/images_new/VARAHI LOGO.svg"
+    />
+    <!-- Boxicons CDN -->
+    
+        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+
+    
+    <!-- partial:partial/__stylesheets.html -->
+    <link rel="stylesheet" href="assets/css/plugins/bootstrap.min.css" />
+    <!-- <link rel="stylesheet" href="assets/css/plugins/animate.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins/magnific-popup.css" />
+    <link rel="stylesheet" href="assets/css/plugins/slick.css" />
+    <link rel="stylesheet" href="assets/css/plugins/slick-theme.css" />
+    <link rel="stylesheet" href="assets/css/plugins/ion.rangeSlider.min.css" /> -->
+    <script
+      src="https://kit.fontawesome.com/9d0642729c.js"
+      crossorigin="anonymous"
+    ></script>
+    <!-- Icon Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- <link rel="stylesheet" href="assets/css/plugins/font-awesome.min.css" /> -->
+    <!-- Template Style sheet -->
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/responsive.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #9a3b34;
+            --secondary-color: #663333;
+            --accent-color: #e85a4f;
+            --text-color: #333;
+            --light-text: #fff;
+            --background-light: #f8f8f8;
+            --background-medium: #e6e6e6;
+            --navbar-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --past-event-bg: rgba(154, 59, 52, 0.1);
+            --future-event-bg: rgba(232, 90, 79, 0.1);
+            --today-bg: var(--primary-color);
+            --today-text: var(--light-text);
+            --hover-bg: rgba(154, 59, 52, 0.1);
+            --border-radius: 8px;
+            --amavasai-color: #8e44ad;
+            --pournami-color: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-light);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .calendar-header {
+            background-color: var(--light-text);
+            box-shadow: var(--navbar-shadow);
+            padding: 20px 0;
+            margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 28px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+        }
+
+        h1:hover {
+            opacity: 0.8;
+        }
+
+        h1 i {
+            font-size: 24px;
+        }
+
+        .today-hint-text {
+            font-size: 14px;
+            color: var(--secondary-color);
+            font-weight: normal;
+        }
+        
+        .navigation-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .year-navigation-controls, .month-navigation-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .year-selector-dropdown {
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--background-medium);
+            background-color: var(--light-text);
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .year-selector-dropdown:hover {
+            border-color: var(--primary-color);
+        }
+
+        .year-selector-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(154, 59, 52, 0.2);
+        }
+
+        .navigation-button {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            border: none;
+            border-radius: var(--border-radius);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .navigation-button:hover {
+            background-color: var(--accent-color);
+        }
+
+        .navigation-button:disabled {
+            background-color: var(--background-medium);
+            cursor: not-allowed;
+        }
+
+        .current-period-display {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--text-color);
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .calendar-grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .month-calendar-card {
+            background-color: var(--light-text);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .month-calendar-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .month-title-header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .calendar-days-grid {
+            padding: 15px;
+        }
+
+        .weekday-labels {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 10px;
+        }
+
+        .weekday-label {
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--secondary-color);
+            padding: 5px 0;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            font-size: 14px;
+        }
+
+        .calendar-day:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .calendar-day.day-from-other-month {
+            color: #ccc;
+        }
+
+        .calendar-day.current-day {
+            background-color: var(--today-bg);
+            color: var(--today-text);
+            font-weight: 600;
+        }
+
+        .calendar-day.day-with-event::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .calendar-day.day-with-amavasai::after {
+            background-color: var(--amavasai-color);
+        }
+
+        .calendar-day.day-with-pournami::after {
+            background-color: var(--pournami-color);
+        }
+
+        .event-details-panel {
+            background-color: var(--light-text);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            position: sticky;
+            top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .event-details-panel h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .selected-event-date {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .events-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .event-card {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .event-card.past-event {
+            background-color: var(--past-event-bg);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .event-card.future-event {
+            background-color: var(--future-event-bg);
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .event-card.amavasai-event {
+            border-left-color: var(--amavasai-color);
+        }
+
+        .event-card.pournami-event {
+            border-left-color: var(--pournami-color);
+        }
+
+        .event-name-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .event-details-text {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .event-details-tamil-text {
+            font-style: italic;
+            color: var(--primary-color);
+            margin-top: 5px;
+        }
+
+        .event-metadata {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: var(--secondary-color);
+        }
+
+        .event-metadata i {
+            margin-right: 5px;
+        }
+
+        .event-social-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .social-media-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .social-media-link:hover {
+            background-color: var(--accent-color);
+            transform: scale(1.1);
+        }
+
+        .no-events-message {
+            text-align: center;
+            color: var(--secondary-color);
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .event-category-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .past-event-badge {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+        }
+
+        .future-event-badge {
+            background-color: var(--accent-color);
+            color: var(--light-text);
+        }
+
+        .amavasai-event-badge {
+            background-color: var(--amavasai-color);
+            color: var(--light-text);
+        }
+
+        .pournami-event-badge {
+            background-color: var(--pournami-color);
+            color: var(--light-text);
+        }
+
+        .calendar-legend {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .legend-item-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .legend-color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .loading-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .loading-spinner {
+            border: 4px solid var(--background-medium);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .data-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--secondary-color);
+            margin-top: 10px;
+        }
+
+        .status-indicator-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #2ecc71;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator-dot.error {
+            background-color: #e74c3c;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @media (max-width: 1200px) {
+            .calendar-grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .calendar-grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .navigation-container {
+                justify-content: center;
+            }
+            
+            h1 {
+                font-size: 24px;
+                justify-content: center;
+            }
+            
+            .today-hint-text {
+                display: none;
+            }
+            
+            .event-details-panel {
+                position: static;
+                margin-top: 20px;
+            }
+        }
+
+        .event-details-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content-container {
+            background-color: var(--light-text);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            width: 400px;
+        }
+
+        .modal-header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--secondary-color);
+        }
+
+        @media (min-width: 769px) {
+            .event-details-modal {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+
+    
+   <!-- Preloader Start -->
+    <div class="sigma_preloader">
+        <img src="assets/img/images_new/VARAHI LOGO.svg" alt="preloader" width="200px" />
+    </div>
+    <!-- Preloader End -->
+    <!-- Main Navbar -->
+    <nav class="main-navigation">
+        <div class="site-container">
+            <!-- Logo on the left -->
+            <div class="site-branding">
+                <a href="index.html">
+                    <img src="./assets/img/images_new/VARAHI LOGO.svg" alt="Jai Varahi Peedam" class="site-logo">
+                </a>
+            </div>
+            <!-- Desktop Navigation -->
+            <div class="desktop-navigation">
+                <ul class="desktop-menu">
+                    <li class="menu-item"><a href="index.html" class="menu-link">Home</a></li>
+                    <li class="menu-item"><a href="about.html" class="menu-link">About</a></li>
+                    <li class="menu-item"><a href="varahimalai.html" class="menu-link">Blog</a></li>
+                    <li class="menu-item menu-item-has-children">
+                        <a href="#" class="menu-link">Kosala</a>
+                        <ul class="desktop-dropdown">
+                            <li class="menu-item"><a href="payment.html" class="menu-link">cow feed Donation</a></li>
+                            <li class="menu-item"><a href="payment.html" class="menu-link">cow Donation Accepted</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item menu-item-has-children">
+                        <a href="#" class="menu-link">Jothidam</a>
+                        <ul class="desktop-dropdown">
+                            <li class="menu-item"><a href="comingsoon.html" class="menu-link">Astrology
+                                    prediction</a></li>
+                            <li class="menu-item"><a href="Vidyalayam.html" class="menu-link">Sri Varahi Jothida
+                                    Vidyalayam</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item menu-item-has-children">
+                        <a href="#" class="menu-link">Events</a>
+                        <ul class="desktop-dropdown">
+                            <li class="menu-item"><a href="asta-varahi-dharsan.html" class="menu-link">Asta Varahi
+                                    Dharshanam</a></li>
+                            <li class="menu-item"><a href="comingsoon.html" class="menu-link">Asta Varahi 2.0</a></li>
+                        </ul>
+                    </li>
+                    <li class="menu-item"><a href="comingsoon.html" class="menu-link">Latest Updates</a></li>
+                </ul>
+            </div>
+            <!-- Desktop Actions -->
+            <div class="desktop-actions">
+                <a href="tel:+919092878389" class="icon-btn" aria-label="Call">
+                    <i class="fas fa-phone"></i>
+                </a>
+                <a href="payment.html" class="donate-btn" id="donate-bttn">Donate Now</a>
+                <a href="Calendar.html" class="icon-btn" aria-label="Calendar">
+                    <i class="fas fa-calendar-days"></i>
+                </a>
+            </div>
+            <!-- Mobile Menu Button -->
+            <div class="mobile-menu-btn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav">
+        <div class="mobile-nav-header">
+            <div class="site-branding">
+                <!-- <img src="assets/img/varahi.png" alt="Jai Varahi Peedam" class="site-logo" style="height: 40px; padding-left: 0;"> -->
+                <a href="payment.html" class="donate-btn" id="donate-bttn">Donate Now</a>
+            </div>
+            <button class="mobile-nav-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <ul class="mobile-nav-list">
+            <li class="menu-item"><a href="index.html" class="menu-link">Home</a></li>
+            <li class="menu-item"><a href="about.html" class="menu-link">About</a></li>
+            <li class="menu-item"><a href="varahimalai.html" class="menu-link">Blog</a></li>
+            <li class="menu-item menu-item-has-children">
+                <a href="#" class="menu-link">Kosala</a>
+                <ul class="mobile-dropdown">
+                    <li class="menu-item"><a href="payment.html" class="menu-link">Donation</a></li>
+                    <li class="menu-item"><a href="payment.html" class="menu-link">Donation Archive</a></li>
+                </ul>
+            </li>
+            <li class="menu-item menu-item-has-children">
+                <a href="#" class="menu-link">Jothidam</a>
+                <ul class="mobile-dropdown">
+                    <li class="menu-item"><a href="comingsoon.html" class="menu-link">Astrology prediction</a>
+                    </li>
+                    <li class="menu-item"><a href="Vidyalayam.html" class="menu-link">Sri Varahi Jothida Vidyalayam</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item menu-item-has-children">
+                <a href="#" class="menu-link">Events</a>
+                <ul class="mobile-dropdown">
+                    <li class="menu-item"><a href="asta-varahi-dharsan.html" class="menu-link">Asta Varahi
+                            Dharshanam</a></li>
+                    <li class="menu-item"><a href="comingsoon.html" class="menu-link">Asta Varahi 2.0</a></li>
+                </ul>
+            </li>
+            <li class="menu-item"><a href="comingsoon.html" class="menu-link">Latest Updates</a></li>
+        </ul>
+        <div class="mobile-nav-actions">
+            <!-- <a href="payment.html" class="donate-btn">Donate Now</a> -->
+            <!-- <div> -->
+            <a href="tel:+919092878389" class="icon-btn" aria-label="Call">
+                <i class="fas fa-phone"></i>
+            </a>
+            <a href="Calendar.html" class="icon-btn" aria-label="Calendar">
+                <i class="fas fa-calendar-days"></i>
+            </a>
+        </div>
+    </div>
+    </div>
+
+    <div class="mobile-nav-overlay"></div>
+    
+    <div class="calendar-header">
+        <div class="header-content-container">
+            <h1 id="calendarTitle">
+                <i class="fas fa-calendar-alt"></i>
+                Pallur Varahi & Jai Varahi Calendar
+                <span class="today-hint-text">(Click to go to today)</span>
+            </h1>
+            <div class="navigation-container">
+                <div class="year-navigation-controls">
+                    <button id="prevYear" class="navigation-button">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <select id="yearSelect" class="year-selector-dropdown"></select>
+                    <button id="nextYear" class="navigation-button">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="month-navigation-controls">
+                    <button id="prevMonth" class="navigation-button">
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                    <div class="current-period-display" id="currentPeriod"></div>
+                    <button id="nextMonth" class="navigation-button">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="calendar-legend">
+            <div class="legend-item-container">
+                <div class="legend-color-indicator" style="background-color: var(--amavasai-color);"></div>
+                <span>Amavasai</span>
+            </div>
+            <div class="legend-item-container">
+                <div class="legend-color-indicator" style="background-color: var(--pournami-color);"></div>
+                <span>Pournami</span>
+            </div>
+        </div>
+
+        <div class="calendar-grid-container" id="calendarContainer">
+            <div class="loading-indicator">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+        
+        <div class="event-details-panel" id="eventPanel">
+            <h2>Event Details</h2>
+            <div id="eventDetails">
+                <div class="no-events-message">Select a date to view events</div>
+            </div>
+            <div class="data-status-indicator">
+                <div class="status-indicator-dot" id="statusDot"></div>
+                <span id="statusText">Loading calendar data...</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="eventModal" class="event-details-modal">
+        <div class="modal-content-container">
+            <div class="modal-header-section">
+                <h2>Event Details</h2>
+                <button class="modal-close-button" id="eventModalClose">&times;</button>
+            </div>
+            <div id="modalEventDetails"></div>
+        </div>
+    </div>
+
+    <div class="demo-wrapper">
+        <footer class="spiritual-footer">
+            <div class="spiritual-container">
+                <div class="spiritual-footer-grid">
+                    <!-- About Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            about Us
+                        </h3>
+                        <div class="spiritual-about-card">
+                            <div class="spiritual-about-header">
+                                <img src="./assets/img/images_new/VARAHI LOGO.svg" id="spiritualLogo" alt="Jai Varahi Peedam Logo" class="spiritual-logo">
+                                <div class="spiritual-trust-name">Jai Varahi Peedam</div>
+                            </div>
+                            <div class="spiritual-about-description">
+                                Jai Varahi Peedam is a sacred spiritual center for the worship of Goddess Varahi,
+                                providing authentic guidance, rituals, and services in a peaceful temple environment for
+                                spiritual growth and meditation.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            Quick Links
+                        </h3>
+                        <ul class="spiritual-nav-list">
+                            <li class="spiritual-nav-item">
+                                <a href="index.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Home
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="about.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    About Us
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="asta-varahi-dharsan.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Asta Varahi Dharshanam
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="varahimalai.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Blog
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="comingsoon.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Latest Updates
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Customer Service Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            Information
+                        </h3>
+                        <ul class="spiritual-nav-list">
+                            <li class="spiritual-nav-item">
+                                <a href="comingsoon.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Kosala
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="Vidyalayam.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Vidyalayam
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="comingsoon.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Pooja
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="Privacy-Policy.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Privacy Policy
+                                </a>
+                            </li>
+                            <li class="spiritual-nav-item">
+                                <a href="terms-condition.html" class="spiritual-nav-link">
+                                    <span class="spiritual-nav-om">ॐ</span>
+                                    Terms & Conditions
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Contact Column -->
+                    <div class="spiritual-footer-column">
+                        <h3 class="spiritual-column-header">
+                            Contact Us
+                        </h3>
+                        <div class="spiritual-contact-info">
+                            <div class="spiritual-contact-item">
+                                <i class="fa-solid fa-map-marker-alt spiritual-contact-icon"></i>
+                                <div>
+                                    Jai Varahi Peedam<br>Sri Kottai Varahi Amman temple street<br>Arumparuthi, Katpadi,<br>Vellore, 632106.
+                                </div>
+                            </div>
+                            <div class="spiritual-contact-item">
+                                <i class="fa-solid fa-phone spiritual-contact-icon"></i>
+                                <div>+91 90928 78389</div>
+                            </div>
+                            <div class="spiritual-contact-item">
+                                <i class="fa-solid fa-envelope spiritual-contact-icon"></i>
+                                <div>varahikottai@gmail.com</div>
+                            </div>
+                        </div>
+                        <div class="spiritual-social-links">
+                            <a href="https://www.facebook.com/PallurVarahiDhasan" class="spiritual-social-link">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://www.instagram.com/jai_varahi_peedam?igsh=bmhqcWtiYXlnc25p"
+                                class="spiritual-social-link">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="https://www.youtube.com/@kottaivarahiTV" class="spiritual-social-link">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="spiritual-footer-bottom">
+                <p class="spiritual-copyright">
+                    &copy; 2025 Jai Varahi Peedam. All Rights Reserved.
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- partial -->
+
+    <!-- partial:partia/__scripts.html -->
+    <script src="assets/js/plugins/jquery-3.4.1.min.js"></script>
+    <script src="assets/js/plugins/popper.min.js"></script>
+    <script src="assets/js/plugins/bootstrap.min.js"></script>
+    <!-- <script src="assets/js/plugins/imagesloaded.min.js"></script>
+    <script src="assets/js/plugins/jquery.magnific-popup.min.js"></script>
+    <script src="assets/js/plugins/jquery.countdown.min.js"></script>
+    <script src="assets/js/plugins/jquery.waypoints.min.js"></script>
+    <script src="assets/js/plugins/jquery.counterup.min.js"></script>
+    <script src="assets/js/plugins/jquery.zoom.min.js"></script>
+    <script src="assets/js/plugins/jquery.inview.min.js"></script>
+    <script src="assets/js/plugins/jquery.event.move.js"></script>
+    <script src="assets/js/plugins/wow.min.js"></script>
+    <script src="assets/js/plugins/isotope.pkgd.min.js"></script>
+    <script src="assets/js/plugins/slick.min.js"></script>
+    <script src="assets/js/plugins/ion.rangeSlider.min.js"></script> -->
+    
+    <script src="assets/js/main.js"></script>
+    <!-- <script src="./assets/js/demo.js"></script> -->
+    <script>
+    let currentDate = new Date();
+    let currentYear = currentDate.getFullYear();
+    let currentMonth = currentDate.getMonth();
+    let selectedDate = null;
+    let eventsData = {};
+
+    const calendarContainer = document.getElementById('calendarContainer');
+    const eventDetails = document.getElementById('eventDetails');
+    const modalEventDetails = document.getElementById('modalEventDetails');
+    const eventModal = document.getElementById('eventModal');
+    const eventModalClose = document.getElementById('eventModalClose');
+    const currentPeriod = document.getElementById('currentPeriod');
+    const yearSelect = document.getElementById('yearSelect');
+    const prevYearBtn = document.getElementById('prevYear');
+    const nextYearBtn = document.getElementById('nextYear');
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+    const calendarTitle = document.getElementById('calendarTitle');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+
+    const socialMediaLinks = {
+        facebook: "https://www.facebook.com/PallurVarahiDhasan",
+        instagram: "https://www.instagram.com/jai_varahi_peedam",
+        youtube: "https://www.youtube.com/@kottaivarahiTV"
+    };
+
+    // Load events from JSON file
+    async function loadEventsFromJSON() {
+        try {
+            updateStatus(false, 'Loading events from JSON...');
+            const response = await fetch('events.json');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Check if data is in expected format
+            if (typeof data !== 'object' || data === null) {
+                throw new Error('Invalid JSON format');
+            }
+            
+            eventsData = data;
+            updateStatus(true, `Successfully loaded ${Object.keys(eventsData).length} events from JSON`);
+            updateCalendar();
+        } catch (error) {
+            console.error('Error loading events:', error);
+            updateStatus(false, `Failed to load events.json: ${error.message}`);
+            // Initialize empty eventsData and update calendar
+            eventsData = {};
+            updateCalendar();
+        }
+    }
+
+    function init() {
+        setupYearSelect();
+        updateNavigationButtons();
+        attachEventListeners();
+        loadEventsFromJSON();
+    }
+
+    function updateStatus(success, message) {
+        if (success) {
+            statusDot.classList.remove('error');
+        } else {
+            statusDot.classList.add('error');
+        }
+        statusText.textContent = message;
+    }
+
+    function setupYearSelect() {
+        const todayYear = new Date().getFullYear();
+        yearSelect.innerHTML = '';
+        
+        for (let year = todayYear - 4; year <= todayYear + 4; year++) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+        
+        yearSelect.value = currentYear;
+    }
+
+    function goToToday() {
+        const today = new Date();
+        currentYear = today.getFullYear();
+        currentMonth = today.getMonth();
+        yearSelect.value = currentYear;
+        updateCalendar();
+        updateNavigationButtons();
+        
+        const todayStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        showEventDetails(todayStr);
+    }
+
+    function updateCalendar() {
+        currentYear = parseInt(yearSelect.value);
+        
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            
+        currentPeriod.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        
+        calendarContainer.innerHTML = '';
+        
+        for (let i = 0; i < 4; i++) {
+            const month = (currentMonth + i) % 12;
+            const year = currentMonth + i > 11 ? currentYear + 1 : currentYear;
+            calendarContainer.appendChild(createMonthCard(month, year, monthNames, weekdayNames));
+        }
+    }
+
+    function createMonthCard(month, year, monthNames, weekdayNames) {
+        const monthCard = document.createElement('div');
+        monthCard.className = 'month-calendar-card';
+        
+        const monthHeader = document.createElement('div');
+        monthHeader.className = 'month-title-header';
+        monthHeader.textContent = `${monthNames[month]} ${year}`;
+        monthCard.appendChild(monthHeader);
+        
+        const calendarGrid = document.createElement('div');
+        calendarGrid.className = 'calendar-days-grid';
+        
+        const weekdays = document.createElement('div');
+        weekdays.className = 'weekday-labels';
+        weekdayNames.forEach(day => {
+            const weekday = document.createElement('div');
+            weekday.className = 'weekday-label';
+            weekday.textContent = day;
+            weekdays.appendChild(weekday);
+        });
+        calendarGrid.appendChild(weekdays);
+        
+        const days = document.createElement('div');
+        days.className = 'calendar-days';
+        
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const daysInPrevMonth = new Date(year, month, 0).getDate();
+        
+        for (let i = firstDay - 1; i >= 0; i--) {
+            days.appendChild(createDayElement(daysInPrevMonth - i, month - 1, year, true));
+        }
+        
+        for (let i = 1; i <= daysInMonth; i++) {
+            days.appendChild(createDayElement(i, month, year, false));
+        }
+        
+        const totalCells = days.children.length;
+        const remainingCells = 42 - totalCells;
+        for (let i = 1; i <= remainingCells; i++) {
+            days.appendChild(createDayElement(i, month + 1, year, true));
+        }
+        
+        calendarGrid.appendChild(days);
+        monthCard.appendChild(calendarGrid);
+        return monthCard;
+    }
+
+    function createDayElement(day, month, year, isOtherMonth) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        
+        let adjustedMonth = month;
+        let adjustedYear = year;
+        
+        if (month < 0) {
+            adjustedMonth = 11;
+            adjustedYear = year - 1;
+        } else if (month > 11) {
+            adjustedMonth = 0;
+            adjustedYear = year + 1;
+        }
+        
+        const dateStr = `${adjustedYear}-${String(adjustedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        if (eventsData[dateStr]) {
+            dayElement.classList.add('day-with-event');
+            dayElement.classList.add(`day-with-${eventsData[dateStr].category}`);
+        }
+        
+        if (isOtherMonth) {
+            dayElement.classList.add('day-from-other-month');
+        }
+        
+        const today = new Date();
+        if (day === today.getDate() && adjustedMonth === today.getMonth() && adjustedYear === today.getFullYear()) {
+            dayElement.classList.add('current-day');
+        }
+        
+        dayElement.textContent = day;
+        dayElement.addEventListener('click', () => showEventDetails(dateStr));
+        
+        return dayElement;
+    }
+
+    function showEventDetails(dateStr) {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        eventDetails.innerHTML = '';
+        modalEventDetails.innerHTML = '';
+        
+        const eventDateElement = document.createElement('div');
+        eventDateElement.className = 'selected-event-date';
+        eventDateElement.textContent = `${monthNames[month - 1]} ${day}, ${year}`;
+        
+        const modalEventDateElement = eventDateElement.cloneNode(true);
+        
+        const eventList = document.createElement('div');
+        eventList.className = 'events-list-container';
+        
+        const modalEventList = eventList.cloneNode(true);
+        
+        if (eventsData[dateStr]) {
+            const event = eventsData[dateStr];
+            const eventDate = new Date(dateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const eventType = eventDate < today ? 'past-event' : 'future-event';
+            
+            const eventItem = document.createElement('div');
+            eventItem.className = `event-card ${eventType} ${event.category}-event`;
+            
+            const modalEventItem = eventItem.cloneNode(true);
+            
+            const eventTypeBadge = document.createElement('div');
+            eventTypeBadge.className = `event-category-badge ${eventType}-badge ${event.category}-event-badge`;
+            eventTypeBadge.textContent = eventType === 'past-event' ? 'Past Event' : 'Future Event';
+            
+            const modalEventTypeBadge = eventTypeBadge.cloneNode(true);
+            
+            const eventTitle = document.createElement('div');
+            eventTitle.className = 'event-name-title';
+            eventTitle.textContent = event.title;
+            
+            const modalEventTitle = eventTitle.cloneNode(true);
+            
+            const eventDescription = document.createElement('div');
+            eventDescription.className = 'event-details-text';
+            eventDescription.textContent = event.descriptionEnglish;
+            
+            const modalEventDescription = eventDescription.cloneNode(true);
+            
+            const eventDescriptionTamil = document.createElement('div');
+            eventDescriptionTamil.className = 'event-details-tamil-text';
+            eventDescriptionTamil.textContent = event.descriptionTamil;
+            
+            const modalEventDescriptionTamil = eventDescriptionTamil.cloneNode(true);
+            
+            const eventMeta = document.createElement('div');
+            eventMeta.className = 'event-metadata';
+            
+            const modalEventMeta = eventMeta.cloneNode(true);
+            
+            if (event.time) {
+                const timeMeta = document.createElement('div');
+                timeMeta.innerHTML = `<i class="far fa-clock"></i> ${event.time}`;
+                eventMeta.appendChild(timeMeta);
+                
+                const modalTimeMeta = timeMeta.cloneNode(true);
+                modalEventMeta.appendChild(modalTimeMeta);
+            }
+            
+            const eventSocial = document.createElement('div');
+            eventSocial.className = 'event-social-links';
+            
+            const modalEventSocial = eventSocial.cloneNode(true);
+            
+            // Get social media links for this event (event-specific or global)
+            const eventSocialLinks = event.socialMedia || socialMediaLinks;
+            
+            // Add social media links
+            Object.entries(eventSocialLinks).forEach(([platform, url]) => {
+                const socialLink = document.createElement('a');
+                socialLink.href = url;
+                socialLink.className = 'social-media-link';
+                socialLink.target = '_blank';
+                socialLink.setAttribute('aria-label', platform);
+                
+                const icon = document.createElement('i');
+                icon.className = `fab fa-${platform}`;
+                socialLink.appendChild(icon);
+                
+                eventSocial.appendChild(socialLink);
+                
+                const modalSocialLink = socialLink.cloneNode(true);
+                modalEventSocial.appendChild(modalSocialLink);
+            });
+            
+            // Assemble event items
+            eventItem.appendChild(eventTypeBadge);
+            eventItem.appendChild(eventTitle);
+            eventItem.appendChild(eventDescription);
+            eventItem.appendChild(eventDescriptionTamil);
+            eventItem.appendChild(eventMeta);
+            eventItem.appendChild(eventSocial);
+            
+            modalEventItem.appendChild(modalEventTypeBadge);
+            modalEventItem.appendChild(modalEventTitle);
+            modalEventItem.appendChild(modalEventDescription);
+            modalEventItem.appendChild(modalEventDescriptionTamil);
+            modalEventItem.appendChild(modalEventMeta);
+            modalEventItem.appendChild(modalEventSocial);
+            
+            eventList.appendChild(eventItem);
+            modalEventList.appendChild(modalEventItem);
+        } else {
+            const noEvents = document.createElement('div');
+            noEvents.className = 'no-events-message';
+            noEvents.textContent = 'No events scheduled for this date';
+            
+            eventList.appendChild(noEvents);
+            
+            const modalNoEvents = noEvents.cloneNode(true);
+            modalEventList.appendChild(modalNoEvents);
+        }
+        
+        eventDetails.appendChild(eventDateElement);
+        eventDetails.appendChild(eventList);
+        
+        modalEventDetails.appendChild(modalEventDateElement);
+        modalEventDetails.appendChild(modalEventList);
+        
+        // Show modal on mobile
+        if (window.innerWidth <= 768) {
+            eventModal.style.display = 'flex';
+        }
+    }
+
+    function updateNavigationButtons() {
+        const today = new Date();
+        const todayYear = today.getFullYear();
+        const todayMonth = today.getMonth();
+        
+        // Update year navigation
+        prevYearBtn.disabled = currentYear <= todayYear - 4;
+        nextYearBtn.disabled = currentYear >= todayYear + 4;
+        
+        // Update month navigation
+        if (currentYear === todayYear - 4 && currentMonth === 0) {
+            prevMonthBtn.disabled = true;
+        } else {
+            prevMonthBtn.disabled = false;
+        }
+        
+        if (currentYear === todayYear + 4 && currentMonth === 11) {
+            nextMonthBtn.disabled = true;
+        } else {
+            nextMonthBtn.disabled = false;
+        }
+    }
+
+    function attachEventListeners() {
+        // Year select
+        yearSelect.addEventListener('change', () => {
+            updateCalendar();
+            updateNavigationButtons();
+        });
+        
+        // Year navigation
+        prevYearBtn.addEventListener('click', () => {
+            if (currentYear > parseInt(yearSelect.options[0].value)) {
+                yearSelect.value = currentYear - 1;
+                updateCalendar();
+                updateNavigationButtons();
+            }
+        });
+        
+        nextYearBtn.addEventListener('click', () => {
+            if (currentYear < parseInt(yearSelect.options[yearSelect.options.length - 1].value)) {
+                yearSelect.value = currentYear + 1;
+                updateCalendar();
+                updateNavigationButtons();
+            }
+        });
+        
+        // Month navigation
+        prevMonthBtn.addEventListener('click', () => {
+            if (currentMonth === 0) {
+                currentMonth = 11;
+                currentYear--;
+                yearSelect.value = currentYear;
+            } else {
+                currentMonth--;
+            }
+            updateCalendar();
+            updateNavigationButtons();
+        });
+        
+        nextMonthBtn.addEventListener('click', () => {
+            if (currentMonth === 11) {
+                currentMonth = 0;
+                currentYear++;
+                yearSelect.value = currentYear;
+            } else {
+                currentMonth++;
+            }
+            updateCalendar();
+            updateNavigationButtons();
+        });
+        
+        // Calendar title click to go to today
+        calendarTitle.addEventListener('click', goToToday);
+        
+        // Modal close
+        eventModalClose.addEventListener('click', () => {
+            eventModal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside
+        eventModal.addEventListener('click', (e) => {
+            if (e.target === eventModal) {
+                eventModal.style.display = 'none';
+            }
+        });
+        
+        // Window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                eventModal.style.display = 'none';
+            }
+        });
+    }
+
+    // Initialize calendar
+    init();
+</script>
+<script>
+    
+</script>
+</body>
+</html>
