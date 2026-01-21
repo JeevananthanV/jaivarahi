@@ -42,15 +42,12 @@
 
     <!-- 2. Local Plugins (Bootstrap, Slick) - Load Asynchronously -->
     <link rel="stylesheet" href="assets/css/plugins/bootstrap.min.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="assets/css/plugins/slick-theme.css" media="print" onload="this.media='all'">
+    <!-- <link rel="stylesheet" href="assets/css/plugins/slick-theme.css" media="print" onload="this.media='all'"> -->
 
     <!-- 3. Main Themes - Load Asynchronously -->
-    <link rel="stylesheet" href="assets/css/responsive.css" media="print" onload="this.media='all'">
+    <!-- <link rel="stylesheet" href="assets/css/responsive.css" media="print" onload="this.media='all'"> -->
     <link rel="stylesheet" href="assets/css/styles1.css" media="print" onload="this.media='all'">
-    
-    <!-- 4. Critical Style - Preload (High Priority) -->
-    <link rel="preload" href="assets/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="assets/css/style.css"></noscript>
+    <link rel="stylesheet" href="assets/css/style.css" />
 
     <!-- Structured Data (JSON-LD) - UPDATED based on Document Content -->
     <script type="application/ld+json">
@@ -90,9 +87,43 @@
 </head>
 <body>
 
-     <!-- Preloader Start -->
-    <div class="sigma_preloader">
-      <img src="./assets/img/images_new/VARAHI LOGO.svg" alt="preloader" width="200px" />
+
+    <!-- PRELOADER START -->
+    <div id="jaivarahiPreloader" class="jaivarahi-preloader" role="status" aria-label="Loading">
+        
+        <!-- Divine Light Overlay -->
+        <div class="divine-light"></div>
+
+        <!-- Multiple Wave Layers -->
+        <div class="wave-container">
+            <div class="wave wave-1"></div>
+            <div class="wave wave-2"></div>
+            <div class="wave wave-3"></div>
+            <div class="wave wave-4"></div>
+            <div class="wave wave-5"></div>
+        </div>
+
+        <!-- The Stage -->
+        <div class="spiritual-stage">
+            
+            <!-- The Om Symbol -->
+            <div class="om-symbol" aria-hidden="true">ॐ</div>
+
+            <!-- The Beep Ripples -->
+            <div class="beep-ripple"></div>
+            <div class="beep-ripple"></div>
+
+            <!-- The Logo Image -->
+            <img src="VARAHI LOGO.svg" 
+                 alt="Jaivarahi Spiritual Logo" 
+                 width="120" 
+                 height="120" 
+                 class="logo-img">
+        </div>
+
+        <!-- Text -->
+        <div class="mantra">Om Shanti Shanti Shanti</div>
+
     </div>
     <!-- Preloader End -->
 
@@ -111,7 +142,13 @@
         <ul class="desktop-menu">
           <li class="menu-item"><a href="index.html" class="menu-link">Home</a></li>
           <li class="menu-item"><a href="about.html" class="menu-link">About</a></li>
-          <li class="menu-item"><a href="varahimalai.html" class="menu-link">Blog</a></li>
+            <li class="menu-item menu-item-has-children">
+                <a href="#" class="menu-link">Blog</a>
+                <ul class="desktop-dropdown">
+                <li class="menu-item"><a href="varahimalai.html" class="menu-link">Varahi Malai</a></li>
+                <li class="menu-item"><a href="who_is_varahi.html" class="menu-link">Who is varahi ?</a></li>
+                </ul>
+            </li>
           <li class="menu-item menu-item-has-children">
             <a href="#" class="menu-link">Kosala</a>
             <ul class="desktop-dropdown">
@@ -130,7 +167,7 @@
             <a href="#" class="menu-link">Events</a>
             <ul class="desktop-dropdown">
               <li class="menu-item"><a href="asta-varahi-dharsan.html" class="menu-link">Asta Varahi Dharshanam</a></li>
-              <li class="menu-item"><a href="comingsoon.html" class="menu-link">Asta Varahi 2.0</a></li>
+              <li class="menu-item"><a href="asta_varahi_2.html" class="menu-link">Asta Varahi 2.0</a></li>
             </ul>
           </li>
           <li class="menu-item"><a href="comingsoon.html" class="menu-link">Latest Updates</a></li>
@@ -139,8 +176,7 @@
 
       <!-- Desktop Actions -->
       <div class="desktop-actions">
-        <a href="tel:+919092878389" class="icon-btn" aria-label="Call">
-<i class="fas fa-phone-alt"></i>
+        <a href="tel:+919092878389" class="icon-btn" aria-label="Call"><i class="fas fa-phone-alt"></i>
         </a>
         <a href="payment.html" class="donate-btn">Donate Now</a>
         <a href="Calendar.html" class="icon-btn" aria-label="Calendar">
@@ -172,7 +208,13 @@
     <ul class="mobile-nav-list">
       <li class="menu-item"><a href="index.html" class="menu-link">Home</a></li>
       <li class="menu-item"><a href="about.html" class="menu-link">About</a></li>
-      <li class="menu-item"><a href="varahimalai.html" class="menu-link">Blog</a></li>
+      <li class="menu-item menu-item-has-children">
+        <a href="#" class="menu-link">Blog</a>
+        <ul class="mobile-dropdown">
+          <li class="menu-item"><a href="varahimalai.html" class="menu-link">Varahi Malai</a></li>
+          <li class="menu-item"><a href="who_is_varahi.html" class="menu-link">Who is varahi ?</a></li>
+        </ul>
+      </li>
       <li class="menu-item menu-item-has-children">
         <a href="#" class="menu-link">Kosala</a>
         <ul class="mobile-dropdown">
@@ -191,7 +233,7 @@
         <a href="#" class="menu-link">Events</a>
         <ul class="mobile-dropdown">
           <li class="menu-item"><a href="asta-varahi-dharsan.html" class="menu-link">Asta Varahi Dharshanam</a></li>
-          <li class="menu-item"><a href="comingsoon.html" class="menu-link">Asta Varahi 2.0</a></li>
+          <li class="menu-item"><a href="asta_varahi_2.html" class="menu-link">Asta Varahi 2.0</a></li>
         </ul>
       </li>
       <li class="menu-item"><a href="comingsoon.html" class="menu-link">Latest Updates</a></li>
@@ -211,76 +253,68 @@
   </div>
   
   <div class="mobile-nav-overlay"></div>
-    <!-- Banner Start -->
-    <div class="sigma_banner banner-3">
-        <div class="sigma_banner-slider">
-            <!-- Banner Item Start -->
-            <!-- Add preload for critical resources in your <head> -->
-<div class="light-bg sigma_banner-slider-inner bg-cover bg-center bg-norepeat slick-sl..." style="background-image: url('./assets/img/images_new/banner3.avif'); width: 100%; " data-slick-index="0" aria-hidden="false" tabindex="0">
-                <div class="sigma_banner-text">
-                    <div class="container">
-                        <div class="row align-items-center">
-                            <div class="col-lg-6">
-                                <h1 class="title banner-head">
-                                    Some Important Life Lessons From Varahi
-                                </h1>
-                                <p style="color: white" class="blockquote mb-0 bg-transparent">
-                                    Goddess Varahi teaches us courage, wisdom, and the strength
-                                    to overcome darkness. Her divine lessons inspire us to walk
-                                    a path of righteousness, protect dharma, and lead a life of
-                                    inner power and peace.
-                                </p>
-                                <div class="section-button d-flex align-items-center">
-                                    <a href="payment.html" class="sigma_btn-custom disabled-link">Join Today
-                                        <i class="fa-solid fa-arrow-right"></i>
-                                    </a>
-                                    <a href="about.html" class="ms-3 sigma_btn-custom white disabled-link">View Services
-                                        <i class="fa-solid fa-arrow-right"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+    <!-- Main Container (Renamed ID/Class) -->
+    <section class="slideshow-wrapper" id="mainGallery">
+        
+        <!-- Slide 1 (Renamed Class) -->
+        <div class="slideshow-slide active">
+            <div class="slide-image" style="background-image: url('./assets/img/banner/banner1.jpg');"></div>
+            <div class="slide-dimmer"></div>
+            
+            <div class="slide-content">
+                <div class="content-box">
+                    <h1 class="headline-text">Some Important Life Lessons From Varahi</h1>
+                    <p class="subheadline-text">
+                        Goddess Varahi teaches us courage, wisdom, and the strength to overcome darkness. 
+                        Her divine lessons inspire us to walk a path of righteousness, protect dharma, 
+                        and lead a life of inner power and peace.
+                    </p>
+                    <div class="button-group">
+                        <a href="payment.html" class="custom-btn main-button">Join Today <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="about.html" class="custom-btn outline-button">View Services <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
-            <!-- Banner Item End -->
-
-            <!-- Banner Item Start -->
-            <div class="light-bg sigma_banner-slider-inner bg-cover bg-center bg-norepeat"
-                style="background-image: url('./assets/img/images_new/banner2.avif')">
-                <div class="sigma_banner-text">
-                    <div class="container">
-                        <div class="row align-items-center">
-                            <div class="col-lg-6">
-                                <h1 class="title banner-head">
-                                    We are devotees who believe in Varahi.
-                                </h1>
-                                <p style="color: white" class="blockquote mb-0 bg-transparent">
-                                    At the heart of our devotion is Goddess Varahi — a fierce
-                                    yet compassionate embodiment of Shakti. We celebrate the
-                                    rich spiritual heritage of Hinduism and follow the divine
-                                    paths of Lord Rama and Vishnu Deva. Our mission is to
-                                    inspire peace, faith, and fulfillment through unwavering
-                                    spiritual guidance and deep-rooted devotion.
-                                </p>
-                                <div class="section-button d-flex align-items-center">
-                                    <a href="payment.html" class="sigma_btn-custom disabled-link">Join Today
-                                        <i class="fa-solid fa-arrow-right"></i>
-                                    </a>
-                                    <a href="about.html" class="ms-3 sigma_btn-custom white disabled-link">View Services
-                                        <i class="fa-solid fa-arrow-right"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Banner Item End -->
         </div>
-    </div>
-    <!-- Banner End -->
-    <!-- Semantic Aside Tag -->
+
+        <!-- Slide 2 (Renamed Class) -->
+        <div class="slideshow-slide">
+            <div class="slide-image" style="background-image: url('./assets/img/banner/banner2.jpg');"></div>
+            <div class="slide-dimmer"></div>
+            
+            <div class="slide-content">
+                <div class="content-box">
+                    <h1 class="headline-text">We are devotees who believe in Varahi.</h1>
+                    <p class="subheadline-text">
+                        At the heart of our devotion is Goddess Varahi — a fierce yet compassionate embodiment of Shakti. 
+                        We celebrate the rich spiritual heritage of Hinduism and follow the divine paths of Lord Rama 
+                        and Vishnu Deva. Our mission is to inspire peace, faith, and fulfillment.
+                    </p>
+                    <div class="button-group">
+                        <a href="payment.html" class="custom-btn main-button">Join Today <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="about.html" class="custom-btn outline-button">View Services <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Arrows (Renamed Classes) -->
+        <div class="navigation-controls">
+            <button class="nav-arrow prev-button" aria-label="Previous Slide">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <button class="nav-arrow next-button" aria-label="Next Slide">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- Pagination Dots (Renamed ID/Classes) -->
+        <div class="pagination-dots" id="galleryDots">
+            <!-- Dots injected via JS -->
+        </div>
+
+    </section>
+
     <!-- Aria-label describes the content for Screen Readers -->
     <div class="kv-marquee-section" aria-label="Kottai Varahi Marquee announcement">
         <div class="kv-marquee-track">
@@ -813,9 +847,9 @@
     </div>
     <!-- partial -->
     <script src="assets/js/plugins/jquery-3.4.1.min.js"></script>
-    <script src="assets/js/plugins/bootstrap.min.js"></script>
-    <script src="assets/js/plugins/slick.min.js"></script>
-    <script src="assets/js/plugins/ion.rangeSlider.min.js"></script>
+    <!-- <script src="assets/js/plugins/bootstrap.min.js"></script> -->
+    <!-- <script src="assets/js/plugins/slick.min.js"></script> -->
+    <!-- <script src="assets/js/plugins/ion.rangeSlider.min.js"></script> -->
     <script src="assets/js/main.js"></script>
     <script src="./assets/js/demo.js"></script>
 </body>
