@@ -1,0 +1,391 @@
+/* ===========================================================
+   ASTA VARAHI & ASTA VARAHI 2.0 PACKAGES & BOOKING STYLES
+   =========================================================== */
+
+/* ─── Packages Grid & Cards ─── */
+.an-packages {
+  position: relative;
+  padding: 60px 0 80px;
+}
+
+.an-packages__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.an-packages__intro {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.an-packages__intro h2 {
+  font-family: var(--font-heading);
+  color: var(--primary-color);
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.an-packages__intro p {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.an-packages__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
+
+.an-package-card {
+  background: #ffffff;
+  border: 1px solid #f3ebe1;
+  border-radius: 20px;
+  padding: 26px 22px 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.an-package-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(154, 59, 52, 0.1);
+}
+
+.an-package-card--featured {
+  border: 1.5px solid #d97706;
+}
+
+.an-package-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 36px;
+  margin-bottom: 14px;
+  gap: 8px;
+}
+
+.an-package-price-pill {
+  background: #fff3ec;
+  border: 1px solid #fcd5c0;
+  border-radius: 50px;
+  padding: 3px 14px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #3b1814;
+  white-space: nowrap;
+}
+
+.an-package-placeholder-pill {
+  width: 24px;
+  height: 8px;
+  background: #ede2d3;
+  border-radius: 10px;
+  opacity: 0.7;
+}
+
+.an-package-badge {
+  background: #ea7a24;
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px rgba(234, 122, 36, 0.25);
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.an-package-card h3 {
+  font-family: var(--font-heading, "Montserrat", sans-serif);
+  color: #2b120f;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0 0 10px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.an-package-divider {
+  width: 32px;
+  height: 2px;
+  background: #b03838;
+  margin-bottom: 20px;
+  border-radius: 2px;
+}
+
+.an-package-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 22px 0;
+  flex-grow: 1;
+}
+
+.an-package-card ul li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+.an-package-card ul li::before {
+  content: "✦";
+  position: absolute;
+  left: 0;
+  top: 1px;
+  color: #b03838;
+  font-size: 11px;
+}
+
+.an-package-card ul li strong {
+  display: block;
+  color: #b03838;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.an-package-card ul li p {
+  margin: 2px 0 0;
+  color: #737373;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* ─── Classic Warm Box Progress Bar (Screenshot Exact Match) ─── */
+.av-progress-box {
+  background: #f7eedb;
+  border-radius: 12px;
+  padding: 16px 18px 14px;
+  margin-top: auto;
+  margin-bottom: 20px;
+}
+
+.av-progress-bar-bg {
+  width: 100%;
+  height: 11px;
+  background: #e5dac9;
+  border-radius: 50px;
+  overflow: hidden;
+  position: relative;
+}
+
+.av-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #b03838, #c24646);
+  border-radius: 50px;
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.av-progress-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 12px;
+}
+
+.av-stat-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.av-stat-left {
+  text-align: left;
+}
+
+.av-stat-right {
+  text-align: right;
+}
+
+.av-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #736254;
+}
+
+.av-stat-number {
+  font-size: 20px;
+  font-weight: 800;
+  color: #2b120f;
+  line-height: 1.15;
+  margin-top: 3px;
+}
+
+/* ─── CTA Buttons ─── */
+.an-btn {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 50px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  border: none;
+  background: linear-gradient(90deg, #e66a23, #d9531e);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(217, 83, 30, 0.3);
+  transition: all 0.25s ease;
+}
+
+.an-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(217, 83, 30, 0.4);
+}
+
+/* ─── Modal & Forms ─── */
+.av-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.av-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.av-modal-content {
+  position: relative;
+  background: var(--light-text, #ffffff);
+  border-radius: 20px;
+  max-width: 540px;
+  width: 100%;
+  padding: 32px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  z-index: 10;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.av-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 14px;
+}
+
+.av-modal-header h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  color: var(--primary-color, #9a3b34);
+  font-size: 1.4rem;
+}
+
+.av-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-muted, #777777);
+  line-height: 1;
+}
+
+.av-modal-close:hover {
+  color: var(--text-strong, #222222);
+}
+
+.av-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.av-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-strong, #222222);
+}
+
+.av-form-field input,
+.av-form-field select,
+.av-form-field textarea {
+  padding: 10px 14px;
+  border: 1px solid var(--background-medium, #ede8e0);
+  border-radius: var(--border-radius, 8px);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  font-family: var(--font-primary);
+}
+
+.av-form-field input:focus,
+.av-form-field select:focus,
+.av-form-field textarea:focus {
+  border-color: var(--primary-color, #9a3b34);
+}
+
+.av-form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.av-btn {
+  padding: 10px 22px;
+  border-radius: 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  background: var(--primary-color, #9a3b34);
+  color: var(--light-text, #ffffff);
+  transition: opacity 0.2s ease;
+}
+
+.av-btn:hover {
+  opacity: 0.9;
+}
+
+.av-btn-ghost {
+  background: transparent;
+  color: var(--text-muted, #777777);
+  border: 1px solid var(--background-medium, #ede8e0);
+}
+
+.av-btn-ghost:hover {
+  background: var(--background-light, #f8f8f8);
+  color: var(--text-strong, #222222);
+}
+
+.av-error {
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: var(--border-radius, 8px);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.av-success {
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  border-radius: var(--border-radius, 8px);
+  font-size: 13.5px;
+  font-weight: 500;
+}

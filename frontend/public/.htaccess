@@ -1,0 +1,155 @@
+# ============================================================
+# PUBLIC_HTML .HTACCESS — STATIC FRONTEND + API PROXY
+# ============================================================
+
+# ------------------------------------------------------------
+# 1. PREVENT PASSENGER ERROR #3 (PassengerUser not set)
+# If Phusion Passenger is active on the server/vhost, disable it
+# on static web root so Apache serves React SPA assets directly.
+# ------------------------------------------------------------
+<IfModule mod_passenger.c>
+    PassengerEnabled off
+</IfModule>
+
+# Disable directory listing
+Options -Indexes -MultiViews
+
+# Protect sensitive files and archives from web access
+<FilesMatch "(\.env|\.git|\.zip|\.tar|\.gz|\.bak|\.sql|\.log|package\.json|package-lock\.json|composer\.json|README\.md|\.htaccess)$">
+    Require all denied
+</FilesMatch>
+
+# ============================================================
+# URL REWRITING
+# ============================================================
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # --------------------------------------------------------
+    # FORCE HTTPS + WWW
+    # Uncomment ONLY if cPanel/CloudLinux is not already
+    # handling HTTPS and canonical host redirects.
+    # --------------------------------------------------------
+    # RewriteCond %{HTTPS} !=on [OR]
+    # RewriteCond %{HTTP_HOST} !^www\.jaivarahi\.org$ [NC]
+    # RewriteRule ^ https://www.jaivarahi.org%{REQUEST_URI} [R=301,L]
+
+    # --------------------------------------------------------
+    # API PROXY TO NODE.JS BACKEND (127.0.0.1:5000)
+    # Requires: mod_proxy, mod_proxy_http enabled on server
+    # --------------------------------------------------------
+    RewriteRule ^health$ http://127.0.0.1:5000/health [P,L]
+    RewriteRule ^api/(.*)$ http://127.0.0.1:5000/api/$1 [P,L]
+    RewriteRule ^payments/(.*)$ http://127.0.0.1:5000/payments/$1 [P,L]
+
+    # --------------------------------------------------------
+    # ADMIN REACT SPA
+    # --------------------------------------------------------
+    RewriteRule ^admin/?$ /admin.html [L]
+    RewriteRule ^admin/(.*)$ /admin.html [L]
+
+    # --------------------------------------------------------
+    # MAIN REACT SPA — fallback unknown routes to index.html
+    # --------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ /index.html [L]
+</IfModule>
+
+# ============================================================
+# CORS HEADERS FOR PROXIED API ROUTES
+# Express also enforces CORS; these headers provide defense-in-depth.
+# ============================================================
+SetEnvIf Request_URI "^/(api|payments|health)" IS_API_REQUEST
+
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "https://www.jaivarahi.org" env=IS_API_REQUEST
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" env=IS_API_REQUEST
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With" env=IS_API_REQUEST
+    Header always set Access-Control-Expose-Headers "Content-Length, X-Request-Id" env=IS_API_REQUEST
+    Header always set Access-Control-Max-Age "86400" env=IS_API_REQUEST
+</IfModule>
+
+# ============================================================
+# SECURITY HEADERS
+# ============================================================
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+    # HSTS — only when HTTPS is active
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=HTTPS
+
+    # Strip server signatures
+    Header always unset Server
+    Header always unset X-Powered-By
+</IfModule>
+
+# ============================================================
+# CACHING
+# ============================================================
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+
+    # HTML — always fresh
+    ExpiresByType text/html "access plus 0 seconds"
+
+    # Data / feeds
+    ExpiresByType application/json "access plus 0 seconds"
+    ExpiresByType application/xml "access plus 0 seconds"
+    ExpiresByType text/xml "access plus 0 seconds"
+
+    # Static assets — long-lived, fingerprinted by Vite
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/avif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|mjs|css|png|jpg|jpeg|gif|svg|ico|webp|avif|woff|woff2|ttf|otf|eot)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(html|json)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# ============================================================
+# COMPRESSION
+# ============================================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE \
+        text/html \
+        text/plain \
+        text/css \
+        text/javascript \
+        application/javascript \
+        application/json \
+        application/xml \
+        application/ld+json \
+        image/svg+xml
+</IfModule>
+
+# ============================================================
+# ERROR PAGES — route through SPA for consistent UX
+# ============================================================
+ErrorDocument 404 /index.html
+ErrorDocument 403 /index.html
+ErrorDocument 500 /index.html

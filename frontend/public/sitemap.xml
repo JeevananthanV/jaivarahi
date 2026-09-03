@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <!-- Homepage -->
+  <url>
+    <loc>https://www.jaivarahi.org/</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.jaivarahi.org/assets/img/logo.png</image:loc>
+      <image:title>Jai Varahi Temple - Sri Varahi Devasthanam</image:title>
+      <image:caption>Sri Varahi Devasthanam, a sacred temple dedicated to Goddess Varahi</image:caption>
+    </image:image>
+  </url>
+
+  <!-- About Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/about</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Services Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/services</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Book Pooja Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/book-pooja</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Ashada Navarathiri Festival Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/ashada_navarathiri</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://www.jaivarahi.org/assets/img/ashada_navarathiri.jpg</image:loc>
+      <image:title>Ashada Navarathiri Festival at Sri Varahi Devasthanam</image:title>
+      <image:caption>Nine-day festival dedicated to Goddess Varahi during Ashada month</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Asta Varahi Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/astavarahi</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Asta Varahi 2.0 Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/astavarahi2</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Calendar Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/calendar</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Payment Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/payment</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Sri Bala Manthiram Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/sri_bala_manthiram</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Varahi Malai Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/varahimalai</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Jothidam (Astrology) Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/Jothidam</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Who Is Varahi Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/who_is_varahi</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Uchchishta Ganapati Page -->
+  <url>
+    <loc>https://www.jaivarahi.org/Uchchishta_Ganapati</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Devotees Registration & Sankalpam -->
+  <url>
+    <loc>https://www.jaivarahi.org/devoteesdetails</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Temple Blog & Spiritual Articles -->
+  <url>
+    <loc>https://www.jaivarahi.org/blog</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Privacy Policy -->
+  <url>
+    <loc>https://www.jaivarahi.org/privacy-policy</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Terms & Conditions -->
+  <url>
+    <loc>https://www.jaivarahi.org/terms-condition</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>

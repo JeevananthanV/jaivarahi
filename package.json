@@ -1,0 +1,16 @@
+{
+  "name": "varahi-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:all": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "build": "npm run build --prefix frontend",
+    "build:backend": "npm run build --prefix frontend && echo \"✅ Frontend build complete. Deploy 'frontend/dist' to public_html.\"",
+    "start": "npm run start --prefix backend",
+    "audit:frontend": "npm audit --prefix frontend",
+    "audit:backend": "npm audit --prefix backend",
+    "audit:fix": "npm audit fix --prefix frontend && npm audit fix --prefix backend"
+  }
+}

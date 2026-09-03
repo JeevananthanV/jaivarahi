@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production builds
+dist/
+dist-ssr/
+build/
+
+# Environment files (sensitive credentials)
+.env
+.env.*
+!.env.example
+
+# Archives and backup files (prevents accidental credential and source leak)
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.bak
+*.swp
+*.swo
+
+# Database dumps (except schema definition)
+*.sql
+*.sqlite
+!backend/db/schema.sql
+
+# Logs and system files
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.agent/
+.kilo/
+.gemini/
+tmp/
+scratch/

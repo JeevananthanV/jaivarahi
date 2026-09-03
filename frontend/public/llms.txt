@@ -1,0 +1,21 @@
+# Jai Varahi Peedam
+
+Jai Varahi Peedam is a Hindu Temple and spiritual center dedicated to Goddess Varahi Amman, located in Katpadi, Vellore, Tamil Nadu, India. Led by Swamy Pallur Varahidhasan, the center offers traditional Poojas, Homas, Astrology (Jothidam) guidance, and carries out extensive community and social welfare projects.
+
+## Location & Coordinates
+- **Address**: Sri Kottai Varahi Amman Temple Street, Arumparuthi, Katpadi, Vellore, Tamil Nadu, India - 632106
+- **Coordinates**: Latitude 12.6167, Longitude 78.8428
+
+## Core Navigation & Pages
+- **Home (`/`)**: Main hub presenting the temple's mission, current activities, and local updates.
+- **Who Is Goddess Varahi (`/who-is-varahi`)**: Spiritual information about the power and significance of Goddess Varahi Amman worship.
+- **Temple Services (`/services`)**: Booking and details for regular temple rituals including Abishekam, special prayers, and planetary remedies.
+- **Astrology / Jothidam (`/jothidam`)**: Astrology services run by Sri Varahi Jothida Vidyalayam, offering authentic destiny guidance.
+- **Secure Payment & Donation (`/payment`)**: Online gateway to safely book Jothidam consults, sponsor Poojas, and support temple construction.
+- **About (`/about`)**: Background on Swamy Pallur Varahidhasan's history, the temple's community trust, and future projects.
+
+## Community Initiatives
+- **Annadhanam**: Providing daily free meals to devotees and the underprivileged.
+- **Kosala (Goshala)**: Protection and care for cows.
+- **Tree Plantation**: Environment restoration drives.
+- **Educational Support**: Scholarships and school kits for children in rural communities.

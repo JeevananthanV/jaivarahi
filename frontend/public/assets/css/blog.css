@@ -1,0 +1,32 @@
+:root {
+    --primary-color: #9a3b34;
+    --secondary-color: #663333;
+    --accent-color: #e85a4f;
+    --text-color: #333;
+    --light-text: #fff;
+    --background-light: #f8f8f8;
+    --background-medium: #e6e6e6;
+    --background-dark: wheat;
+    --navbar-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+    --font-heading: 'Georgia', serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+}
+
+body {
+    background-color: var(--background-light);
+    color: var(--text-color);
+    line-height: 1.6;
+    /* padding: 20px; */
+}
+

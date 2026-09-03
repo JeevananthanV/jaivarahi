@@ -1,0 +1,8 @@
+/* Google Fonts */
+/* Font imports are loaded from index.html to avoid duplicate render-blocking requests. */
+
+.title{
+    word-spacing: normal;
+    letter-spacing: normal;
+    
+}

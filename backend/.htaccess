@@ -1,0 +1,8 @@
+<IfModule mod_passenger.c>
+    PassengerUser jaivarahi
+    PassengerGroup jaivarahi
+    PassengerAppRoot /home/jaivarahi/domains/jaivarahi.org/backend
+    PassengerStartupFile server.js
+    PassengerAppType node
+    PassengerNodejs /usr/local/bin/node
+</IfModule>
