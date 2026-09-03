@@ -159,8 +159,15 @@ const corsOriginHandler = (origin, callback) => {
     callback(new Error(`CORS policy does not allow origin: ${origin}`));
 };
 
-app.use(cors({ origin: corsOriginHandler, credentials: true, optionsSuccessStatus: 200 }));
-app.options("*", cors({ origin: corsOriginHandler, credentials: true, optionsSuccessStatus: 200 }));
+const corsOptions = {
+    origin: corsOriginHandler,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+    optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 // ─── RATE LIMITING ────────────────────────────────────────────
 const generalLimiter = rateLimit({

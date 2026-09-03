@@ -11,7 +11,23 @@ const getBackendBaseUrl = () => {
   // In dev, use relative paths so Vite proxy handles /api
   if (import.meta.env.DEV) return '';
 
-  // In production, ignore any localhost/127.0.0.1 leftovers and use same-origin relative path
+  // In browser runtime, if hosted on the same root domain (e.g. jaivarahi.org vs www.jaivarahi.org),
+  // always use relative paths so requests stay same-origin and avoid CORS preflight mismatches.
+  if (typeof window !== 'undefined' && window.location) {
+    const currentHost = window.location.hostname.replace(/^www\./, '');
+    if (explicit) {
+      try {
+        const urlHost = new URL(explicit).hostname.replace(/^www\./, '');
+        if (currentHost === urlHost) {
+          return '';
+        }
+      } catch {
+        // Fall through if URL parsing fails
+      }
+    }
+  }
+
+  // In production with external backend, ignore localhost leftovers
   if (explicit && !explicit.includes('localhost') && !explicit.includes('127.0.0.1')) {
     return explicit.replace(/\/+$/, '');
   }
