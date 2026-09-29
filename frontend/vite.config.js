@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/api': {
           // Use env.VITE_BACKEND_URL instead of process.env
-          target: env.VITE_BACKEND_URL || 'http://127.0.0.1:5000',
+          target: env.VITE_BACKEND_URL || 'http://127.0.0.1:5005',
           changeOrigin: true,
           secure: false,
           configure: (proxy) => {
