@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useAdminAuth } from './AdminAuthContext';
 import { Cake, Phone, MessageCircle, RefreshCw, Users, Shield } from 'lucide-react';
-import axios from 'axios';
-
-const BIRTHDAYS_API = '/api/admin/birthdays';
+import adminApi from './adminApi';
 
 const BirthdayReminder = () => {
-  const { token } = useAdminAuth();
+  const { user } = useAdminAuth();
   const [birthdays, setBirthdays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -16,10 +14,8 @@ const BirthdayReminder = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get(`${BIRTHDAYS_API}?days=60`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setBirthdays(res.data.birthdays || []);
+      const data = await adminApi.getBirthdays({ days: 60 });
+      setBirthdays(data.birthdays || []);
     } catch (err) {
       console.error('Birthday fetch error:', err);
       setError('Failed to load birthday list');
@@ -29,8 +25,8 @@ const BirthdayReminder = () => {
   };
 
   useEffect(() => {
-    if (token) fetchBirthdays();
-  }, [token]);
+    fetchBirthdays();
+  }, []);
 
   const filteredBirthdays = birthdays.filter(b => {
     if (filter === 'devotee') return b.type === 'devotee_family' || b.type === 'devotee';

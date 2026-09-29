@@ -323,12 +323,11 @@ const adminApi = {
   getMediaUsage: async (id) => (await api.get(`/media/${id}/usage`, withToken())).data,
   getMediaFolders: async () => (await api.get('/media/folders', withToken())).data,
   createMediaFolder: async (payload) => (await api.post('/media/folders', payload, withToken())).data,
-  uploadMedia: async (formData) => (await api.post('/media/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      ...withToken().headers
-    }
-  })).data,
+  uploadMedia: async (formData) => (await api.post('/media/upload', formData)).data,
+
+  // Reminders
+  getBirthdays: async (params = {}) => (await api.get('/birthdays', { params })).data,
+  getWeddingAnniversaries: async (params = {}) => (await api.get('/wedding-anniversaries', { params })).data,
 };
 
 export default adminApi;

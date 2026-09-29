@@ -109,7 +109,7 @@ export const AdminAuthProvider = ({ children }) => {
   }
 
   return (
-    <AdminAuthContext.Provider value={{ user, login, logout, loading }}>
+    <AdminAuthContext.Provider value={{ user, token: readToken(), login, logout, loading }}>
       {children}
     </AdminAuthContext.Provider>
   );

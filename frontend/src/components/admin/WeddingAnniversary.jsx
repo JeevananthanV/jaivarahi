@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useAdminAuth } from './AdminAuthContext';
 import { Heart, MessageCircle, RefreshCw, Users, Shield } from 'lucide-react';
-import axios from 'axios';
-
-const ANNIVERSARIES_API = '/api/admin/wedding-anniversaries';
+import adminApi from './adminApi';
 
 const WeddingAnniversary = () => {
-  const { token } = useAdminAuth();
+  const { user } = useAdminAuth();
   const [anniversaries, setAnniversaries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -16,10 +14,8 @@ const WeddingAnniversary = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get(`${ANNIVERSARIES_API}?days=60`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setAnniversaries(res.data.weddingAnniversaries || []);
+      const data = await adminApi.getWeddingAnniversaries({ days: 60 });
+      setAnniversaries(data.weddingAnniversaries || []);
     } catch (err) {
       console.error('Wedding anniversary fetch error:', err);
       setError('Failed to load wedding anniversary list');
@@ -29,8 +25,8 @@ const WeddingAnniversary = () => {
   };
 
   useEffect(() => {
-    if (token) fetchAnniversaries();
-  }, [token]);
+    fetchAnniversaries();
+  }, []);
 
   const filteredAnniversaries = anniversaries.filter(a => {
     if (filter === 'devotee') return a.type === 'devotee';
