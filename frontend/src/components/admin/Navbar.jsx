@@ -2,6 +2,7 @@ import React from 'react';
 import { Moon, Sun, User, ChevronRight } from 'lucide-react';
 import { useAdminAuth } from './AdminAuthContext';
 import { useLocation } from 'react-router-dom';
+import ReminderNotification from './ReminderNotification';
 
 const Navbar = ({ isDark, toggleDark }) => {
   const { user } = useAdminAuth();
@@ -41,6 +42,9 @@ const Navbar = ({ isDark, toggleDark }) => {
           <span>Live Sync</span>
         </div>
 
+        {/* Reminders Notification Bell */}
+        <ReminderNotification />
+
         <button 
           className="ic-btn" 
           onClick={toggleDark} 
@@ -69,3 +73,4 @@ const Navbar = ({ isDark, toggleDark }) => {
 };
 
 export default Navbar;
+
