@@ -964,27 +964,28 @@ const BACKLOG_LIMIT = Number(process.env.SSE_BACKLOG_LIMIT || 10);
 
   // Keep connection alive with periodic pings (every 20s)
   let pingIntervalId = null;
-function startPingInterval() {
-  if (pingIntervalId) clearInterval(pingIntervalId);
-  pingIntervalId = setInterval(() => {
-    try {
-      res.write("data: " + JSON.stringify({ event: "ping" }) + "\n\n");
-    } catch (writeError) {
-      console.warn("SSE write failure, closing client connection:", writeError.message);
-      clearInterval(pingIntervalId);
-      sseClients.delete(res);
-      if (redisAvailable) {
-        redisClient.sRem("sse_clients", clientId).catch((e) => {
-          console.warn("Redis SSE client removal error:", e.message);
-        });
+  function startPingInterval() {
+    if (pingIntervalId) clearInterval(pingIntervalId);
+    pingIntervalId = setInterval(() => {
+      try {
+        res.write("data: " + JSON.stringify({ event: "ping" }) + "\n\n");
+      } catch (writeError) {
+        console.warn("SSE write failure, closing client connection:", writeError.message);
+        clearInterval(pingIntervalId);
+        sseClients.delete(res);
+        if (redisAvailable) {
+          redisClient.sRem("sse_clients", clientId).catch((e) => {
+            console.warn("Redis SSE client removal error:", e.message);
+          });
+        }
+        res.end();
       }
-      res.end();
     }, 20000);
-}
-startPingInterval();
+  }
+  startPingInterval();
 
-  req.on("close", () => {
-    clearInterval(pingInterval);
+  req.on("close", async () => {
+    if (pingIntervalId) clearInterval(pingIntervalId);
     sseClients.delete(res);
     if (connectionsPerIp[ip]?.count > 1) {
       connectionsPerIp[ip].count -= 1;
@@ -994,14 +995,18 @@ startPingInterval();
     }
     // Remove from Redis tracking
     if (redisAvailable) {
-      await redisClient.sRem("sse_clients", clientId).catch((e) => { console.warn("Redis SSE client removal error:", e.message); });
+      try {
+        await redisClient.sRem("sse_clients", clientId);
+      } catch (e) {
+        console.warn("Redis SSE client removal error:", e.message);
+      }
     }
   });
 };
 
 // Helper to broadcast events to all clients
 // Can be called from any server instance - uses Redis pub/sub for cross-instance
-export const broadcastBlogEvent = (event, data = {}) => {
+export const broadcastBlogEvent = async (event, data = {}) => {
   const payload = JSON.stringify({ event, data });
   
   // Publish to Redis channel for cross-instance broadcasting
