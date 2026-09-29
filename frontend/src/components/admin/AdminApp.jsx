@@ -40,6 +40,7 @@ import DevoteesManagement from './DevoteesManagement';
 import BlogManagement from './BlogManagement';
 import MediaLibrary from './MediaLibrary';
 import BirthdayReminder from './BirthdayReminder';
+import WeddingAnniversary from './WeddingAnniversary';
 
 const AdminApp = () => {
   const navigate = useNavigate();
