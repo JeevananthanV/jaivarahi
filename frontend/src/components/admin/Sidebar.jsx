@@ -5,6 +5,7 @@ import {
   Layers, ListOrdered, Calendar, FileText,
   Star, Ticket, Store, Handshake,
   Users, ShieldAlert, Sparkles, Image,
+  Cake, Gift,
   ChevronDown, ChevronRight, LogOut
 } from 'lucide-react';
 import { useAdminAuth } from './AdminAuthContext';
@@ -22,6 +23,7 @@ const Sidebar = () => {
     services: path.startsWith('/admin/services'),
     av2: path.startsWith('/admin/av2-entry') || path.startsWith('/admin/vip') || path.startsWith('/admin/free') || path.startsWith('/admin/stalls') || path.startsWith('/admin/sponsors'),
     jothidam: path.startsWith('/admin/jothidam'),
+    reminders: path.startsWith('/admin/birthdays') || path.startsWith('/admin/wedding-anniversaries'),
     system: path.startsWith('/admin/users') || path.startsWith('/admin/audit-logs'),
   });
 
@@ -33,6 +35,7 @@ const Sidebar = () => {
       services: prev.services || path.startsWith('/admin/services'),
       av2: prev.av2 || path.startsWith('/admin/av2-entry') || path.startsWith('/admin/vip') || path.startsWith('/admin/free') || path.startsWith('/admin/stalls') || path.startsWith('/admin/sponsors'),
       jothidam: prev.jothidam || path.startsWith('/admin/jothidam'),
+      reminders: prev.reminders || path.startsWith('/admin/birthdays') || path.startsWith('/admin/wedding-anniversaries'),
       system: prev.system || path.startsWith('/admin/users') || path.startsWith('/admin/audit-logs'),
     }));
   }, [path]);
@@ -211,6 +214,26 @@ const Sidebar = () => {
             Reports
           </NavLink>
         </div>
+
+        {/* Reminders & Celebrations Section */}
+        {isRole(user, 'Super Admin', 'Admin') && (
+          <>
+            <button className="sb-sec-btn" onClick={() => toggle('reminders')}>
+              <span>Reminders</span>
+              {expanded.reminders ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+            </button>
+            <div className={`sb-sub-menu ${expanded.reminders ? 'open' : ''}`}>
+              <NavLink to="/admin/birthdays" className={navClass}>
+                <Cake className="nb-ic" size={16} />
+                Birthday Reminders
+              </NavLink>
+              <NavLink to="/admin/wedding-anniversaries" className={navClass}>
+                <Heart className="nb-ic" size={16} />
+                Anniversaries
+              </NavLink>
+            </div>
+          </>
+        )}
 
         {/* System Section */}
         {isRole(user, 'Super Admin') && (

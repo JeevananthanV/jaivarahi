@@ -18,6 +18,10 @@ import {
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Tooltip, Legend, Filler } from 'chart.js';
 import { Line, Doughnut, Bar } from 'react-chartjs-2';
 import adminApi from './adminApi';
+import { useAdminAuth } from './AdminAuthContext';
+import { isRole } from './roles';
+import BirthdayReminder from './BirthdayReminder';
+import WeddingAnniversary from './WeddingAnniversary';
 
 ChartJS.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Tooltip, Legend, Filler);
 
@@ -47,6 +51,7 @@ const normalizeLabel = (label) => {
 };
 
 const Dashboard = () => {
+  const { user } = useAdminAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -499,6 +504,14 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* Reminders & Celebrations Section for Admin & Super Admin */}
+        {isRole(user, 'Super Admin', 'Admin') && (
+          <div className="dash-grid dash-bottom" style={{ marginBottom: 20 }}>
+            <BirthdayReminder />
+            <WeddingAnniversary />
+          </div>
+        )}
 
         <div className="dash-grid dash-bottom">
           <div className="dash-card">
