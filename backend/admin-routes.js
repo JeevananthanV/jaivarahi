@@ -293,37 +293,83 @@ router.delete('/users/:id', auth, requireRole(['Super Admin']), async (req, res)
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ─── Admin Birthday Reminders ────────────────────────────────────────────────────
+// ─── Birthday Reminders (Devotees, Family Members, Admins) ────────────────────
 router.get('/birthdays', auth, async (req, res) => {
   const db = req.app.locals.db;
+  const maxDays = Math.min(365, Math.max(1, parseInt(req.query.days) || 30));
   try {
-    // Calculate birthdays in the next 7 days (comparing month/day only)
-    const [rows] = await db.execute(
-      `SELECT id, name, email, date_of_birth, role,
-              DATEDIFF(
-                DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(date_of_birth), '-', DAY(date_of_birth))),
-                CURDATE()
-              ) AS days_until_birthday
-       FROM admin_users
-       WHERE date_of_birth IS NOT NULL
-         AND DATEDIFF(
-               DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(date_of_birth), '-', DAY(date_of_birth))),
-               CURDATE()
-             ) BETWEEN 0 AND 7
-       ORDER BY days_until_birthday ASC`
+    const calculateDaysUntil = (dateInput) => {
+      if (!dateInput) return null;
+      const d = new Date(dateInput);
+      if (isNaN(d.getTime())) return null;
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      let nextDate = new Date(today.getFullYear(), d.getMonth(), d.getDate());
+      if (nextDate < today) {
+        nextDate = new Date(today.getFullYear() + 1, d.getMonth(), d.getDate());
+      }
+      return Math.round((nextDate - today) / (1000 * 60 * 60 * 24));
+    };
+
+    const birthdays = [];
+
+    // 1. Fetch Devotee details and family members
+    const [devotees] = await db.execute(
+      'SELECT id, name, contact, email_address, family_members FROM devotee_details'
     );
+    for (const dev of devotees) {
+      let fam = dev.family_members;
+      if (typeof fam === 'string') {
+        try { fam = JSON.parse(fam); } catch {}
+      }
+      if (Array.isArray(fam)) {
+        for (const m of fam) {
+          if (m.dob) {
+            const days = calculateDaysUntil(m.dob);
+            if (days !== null && days <= maxDays) {
+              birthdays.push({
+                id: `dev-${dev.id}-${m.name}`,
+                type: 'devotee_family',
+                source: 'Devotee Family',
+                name: m.name,
+                devotee_name: dev.name,
+                contact: dev.contact,
+                relationship: m.relationship || 'Family Member',
+                star: m.star || '',
+                rasi: m.rasi || '',
+                birthday: m.dob,
+                days_until: days,
+                days_until_next: days,
+                role: 'Devotee Family',
+              });
+            }
+          }
+        }
+      }
+    }
 
-    const birthdays = rows.map(r => ({
-      id: r.id,
-      name: r.name,
-      role: r.role,
-      birthday: r.date_of_birth,
-      days_until: r.days_until_birthday,
-      days_until_next: r.days_until_birthday < 0
-        ? 365 + r.days_until_birthday
-        : r.days_until_birthday,
-    }));
+    // 2. Fetch Admin users
+    const [admins] = await db.execute(
+      'SELECT id, name, email, role, date_of_birth FROM admin_users WHERE date_of_birth IS NOT NULL'
+    );
+    for (const adm of admins) {
+      const days = calculateDaysUntil(adm.date_of_birth);
+      if (days !== null && days <= maxDays) {
+        birthdays.push({
+          id: `adm-${adm.id}`,
+          type: 'admin',
+          source: 'Admin User',
+          name: adm.name,
+          email: adm.email,
+          role: adm.role,
+          birthday: adm.date_of_birth,
+          days_until: days,
+          days_until_next: days,
+        });
+      }
+    }
 
+    birthdays.sort((a, b) => a.days_until - b.days_until);
     res.json({ success: true, birthdays });
   } catch (err) {
     console.error('BIRTHDAY FETCH ERROR:', err);
@@ -331,38 +377,76 @@ router.get('/birthdays', auth, async (req, res) => {
   }
 });
 
-// ─── Admin Wedding Anniversary Reminders ────────────────────────────────────────
+// ─── Wedding Anniversary Reminders (Devotees & Admins) ────────────────────────
 router.get('/wedding-anniversaries', auth, async (req, res) => {
   const db = req.app.locals.db;
+  const maxDays = Math.min(365, Math.max(1, parseInt(req.query.days) || 60));
   try {
-    // Calculate wedding anniversaries in the next 30 days (comparing month/day only)
-    const [rows] = await db.execute(
-      `SELECT id, name, email, date_of_wedding, role,
-              DATEDIFF(
-                DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(date_of_wedding), '-', DAY(date_of_wedding))),
-                CURDATE()
-              ) AS days_until_anniversary
-       FROM admin_users
-       WHERE date_of_wedding IS NOT NULL
-         AND DATEDIFF(
-               DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(date_of_wedding), '-', DAY(date_of_wedding))),
-               CURDATE()
-             ) BETWEEN 0 AND 30
-       ORDER BY days_until_anniversary ASC`
+    const calculateDaysUntil = (dateInput) => {
+      if (!dateInput) return null;
+      const d = new Date(dateInput);
+      if (isNaN(d.getTime())) return null;
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      let nextDate = new Date(today.getFullYear(), d.getMonth(), d.getDate());
+      if (nextDate < today) {
+        nextDate = new Date(today.getFullYear() + 1, d.getMonth(), d.getDate());
+      }
+      return Math.round((nextDate - today) / (1000 * 60 * 60 * 24));
+    };
+
+    const weddingAnniversaries = [];
+
+    // 1. Fetch married devotees
+    const [devotees] = await db.execute(
+      'SELECT id, name, contact, email_address, wedding_date FROM devotee_details WHERE wedding_date IS NOT NULL'
     );
+    for (const dev of devotees) {
+      const days = calculateDaysUntil(dev.wedding_date);
+      if (days !== null && days <= maxDays) {
+        const rawDate = new Date(dev.wedding_date);
+        const yearsMarried = Math.max(0, new Date().getFullYear() - rawDate.getFullYear());
+        weddingAnniversaries.push({
+          id: `dev-wed-${dev.id}`,
+          type: 'devotee',
+          source: 'Devotee',
+          name: dev.name,
+          contact: dev.contact,
+          email: dev.email_address,
+          wedding_date: dev.wedding_date,
+          days_until: days,
+          years_married: yearsMarried,
+          anniversary_next: days === 0 ? 'Anniversary today!' : `Anniversary in ${days} days`,
+          role: 'Devotee',
+        });
+      }
+    }
 
-    const weddingAnniversaries = rows.map(r => ({
-      id: r.id,
-      name: r.name,
-      role: r.role,
-      wedding_date: r.date_of_wedding,
-      days_until: r.days_until_anniversary,
-      years_married: Math.floor((new Date().getFullYear() - new Date(r.date_of_wedding).getFullYear())),
-      anniversary_next: r.days_until_anniversary === 0
-        ? 'Wedding anniversary today!'
-        : `Wedding anniversary in ${r.days_until_anniversary} days`,
-    }));
+    // 2. Fetch married admins
+    const [admins] = await db.execute(
+      'SELECT id, name, email, role, date_of_wedding FROM admin_users WHERE date_of_wedding IS NOT NULL'
+    );
+    for (const adm of admins) {
+      const days = calculateDaysUntil(adm.date_of_wedding);
+      if (days !== null && days <= maxDays) {
+        const rawDate = new Date(adm.date_of_wedding);
+        const yearsMarried = Math.max(0, new Date().getFullYear() - rawDate.getFullYear());
+        weddingAnniversaries.push({
+          id: `adm-wed-${adm.id}`,
+          type: 'admin',
+          source: 'Admin User',
+          name: adm.name,
+          email: adm.email,
+          role: adm.role,
+          wedding_date: adm.date_of_wedding,
+          days_until: days,
+          years_married: yearsMarried,
+          anniversary_next: days === 0 ? 'Anniversary today!' : `Anniversary in ${days} days`,
+        });
+      }
+    }
 
+    weddingAnniversaries.sort((a, b) => a.days_until - b.days_until);
     res.json({ success: true, weddingAnniversaries });
   } catch (err) {
     console.error('WEDDING ANNIVERSARY FETCH ERROR:', err);
