@@ -315,7 +315,7 @@ router.get('/birthdays', auth, async (req, res) => {
 
     // 1. Fetch Devotee details and family members
     const [devotees] = await db.execute(
-      'SELECT id, name, contact, email_address, family_members FROM devotee_details'
+      'SELECT id, name, contact, email_address, postal_address, gothram, married_status, father_name, mother_name, note, family_members FROM devotee_details'
     );
     for (const dev of devotees) {
       let fam = dev.family_members;
@@ -332,8 +332,15 @@ router.get('/birthdays', auth, async (req, res) => {
                 type: 'devotee_family',
                 source: 'Devotee Family',
                 name: m.name,
+                devotee_id: dev.id,
                 devotee_name: dev.name,
                 contact: dev.contact,
+                email: dev.email_address,
+                postal_address: dev.postal_address,
+                gothram: dev.gothram,
+                father_name: dev.father_name,
+                mother_name: dev.mother_name,
+                note: dev.note,
                 relationship: m.relationship || 'Family Member',
                 star: m.star || '',
                 rasi: m.rasi || '',
@@ -350,7 +357,7 @@ router.get('/birthdays', auth, async (req, res) => {
 
     // 2. Fetch Admin users
     const [admins] = await db.execute(
-      'SELECT id, name, email, role, date_of_birth FROM admin_users WHERE date_of_birth IS NOT NULL'
+      'SELECT id, name, email, role, date_of_birth, date_of_wedding, last_login FROM admin_users WHERE date_of_birth IS NOT NULL'
     );
     for (const adm of admins) {
       const days = calculateDaysUntil(adm.date_of_birth);
@@ -363,6 +370,7 @@ router.get('/birthdays', auth, async (req, res) => {
           email: adm.email,
           role: adm.role,
           birthday: adm.date_of_birth,
+          last_login: adm.last_login,
           days_until: days,
           days_until_next: days,
         });
@@ -399,7 +407,7 @@ router.get('/wedding-anniversaries', auth, async (req, res) => {
 
     // 1. Fetch married devotees
     const [devotees] = await db.execute(
-      'SELECT id, name, contact, email_address, wedding_date FROM devotee_details WHERE wedding_date IS NOT NULL'
+      'SELECT id, name, contact, email_address, postal_address, gothram, father_name, mother_name, note, wedding_date, family_members FROM devotee_details WHERE wedding_date IS NOT NULL'
     );
     for (const dev of devotees) {
       const days = calculateDaysUntil(dev.wedding_date);
@@ -410,9 +418,15 @@ router.get('/wedding-anniversaries', auth, async (req, res) => {
           id: `dev-wed-${dev.id}`,
           type: 'devotee',
           source: 'Devotee',
+          devotee_id: dev.id,
           name: dev.name,
           contact: dev.contact,
           email: dev.email_address,
+          postal_address: dev.postal_address,
+          gothram: dev.gothram,
+          father_name: dev.father_name,
+          mother_name: dev.mother_name,
+          note: dev.note,
           wedding_date: dev.wedding_date,
           days_until: days,
           years_married: yearsMarried,
@@ -424,7 +438,7 @@ router.get('/wedding-anniversaries', auth, async (req, res) => {
 
     // 2. Fetch married admins
     const [admins] = await db.execute(
-      'SELECT id, name, email, role, date_of_wedding FROM admin_users WHERE date_of_wedding IS NOT NULL'
+      'SELECT id, name, email, role, date_of_wedding, last_login FROM admin_users WHERE date_of_wedding IS NOT NULL'
     );
     for (const adm of admins) {
       const days = calculateDaysUntil(adm.date_of_wedding);
@@ -439,6 +453,7 @@ router.get('/wedding-anniversaries', auth, async (req, res) => {
           email: adm.email,
           role: adm.role,
           wedding_date: adm.date_of_wedding,
+          last_login: adm.last_login,
           days_until: days,
           years_married: yearsMarried,
           anniversary_next: days === 0 ? 'Anniversary today!' : `Anniversary in ${days} days`,
