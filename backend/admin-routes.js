@@ -469,6 +469,155 @@ router.get('/wedding-anniversaries', auth, async (req, res) => {
   }
 });
 
+// ─── Notification Feed (Upcoming Reminders + Recent Form Submissions) ─────────
+router.get('/notifications/feed', auth, async (req, res) => {
+  const db = req.app.locals.db;
+  try {
+    const recentForms = [];
+
+    // 1. Recent Devotee Registrations
+    try {
+      const [devotees] = await db.execute(`
+        SELECT id, name, contact, email_address, postal_address, gothram, created_at, added_by
+        FROM devotee_details
+        ORDER BY created_at DESC LIMIT 8
+      `);
+      for (const d of devotees) {
+        recentForms.push({
+          id: `dev-${d.id}`,
+          formType: 'devotee',
+          formTitle: 'New Devotee Registered',
+          name: d.name,
+          contact: d.contact,
+          email: d.email_address,
+          address: d.postal_address,
+          gothram: d.gothram,
+          added_by: d.added_by,
+          created_at: d.created_at,
+          link: '/admin/devotees',
+        });
+      }
+    } catch (e) {
+      console.warn('Notification feed devotees query warning:', e.message);
+    }
+
+    // 2. Recent Pooja / Service Bookings
+    try {
+      const [bookings] = await db.execute(`
+        SELECT id, primary_name, contact_number, email, event_title, total_amount, payment_id, status, created_at
+        FROM bookings
+        ORDER BY created_at DESC LIMIT 8
+      `);
+      for (const b of bookings) {
+        recentForms.push({
+          id: `book-${b.id}`,
+          formType: 'booking',
+          formTitle: b.event_title ? `Pooja Booking: ${b.event_title}` : 'New Pooja Booking',
+          name: b.primary_name,
+          contact: b.contact_number,
+          email: b.email,
+          amount: b.total_amount,
+          payment_id: b.payment_id,
+          status: b.status,
+          created_at: b.created_at,
+          link: '/admin/bookings',
+        });
+      }
+    } catch (e) {
+      console.warn('Notification feed bookings query warning:', e.message);
+    }
+
+    // 3. Recent Prasadham Bookings
+    try {
+      const [prasadham] = await db.execute(`
+        SELECT id, primary_name, contact_number, email, event_title, total_amount, payment_id, created_at
+        FROM prasadham_bookings
+        ORDER BY created_at DESC LIMIT 8
+      `);
+      for (const p of prasadham) {
+        recentForms.push({
+          id: `pras-${p.id}`,
+          formType: 'prasadham',
+          formTitle: 'New Prasadham Order',
+          name: p.primary_name,
+          contact: p.contact_number,
+          email: p.email,
+          amount: p.total_amount,
+          payment_id: p.payment_id,
+          created_at: p.created_at,
+          link: '/admin/prasadham',
+        });
+      }
+    } catch (e) {
+      console.warn('Notification feed prasadham query warning:', e.message);
+    }
+
+    // 4. Recent Donations
+    try {
+      const [donations] = await db.execute(`
+        SELECT id, name, phone, email, amount_inr, city, payment_id, status, created_at
+        FROM donations
+        ORDER BY created_at DESC LIMIT 8
+      `);
+      for (const don of donations) {
+        recentForms.push({
+          id: `don-${don.id}`,
+          formType: 'donation',
+          formTitle: `Donation: ₹${Number(don.amount_inr || 0).toLocaleString('en-IN')}`,
+          name: don.name,
+          contact: don.phone,
+          email: don.email,
+          city: don.city,
+          amount: don.amount_inr,
+          payment_id: don.payment_id,
+          status: don.status,
+          created_at: don.created_at,
+          link: '/admin/donations',
+        });
+      }
+    } catch (e) {
+      console.warn('Notification feed donations query warning:', e.message);
+    }
+
+    // 5. Recent VIP / Free Entries
+    try {
+      const [vip] = await db.execute(`
+        SELECT id, av2_full_name, av2_phone, av2_email, amount, booking_status, created_at
+        FROM av2_vip_access
+        ORDER BY created_at DESC LIMIT 6
+      `);
+      for (const v of vip) {
+        recentForms.push({
+          id: `vip-${v.id}`,
+          formType: 'vip',
+          formTitle: 'VIP Access Pass',
+          name: v.av2_full_name,
+          contact: v.av2_phone,
+          email: v.av2_email,
+          amount: v.amount,
+          status: v.booking_status,
+          created_at: v.created_at,
+          link: '/admin/vip',
+        });
+      }
+    } catch (e) {
+      console.warn('Notification feed vip query warning:', e.message);
+    }
+
+    // Sort recent forms descending by created_at
+    recentForms.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    res.json({
+      success: true,
+      recentForms: recentForms.slice(0, 20),
+    });
+  } catch (err) {
+    console.error('NOTIFICATION FEED ERROR:', err);
+    res.status(500).json({ error: 'Failed to fetch notification feed' });
+  }
+});
+
+
 // ─── Dashboard Summary ────────────────────────────────────────────────────────
 router.get('/dashboard', auth, async (req, res) => {
   const db = req.app.locals.db;

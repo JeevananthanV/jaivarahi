@@ -325,9 +325,10 @@ const adminApi = {
   createMediaFolder: async (payload) => (await api.post('/media/folders', payload, withToken())).data,
   uploadMedia: async (formData) => (await api.post('/media/upload', formData)).data,
 
-  // Reminders
+  // Reminders & Notifications
   getBirthdays: async (params = {}) => (await api.get('/birthdays', { params })).data,
   getWeddingAnniversaries: async (params = {}) => (await api.get('/wedding-anniversaries', { params })).data,
+  getNotificationFeed: async () => (await api.get('/notifications/feed')).data,
 };
 
 export default adminApi;

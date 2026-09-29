@@ -13,7 +13,14 @@ import {
   MapPin,
   ChevronRight,
   Shield,
-  Users
+  Users,
+  FileText,
+  Sparkles,
+  ShoppingBag,
+  Coins,
+  Ticket,
+  Clock,
+  UserCheck
 } from 'lucide-react';
 import adminApi from './adminApi';
 
@@ -21,33 +28,36 @@ const ReminderNotification = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [birthdays, setBirthdays] = useState([]);
   const [anniversaries, setAnniversaries] = useState([]);
+  const [recentForms, setRecentForms] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('all'); // all, birthdays, anniversaries
+  const [activeTab, setActiveTab] = useState('all'); // all, forms, birthdays, anniversaries
   const [selectedPerson, setSelectedPerson] = useState(null);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  const fetchReminders = async () => {
+  const fetchAllNotifications = async () => {
     setLoading(true);
     try {
-      const [bData, aData] = await Promise.all([
+      const [bData, aData, feedData] = await Promise.all([
         adminApi.getBirthdays({ days: 7 }).catch(() => ({ birthdays: [] })),
         adminApi.getWeddingAnniversaries({ days: 7 }).catch(() => ({ weddingAnniversaries: [] })),
+        adminApi.getNotificationFeed().catch(() => ({ recentForms: [] })),
       ]);
 
       setBirthdays(bData.birthdays || []);
       setAnniversaries(aData.weddingAnniversaries || []);
+      setRecentForms(feedData.recentForms || []);
     } catch (err) {
-      console.error('Failed to load reminders:', err);
+      console.error('Failed to load notifications:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchReminders();
-    // Auto-refresh every 5 minutes
-    const interval = setInterval(fetchReminders, 5 * 60 * 1000);
+    fetchAllNotifications();
+    // Auto-refresh every 3 minutes
+    const interval = setInterval(fetchAllNotifications, 3 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -64,21 +74,30 @@ const ReminderNotification = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  // Combine and sort reminders by days_until
-  const allReminders = [
-    ...birthdays.map((b) => ({ ...b, reminderType: 'birthday' })),
-    ...anniversaries.map((a) => ({ ...a, reminderType: 'anniversary' })),
+  // Combine and sort reminders
+  const formattedReminders = [
+    ...birthdays.map((b) => ({ ...b, itemCategory: 'reminder', reminderType: 'birthday' })),
+    ...anniversaries.map((a) => ({ ...a, itemCategory: 'reminder', reminderType: 'anniversary' })),
   ].sort((a, b) => a.days_until - b.days_until);
 
-  const displayedList =
-    activeTab === 'birthdays'
-      ? allReminders.filter((r) => r.reminderType === 'birthday')
-      : activeTab === 'anniversaries'
-      ? allReminders.filter((r) => r.reminderType === 'anniversary')
-      : allReminders;
+  const formattedForms = recentForms.map((f) => ({
+    ...f,
+    itemCategory: 'form',
+  }));
 
-  const totalCount = allReminders.length;
-  const todayCount = allReminders.filter((r) => r.days_until === 0).length;
+  const allItems = [...formattedReminders, ...formattedForms];
+
+  const displayedList =
+    activeTab === 'forms'
+      ? formattedForms
+      : activeTab === 'birthdays'
+      ? formattedReminders.filter((r) => r.reminderType === 'birthday')
+      : activeTab === 'anniversaries'
+      ? formattedReminders.filter((r) => r.reminderType === 'anniversary')
+      : allItems;
+
+  const totalBadgeCount = formattedReminders.length + formattedForms.length;
+  const todayReminders = formattedReminders.filter((r) => r.days_until === 0).length;
 
   const getBadgeClass = (days) => {
     if (days <= 0) return 'dash-pill ok';
@@ -93,6 +112,58 @@ const ReminderNotification = () => {
     return `In ${days} days`;
   };
 
+  const formatTimeAgo = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const now = new Date();
+    const diffMs = now - d;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMin / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMin < 2) return 'Just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+  };
+
+  const getFormIcon = (type) => {
+    switch (type) {
+      case 'devotee':
+        return <UserCheck size={15} />;
+      case 'booking':
+        return <Sparkles size={15} />;
+      case 'prasadham':
+        return <ShoppingBag size={15} />;
+      case 'donation':
+        return <Coins size={15} />;
+      case 'vip':
+        return <Ticket size={15} />;
+      default:
+        return <FileText size={15} />;
+    }
+  };
+
+  const getFormColor = (type) => {
+    switch (type) {
+      case 'devotee':
+        return { bg: 'var(--inb)', color: 'var(--in)' };
+      case 'booking':
+        return { bg: 'var(--special-08)', color: 'var(--special)' };
+      case 'prasadham':
+        return { bg: 'rgba(21, 150, 107, 0.12)', color: 'var(--ok)' };
+      case 'donation':
+        return { bg: 'rgba(234, 88, 12, 0.12)', color: 'var(--accent-color)' };
+      case 'vip':
+        return { bg: 'rgba(168, 85, 247, 0.12)', color: 'var(--purple, #a855f7)' };
+      default:
+        return { bg: 'var(--bg3)', color: 'var(--tx2)' };
+    }
+  };
+
   return (
     <div style={{ position: 'relative' }} ref={dropdownRef}>
       {/* Bell Trigger Button */}
@@ -100,22 +171,22 @@ const ReminderNotification = () => {
         className="ic-btn"
         onClick={() => {
           setIsOpen(!isOpen);
-          if (!isOpen) fetchReminders();
+          if (!isOpen) fetchAllNotifications();
         }}
-        title={`Reminders (${totalCount} upcoming)`}
+        title={`Notifications & Reminders (${totalBadgeCount} items)`}
         style={{
-          color: totalCount > 0 ? 'var(--special)' : 'var(--tx2)',
-          borderColor: totalCount > 0 ? 'var(--bd2)' : 'var(--bd)',
+          color: totalBadgeCount > 0 ? 'var(--special)' : 'var(--tx2)',
+          borderColor: totalBadgeCount > 0 ? 'var(--bd2)' : 'var(--bd)',
         }}
       >
         <Bell size={18} />
-        {totalCount > 0 && (
+        {totalBadgeCount > 0 && (
           <span
             style={{
               position: 'absolute',
               top: -4,
               right: -4,
-              background: todayCount > 0 ? 'var(--er)' : 'var(--special)',
+              background: todayReminders > 0 ? 'var(--er)' : 'var(--special)',
               color: 'var(--light-text)',
               fontSize: 10,
               fontWeight: 800,
@@ -130,7 +201,7 @@ const ReminderNotification = () => {
               boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
             }}
           >
-            {totalCount > 99 ? '99+' : totalCount}
+            {totalBadgeCount > 99 ? '99+' : totalBadgeCount}
           </span>
         )}
       </button>
@@ -142,7 +213,7 @@ const ReminderNotification = () => {
             position: 'absolute',
             top: 'calc(100% + 8px)',
             right: 0,
-            width: 380,
+            width: 420,
             maxWidth: 'calc(100vw - 32px)',
             background: 'var(--bg2)',
             border: '1px solid var(--bd)',
@@ -169,16 +240,16 @@ const ReminderNotification = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
               <Bell size={16} color="var(--accent-color)" />
               <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--tx)' }}>
-                Upcoming Reminders
+                Notifications & Reminders
               </span>
               <span className="dash-pill in" style={{ fontSize: 10, padding: '1px 6px' }}>
-                {totalCount}
+                {totalBadgeCount}
               </span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <button
-                onClick={fetchReminders}
+                onClick={fetchAllNotifications}
                 title="Refresh"
                 style={{
                   background: 'none',
@@ -212,39 +283,47 @@ const ReminderNotification = () => {
           <div
             style={{
               display: 'flex',
-              padding: '8px 12px',
-              gap: 6,
+              padding: '8px 10px',
+              gap: 4,
               background: 'var(--bg2)',
               borderBottom: '1px solid var(--bd)',
+              overflowX: 'auto',
             }}
           >
             <button
               onClick={() => setActiveTab('all')}
               className={`btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: 11, padding: '3px 8px', flex: 1 }}
+              style={{ fontSize: 10.5, padding: '3px 8px', whiteSpace: 'nowrap' }}
             >
-              All ({totalCount})
+              All ({totalBadgeCount})
+            </button>
+            <button
+              onClick={() => setActiveTab('forms')}
+              className={`btn btn-sm ${activeTab === 'forms' ? 'btn-primary' : 'btn-outline'}`}
+              style={{ fontSize: 10.5, padding: '3px 8px', whiteSpace: 'nowrap' }}
+            >
+              📝 Forms ({formattedForms.length})
             </button>
             <button
               onClick={() => setActiveTab('birthdays')}
               className={`btn btn-sm ${activeTab === 'birthdays' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: 11, padding: '3px 8px', flex: 1 }}
+              style={{ fontSize: 10.5, padding: '3px 8px', whiteSpace: 'nowrap' }}
             >
               🎂 Birthdays ({birthdays.length})
             </button>
             <button
               onClick={() => setActiveTab('anniversaries')}
               className={`btn btn-sm ${activeTab === 'anniversaries' ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: 11, padding: '3px 8px', flex: 1 }}
+              style={{ fontSize: 10.5, padding: '3px 8px', whiteSpace: 'nowrap' }}
             >
               💍 Anniversaries ({anniversaries.length})
             </button>
           </div>
 
-          {/* Reminders List */}
+          {/* Feed List */}
           <div
             style={{
-              maxHeight: 340,
+              maxHeight: 360,
               overflowY: 'auto',
               padding: '6px 12px',
             }}
@@ -255,118 +334,197 @@ const ReminderNotification = () => {
               </div>
             ) : displayedList.length === 0 ? (
               <div style={{ padding: '28px 16px', textAlign: 'center', color: 'var(--tx3)', fontSize: 13 }}>
-                <p style={{ margin: 0, fontWeight: 600 }}>No reminders in the next 7 days</p>
-                <p style={{ margin: '4px 0 0', fontSize: 11 }}>All devotees & admins are caught up!</p>
+                <p style={{ margin: 0, fontWeight: 600 }}>No items in this section</p>
+                <p style={{ margin: '4px 0 0', fontSize: 11 }}>All notifications are up to date!</p>
               </div>
             ) : (
-              displayedList.map((item, idx) => (
-                <div
-                  key={`${item.reminderType}-${item.id || idx}`}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '10px 8px',
-                    borderBottom: idx === displayedList.length - 1 ? 'none' : '1px solid var(--bd)',
-                    gap: 10,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+              displayedList.map((item, idx) => {
+                if (item.itemCategory === 'form') {
+                  const styleMeta = getFormColor(item.formType);
+                  return (
                     <div
+                      key={`form-${item.id || idx}`}
                       style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: '50%',
-                        background:
-                          item.reminderType === 'birthday'
-                            ? 'var(--special-08)'
-                            : 'rgba(219, 39, 119, 0.1)',
-                        color:
-                          item.reminderType === 'birthday' ? 'var(--special)' : '#db2777',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
+                        justifyContent: 'space-between',
+                        padding: '10px 8px',
+                        borderBottom: idx === displayedList.length - 1 ? 'none' : '1px solid var(--bd)',
+                        gap: 10,
                       }}
                     >
-                      {item.reminderType === 'birthday' ? (
-                        <Cake size={15} />
-                      ) : (
-                        <Heart size={15} />
-                      )}
-                    </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            background: styleMeta.bg,
+                            color: styleMeta.color,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                          }}
+                        >
+                          {getFormIcon(item.formType)}
+                        </div>
 
-                    <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div
+                            style={{
+                              fontWeight: 600,
+                              fontSize: 13,
+                              color: 'var(--tx)',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            {item.name || item.formTitle}
+                          </div>
+                          <div style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 600, color: styleMeta.color }}>
+                              {item.formTitle}
+                            </span>
+                            {item.contact && <span>• 📞 {item.contact}</span>}
+                            {item.created_at && (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+                                • <Clock size={10} /> {formatTimeAgo(item.created_at)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                        <button
+                          onClick={() => {
+                            setIsOpen(false);
+                            if (item.link) navigate(item.link);
+                          }}
+                          className="btn btn-sm btn-outline"
+                          title="Open in Admin"
+                          style={{ padding: '3px 8px', fontSize: 10.5, borderRadius: 'var(--r-sm)', display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                        >
+                          <span>Open</span>
+                          <ChevronRight size={10} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // Reminder Item
+                return (
+                  <div
+                    key={`rem-${item.reminderType}-${item.id || idx}`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '10px 8px',
+                      borderBottom: idx === displayedList.length - 1 ? 'none' : '1px solid var(--bd)',
+                      gap: 10,
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
                       <div
                         style={{
-                          fontWeight: 600,
-                          fontSize: 13,
-                          color: 'var(--tx)',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          width: 32,
+                          height: 32,
+                          borderRadius: '50%',
+                          background:
+                            item.reminderType === 'birthday'
+                              ? 'var(--special-08)'
+                              : 'rgba(219, 39, 119, 0.1)',
+                          color:
+                            item.reminderType === 'birthday' ? 'var(--special)' : '#db2777',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
                         }}
                       >
-                        {item.name}
-                        {item.relationship && item.relationship !== 'Devotee' && (
-                          <span style={{ fontSize: 10.5, color: 'var(--tx3)', marginLeft: 4, fontWeight: 400 }}>
-                            ({item.relationship})
-                          </span>
+                        {item.reminderType === 'birthday' ? (
+                          <Cake size={15} />
+                        ) : (
+                          <Heart size={15} />
                         )}
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 2 }}>
-                        {item.reminderType === 'birthday'
-                          ? `🎂 ${item.birthday ? new Date(item.birthday).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : ''}`
-                          : `💍 ${item.wedding_date ? new Date(item.wedding_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : ''} ${item.years_married ? `(${item.years_married}y)` : ''}`}
-                        {item.type === 'admin' && ' • Admin'}
+
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            fontSize: 13,
+                            color: 'var(--tx)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {item.name}
+                          {item.relationship && item.relationship !== 'Devotee' && (
+                            <span style={{ fontSize: 10.5, color: 'var(--tx3)', marginLeft: 4, fontWeight: 400 }}>
+                              ({item.relationship})
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 2 }}>
+                          {item.reminderType === 'birthday'
+                            ? `🎂 ${item.birthday ? new Date(item.birthday).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : ''}`
+                            : `💍 ${item.wedding_date ? new Date(item.wedding_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : ''} ${item.years_married ? `(${item.years_married}y)` : ''}`}
+                          {item.type === 'admin' && ' • Admin'}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                    {/* View Button */}
-                    <button
-                      onClick={() => {
-                        setSelectedPerson(item);
-                      }}
-                      className="btn btn-sm btn-outline"
-                      title="View Details"
-                      style={{ padding: '3px 6px', fontSize: 10, borderRadius: 'var(--r-sm)' }}
-                    >
-                      <Eye size={11} />
-                    </button>
-
-                    {/* WhatsApp Wish Button */}
-                    {item.contact && (
-                      <a
-                        href={`https://wa.me/91${item.contact.replace(/\D/g, '')}?text=${
-                          item.reminderType === 'birthday'
-                            ? `Happy%20Birthday%20${encodeURIComponent(item.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
-                            : `Happy%20Wedding%20Anniversary%20${encodeURIComponent(item.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
-                        }`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-sm btn-primary"
-                        style={{
-                          padding: '3px 6px',
-                          fontSize: 10,
-                          background: 'var(--whatsapp)',
-                          borderColor: 'var(--whatsapp)',
-                          borderRadius: 'var(--r-sm)',
-                          color: 'var(--light-text)',
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                      {/* View Details Button */}
+                      <button
+                        onClick={() => {
+                          setSelectedPerson(item);
                         }}
-                        title="Send WhatsApp Wish"
+                        className="btn btn-sm btn-outline"
+                        title="View Details"
+                        style={{ padding: '3px 6px', fontSize: 10, borderRadius: 'var(--r-sm)' }}
                       >
-                        <MessageCircle size={11} />
-                      </a>
-                    )}
+                        <Eye size={11} />
+                      </button>
 
-                    <span className={getBadgeClass(item.days_until)} style={{ fontSize: 10, padding: '2px 6px' }}>
-                      {getBadgeLabel(item.days_until)}
-                    </span>
+                      {/* WhatsApp Wish Button */}
+                      {item.contact && (
+                        <a
+                          href={`https://wa.me/91${item.contact.replace(/\D/g, '')}?text=${
+                            item.reminderType === 'birthday'
+                              ? `Happy%20Birthday%20${encodeURIComponent(item.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
+                              : `Happy%20Wedding%20Anniversary%20${encodeURIComponent(item.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
+                          }`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-primary"
+                          style={{
+                            padding: '3px 6px',
+                            fontSize: 10,
+                            background: 'var(--whatsapp)',
+                            borderColor: 'var(--whatsapp)',
+                            borderRadius: 'var(--r-sm)',
+                            color: 'var(--light-text)',
+                          }}
+                          title="Send WhatsApp Wish"
+                        >
+                          <MessageCircle size={11} />
+                        </a>
+                      )}
+
+                      <span className={getBadgeClass(item.days_until)} style={{ fontSize: 10, padding: '2px 6px' }}>
+                        {getBadgeLabel(item.days_until)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
@@ -379,8 +537,30 @@ const ReminderNotification = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 8,
             }}
           >
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                navigate('/admin/devotees');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--in)',
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+              }}
+            >
+              Devotee Forms <ChevronRight size={11} />
+            </button>
+
             <button
               onClick={() => {
                 setIsOpen(false);
@@ -390,7 +570,7 @@ const ReminderNotification = () => {
                 background: 'none',
                 border: 'none',
                 color: 'var(--primary-color)',
-                fontSize: 11.5,
+                fontSize: 11,
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
@@ -398,7 +578,7 @@ const ReminderNotification = () => {
                 gap: 2,
               }}
             >
-              All Birthdays <ChevronRight size={12} />
+              Birthdays <ChevronRight size={11} />
             </button>
 
             <button
@@ -410,7 +590,7 @@ const ReminderNotification = () => {
                 background: 'none',
                 border: 'none',
                 color: 'var(--special)',
-                fontSize: 11.5,
+                fontSize: 11,
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
@@ -418,13 +598,13 @@ const ReminderNotification = () => {
                 gap: 2,
               }}
             >
-              All Anniversaries <ChevronRight size={12} />
+              Anniversaries <ChevronRight size={11} />
             </button>
           </div>
         </div>
       )}
 
-      {/* Full Details Modal from Notification */}
+      {/* Full Details Modal for Reminders */}
       {selectedPerson && (
         <div className="modal-ov" onClick={() => setSelectedPerson(null)}>
           <div className="modal" style={{ maxWidth: 540 }} onClick={(e) => e.stopPropagation()}>
