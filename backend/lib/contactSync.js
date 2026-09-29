@@ -1,4 +1,12 @@
+import { normalizePhone, isValidPhone } from "./phoneUtils.js";
+
 const SOURCE_TABLES = [
+  {
+    table: "package_bookings",
+    nameCol: "primary_name",
+    phoneCol: "phone",
+    label: "Package Booking",
+  },
   {
     table: "prasadham_bookings",
     nameCol: "primary_name",
@@ -60,20 +68,6 @@ const SOURCE_TABLES = [
     label: "Donation",
   },
 ];
-
-const normalizePhone = (phone) => {
-  if (!phone) return null;
-  const cleaned = String(phone).replace(/\s+/g, "").replace(/^0+/, "");
-  if (cleaned.startsWith("+")) return cleaned;
-  if (cleaned.startsWith("91") && cleaned.length === 12) return `+${cleaned}`;
-  if (cleaned.length === 10) return `+91${cleaned}`;
-  return `+${cleaned}`;
-};
-
-const isValidPhone = (phone) => {
-  const normalized = normalizePhone(phone);
-  return normalized !== null && normalized.startsWith("+") && normalized.length >= 10;
-};
 
 export const syncSingleContact = async (db, sourceTable, row) => {
   const sourceConfig = SOURCE_TABLES.find((s) => s.table === sourceTable);

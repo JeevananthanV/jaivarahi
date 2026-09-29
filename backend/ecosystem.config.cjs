@@ -3,14 +3,16 @@ module.exports = {
     {
       name: "jaivarahi-backend",
       script: "./server.js",
-      instances: 1,
-      exec_mode: "fork",
+      instances: process.env.PM2_INSTANCES || "max",
+      exec_mode: "cluster",
       autorestart: true,
       watch: false,
-      max_memory_restart: "500M",
-      restart_delay: 3000,
+      max_memory_restart: "1G",
+      kill_timeout: 5000,
+      listen_timeout: 8000,
+      restart_delay: 2000,
       exp_backoff_restart_delay: 100,
-      max_restarts: 10,
+      max_restarts: 15,
       env: {
         NODE_ENV: "development",
         PORT: 5000

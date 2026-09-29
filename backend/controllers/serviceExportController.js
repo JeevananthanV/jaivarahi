@@ -101,7 +101,7 @@ export const exportBookings = async (req, res) => {
           <div class="meta">Generated: ${new Date().toLocaleString('en-IN')} | Total Records: ${rows.length}</div>
           <table>
             <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
-            <tbody>${rows.map(row => `<tr>${headers.map(h => `<td>${row[h] == null ? '' : row[h]}</td>`).join('')}</tr>`).join('')}</tbody>
+            <tbody>${rows.map(row => `<tr>${headers.map(h => `<td>${row[h] == null ? '' : String(row[h]).replace(/[<>&]/g, (c) => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</td>`).join('')}</tr>`).join('')}</tbody>
           </table>
         </body>
         </html>

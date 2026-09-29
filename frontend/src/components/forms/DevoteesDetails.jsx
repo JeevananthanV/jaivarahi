@@ -27,7 +27,8 @@ import {
   STAR_OPTIONS, 
   RASI_OPTIONS, 
   RELATIONSHIP_OPTIONS, 
-  GOTHRAM_SUGGESTIONS 
+  GOTHRAM_SUGGESTIONS,
+  deriveRasiFromStar
 } from "../../utils/astrologyData";
 
 const DevoteesDetails = () => {
@@ -118,6 +119,14 @@ const DevoteesDetails = () => {
   const updateFamilyMember = (index, field, value) => {
     setFamilyMembers(prev => prev.map((m, i) => {
       if (i !== index) return m;
+      if (field === "star") {
+        const autoRasi = deriveRasiFromStar(value);
+        return { 
+          ...m, 
+          star: value, 
+          ...(autoRasi ? { rasi: autoRasi } : {}) 
+        };
+      }
       return { ...m, [field]: value };
     }));
   };
@@ -129,7 +138,8 @@ const DevoteesDetails = () => {
     if (!cleanedContact || cleanedContact.length < 10) {
       errs.contact = "Please enter a valid 10-digit mobile number";
     }
-    if (emailAddress && !/^\S+@\S+\.\S+$/.test(emailAddress)) {
+    const trimmedEmail = emailAddress.trim();
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
       errs.emailAddress = "Please enter a valid email address";
     }
     setErrors(errs);
@@ -147,6 +157,11 @@ const DevoteesDetails = () => {
       setIsLoading(true);
       setMessage({ type: "", text: "" });
 
+      // Clean empty family members before submission
+      const validFamilyMembers = familyMembers.filter(
+        m => (m.name && m.name.trim()) || m.star || m.rasi || m.dob
+      );
+
       const response = await fetch("/api/devotees", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -155,7 +170,7 @@ const DevoteesDetails = () => {
           contact: contact.trim(),
           postal_address: postalAddress.trim() || null,
           gothram: gothram.trim() || null,
-          family_members: familyMembers,
+          family_members: validFamilyMembers,
           married_status: marriedStatus,
           wedding_date: marriedStatus === "married" && weddingDate ? weddingDate : null,
           email_address: emailAddress.trim() || null,
@@ -165,10 +180,24 @@ const DevoteesDetails = () => {
         })
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get("content-type") || "";
+      let data = {};
+      if (contentType.includes("application/json")) {
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to submit devotee details");
+        if (response.status === 503 || response.status === 502 || response.status === 504) {
+          throw new Error("The server is temporarily busy handling high devotee volume. Please wait a few moments and click submit again.");
+        }
+        if (response.status === 429) {
+          throw new Error("High submission rate detected from this network. Please wait a couple minutes before submitting another record.");
+        }
+        throw new Error(data.error || "Failed to submit devotee details. Please try again.");
       }
 
       setIsSubmitted(true);

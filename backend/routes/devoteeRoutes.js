@@ -81,8 +81,8 @@ router.post('/devotees', originGuard, async (req, res) => {
 
 // ─── ADMIN: List Devotees (with Pagination and Search) ──────────────────────
 router.get('/admin/devotees', auth, async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 20;
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.max(1, Math.min(100, parseInt(req.query.limit, 10) || 20));
   const offset = (page - 1) * limit;
   const search = req.query.search || '';
 
@@ -103,7 +103,7 @@ router.get('/admin/devotees', auth, async (req, res) => {
     const dataParams = [...params, limit, offset];
 
     const [countResult] = await pool.execute(countSql, params);
-    const total = countResult[0].total;
+    const total = countResult[0]?.total || 0;
 
     const [rows] = await pool.execute(dataSql, dataParams);
 

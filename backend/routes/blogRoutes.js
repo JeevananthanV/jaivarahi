@@ -3,6 +3,7 @@ import { auth, requireRole } from "../admin-routes.js";
 import {
   getPublishedBlogs,
   getBlogById,
+  getRelatedBlogs,
   getBlogSitemapXml,
   getAdminBlogs,
   createBlog,
@@ -104,6 +105,7 @@ router.get("/blogs/stream", getBlogsStream);
 router.get("/sitemap-blogs.xml", getBlogSitemapXml);
 router.get("/blogs/sitemap.xml", getBlogSitemapXml);
 router.get("/blogs", getPublishedBlogs);
+router.get("/blogs/:id/related", getRelatedBlogs);
 router.get("/blogs/:id", getBlogById);
 
 // Admin endpoints (authenticated)
@@ -128,7 +130,11 @@ router.post("/admin/blogs/upload", auth, requireRole(["Super Admin", "Admin"]), 
     try {
       validateBlogImageMagic(req.file.path, req.file.mimetype);
     } catch (validationErr) {
-      fs.unlinkSync(req.file.path);
+      try {
+        if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+      } catch (unlinkErr) {
+        console.warn("Failed to delete invalid upload file:", unlinkErr.message);
+      }
       return res.status(400).json({ error: validationErr.message });
     }
     const fileUrl = `/api/uploads/${req.file.filename}`;

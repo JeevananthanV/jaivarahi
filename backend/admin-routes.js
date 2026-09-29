@@ -18,7 +18,8 @@ const ALLOWED_PUBLIC_ORIGINS = [
 ];
 
 export const originGuard = (req, res, next) => {
-  if (req.method !== "POST") return next();
+  // Check ALL mutating methods, not just POST
+  if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) return next();
   const origin = req.get("origin");
   const referer = req.get("referer");
   const isAllowed = ALLOWED_PUBLIC_ORIGINS.some(
@@ -235,8 +236,20 @@ router.post('/refresh', async (req, res) => {
     const token = jwt.sign(user, process.env.ADMIN_JWT_SECRET, { expiresIn: '8h' });
     const newRefreshToken = generateRefreshToken();
 
-    await db.execute('DELETE FROM refresh_tokens WHERE id = ?', [matchedToken.id]);
-    await storeRefreshToken(db, user.id, newRefreshToken);
+    // Atomic token rotation using transaction
+    const conn = await db.getConnection();
+    try {
+      await conn.beginTransaction();
+      await conn.execute('DELETE FROM refresh_tokens WHERE id = ?', [matchedToken.id]);
+      await storeRefreshToken(conn, user.id, newRefreshToken);
+      await conn.commit();
+    } catch (e) {
+      await conn.rollback();
+      throw e;
+    } finally {
+      conn.release();
+    }
+
 
     return res.json({ token, refresh_token: newRefreshToken, user });
   } catch {
@@ -280,6 +293,83 @@ router.delete('/users/:id', auth, requireRole(['Super Admin']), async (req, res)
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ─── Admin Birthday Reminders ────────────────────────────────────────────────────
+router.get('/birthdays', auth, async (req, res) => {
+  const db = req.app.locals.db;
+  try {
+    // Calculate birthdays in the next 7 days (comparing month/day only)
+    const [rows] = await db.execute(
+      `SELECT id, name, email, date_of_birth, role,
+              DATEDIFF(
+                DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(date_of_birth), '-', DAY(date_of_birth))),
+                CURDATE()
+              ) AS days_until_birthday
+       FROM admin_users
+       WHERE date_of_birth IS NOT NULL
+         AND DATEDIFF(
+               DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(date_of_birth), '-', DAY(date_of_birth))),
+               CURDATE()
+             ) BETWEEN 0 AND 7
+       ORDER BY days_until_birthday ASC`
+    );
+
+    const birthdays = rows.map(r => ({
+      id: r.id,
+      name: r.name,
+      role: r.role,
+      birthday: r.date_of_birth,
+      days_until: r.days_until_birthday,
+      days_until_next: r.days_until_birthday < 0
+        ? 365 + r.days_until_birthday
+        : r.days_until_birthday,
+    }));
+
+    res.json({ success: true, birthdays });
+  } catch (err) {
+    console.error('BIRTHDAY FETCH ERROR:', err);
+    res.status(500).json({ error: 'Failed to fetch birthdays' });
+  }
+});
+
+// ─── Admin Wedding Anniversary Reminders ────────────────────────────────────────
+router.get('/wedding-anniversaries', auth, async (req, res) => {
+  const db = req.app.locals.db;
+  try {
+    // Calculate wedding anniversaries in the next 30 days (comparing month/day only)
+    const [rows] = await db.execute(
+      `SELECT id, name, email, date_of_wedding, role,
+              DATEDIFF(
+                DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(date_of_wedding), '-', DAY(date_of_wedding))),
+                CURDATE()
+              ) AS days_until_anniversary
+       FROM admin_users
+       WHERE date_of_wedding IS NOT NULL
+         AND DATEDIFF(
+               DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(date_of_wedding), '-', DAY(date_of_wedding))),
+               CURDATE()
+             ) BETWEEN 0 AND 30
+       ORDER BY days_until_anniversary ASC`
+    );
+
+    const weddingAnniversaries = rows.map(r => ({
+      id: r.id,
+      name: r.name,
+      role: r.role,
+      wedding_date: r.date_of_wedding,
+      days_until: r.days_until_anniversary,
+      years_married: Math.floor((new Date().getFullYear() - new Date(r.date_of_wedding).getFullYear())),
+      anniversary_next: r.days_until_anniversary === 0
+        ? 'Wedding anniversary today!'
+        : `Wedding anniversary in ${r.days_until_anniversary} days`,
+    }));
+
+    res.json({ success: true, weddingAnniversaries });
+  } catch (err) {
+    console.error('WEDDING ANNIVERSARY FETCH ERROR:', err);
+    res.status(500).json({ error: 'Failed to fetch wedding anniversaries' });
+  }
+});
+
 // ─── Dashboard Summary ────────────────────────────────────────────────────────
 router.get('/dashboard', auth, async (req, res) => {
   const db = req.app.locals.db;
@@ -287,90 +377,86 @@ router.get('/dashboard', auth, async (req, res) => {
     const { start, end } = parseDateRange(req.query);
     const startSql = start ? toSqlDateTime(start) : null;
     const endSql = end ? toSqlDateTime(end) : null;
-    const donationFilter = buildDateFilter('created_at', startSql, endSql);
-    const bookingFilter = buildDateFilter('created_at', startSql, endSql);
-    const royalFilter = buildDateFilter('created_at', startSql, endSql);
-    const vipFilter = buildDateFilter('created_at', startSql, endSql);
-    const freeFilter = buildDateFilter('created_at', startSql, endSql);
-    const entryFilter = buildDateFilter('created_at', startSql, endSql);
-    const stallFilter = buildDateFilter('created_at', startSql, endSql);
-    const sponsorFilter = buildDateFilter('created_at', startSql, endSql);
-    const poolFilter = buildDateFilter('created_at', startSql, endSql);
+        // Single date filter for all tables using 'created_at'
+    const dateFilter = buildDateFilter('created_at', startSql, endSql);
+    const dateWhere = dateFilter.clause ? `WHERE ${dateFilter.clause}` : '';
+    const dateAnd = dateFilter.clause ? `AND ${dateFilter.clause}` : '';
+    const params = dateFilter.params;
 
      const [[donationStats]] = await db.execute(`
-       SELECT 
-         COALESCE(SUM(CASE WHEN status='paid' THEN amount_inr ELSE 0 END),0) AS donation_revenue,
-         COUNT(*) AS total_donations,
-         COALESCE(SUM(status='paid'),0) AS paid_count,
-         COALESCE(SUM(status='failed'),0) AS failed_count,
-         COALESCE(SUM(status='created'),0) AS pending_count
-       FROM donations
-       ${donationFilter.clause ? `WHERE ${donationFilter.clause}` : ''}
-     `, donationFilter.params);
+        SELECT 
+          COALESCE(SUM(CASE WHEN status='paid' THEN amount_inr ELSE 0 END),0) AS donation_revenue,
+          COUNT(*) AS total_donations,
+          COALESCE(SUM(status='paid'),0) AS paid_count,
+          COALESCE(SUM(status='failed'),0) AS failed_count,
+          COALESCE(SUM(status='created'),0) AS pending_count
+        FROM donations
+        ${dateWhere}
+      `, params);
     const [[prasadhamStats]] = await db.execute(`
       SELECT COALESCE(SUM(total_amount),0) AS prasadham_revenue, COUNT(*) AS prasadham_count
       FROM prasadham_bookings
-      ${bookingFilter.clause ? `WHERE ${bookingFilter.clause}` : ''}
-    `, bookingFilter.params);
+      ${dateWhere}
+    `, params);
     const [[royalStats]] = await db.execute(`
       SELECT COALESCE(SUM(total_amount),0) AS royal_revenue, COUNT(*) AS royal_count
       FROM special_royal_bookings
-      ${royalFilter.clause ? `WHERE ${royalFilter.clause}` : ''}
-    `, royalFilter.params);
+      ${dateWhere}
+    `, params);
     const [[vipStats]] = await db.execute(`
       SELECT COALESCE(SUM(amount),0) AS vip_revenue, COUNT(*) AS vip_count,
         COALESCE(SUM(attendance_status='CHECKED_IN'),0) AS checked_in
       FROM av2_vip_access
-      WHERE booking_status='CONFIRMED' ${vipFilter.clause ? `AND ${vipFilter.clause}` : ''}
-    `, vipFilter.params);
+      WHERE booking_status='CONFIRMED' ${dateAnd}
+    `, params);
     const [[freeStats]] = await db.execute(`
       SELECT COUNT(*) AS free_count,
         COALESCE(SUM(av2_tickets),0) AS free_tickets,
         COALESCE(SUM(attendance_status='CHECKED_IN'),0) AS checked_in
       FROM av2_free_entries
-      ${freeFilter.clause ? `WHERE ${freeFilter.clause}` : ''}
-    `, freeFilter.params);
+      ${dateWhere}
+    `, params);
     const [[entryStats]] = await db.execute(`
       SELECT COUNT(*) AS total_registered,
         COALESCE(SUM(attendance_status='CHECKED_IN'),0) AS checked_in
       FROM event_entries
-      ${entryFilter.clause ? `WHERE ${entryFilter.clause}` : ''}
-    `, entryFilter.params);
-    const [[stallStats]] = await db.execute(`SELECT COUNT(*) AS stall_count FROM av2_stall_bookings ${stallFilter.clause ? `WHERE ${stallFilter.clause}` : ''}`, stallFilter.params);
-    const [[sponsorshipStats]] = await db.execute(`SELECT COUNT(*) AS sponsorship_count FROM av2_sponsorships ${sponsorFilter.clause ? `WHERE ${sponsorFilter.clause}` : ''}`, sponsorFilter.params);
-    const [[bookingStats]] = await db.execute(`SELECT COUNT(*) AS booking_count, COALESCE(SUM(total_amount),0) AS booking_revenue FROM bookings ${bookingFilter.clause ? `WHERE ${bookingFilter.clause}` : ''}`, bookingFilter.params);
-    const [[packageStats]] = await db.execute(`SELECT COALESCE(SUM(total_amount),0) AS package_revenue, COUNT(DISTINCT id) AS package_count FROM bookings WHERE package_tier IS NOT NULL ${bookingFilter.clause ? `AND ${bookingFilter.clause}` : ''}`, bookingFilter.params);
+      ${dateWhere}
+    `, params);
+    const [[stallStats]] = await db.execute(`SELECT COUNT(*) AS stall_count FROM av2_stall_bookings ${dateWhere}`, params);
+    const [[sponsorshipStats]] = await db.execute(`SELECT COUNT(*) AS sponsorship_count FROM av2_sponsorships ${dateWhere}`, params);
+    const [[bookingStats]] = await db.execute(`SELECT COUNT(*) AS booking_count, COALESCE(SUM(total_amount),0) AS booking_revenue FROM bookings ${dateWhere}`, params);
+    const [[packageStats]] = await db.execute(`SELECT COALESCE(SUM(total_amount),0) AS package_revenue, COUNT(DISTINCT id) AS package_count FROM bookings WHERE package_tier IS NOT NULL ${dateAnd}`, params);
 
     const [donationTx] = await db.execute(`
       SELECT 'donation' AS type, name AS primary_name, NULL AS event_title, amount_inr AS amount, payment_id, status, created_at, failure_reason
       FROM donations
-      WHERE status='paid' ${donationFilter.clause ? `AND ${donationFilter.clause}` : ''}
+      WHERE status='paid' ${dateAnd}
       ORDER BY created_at DESC LIMIT 5
-    `, donationFilter.params);
+    `, params);
     const [bookingTx] = await db.execute(`
       SELECT 'booking' AS type, primary_name, event_title, total_amount AS amount, payment_id, 'paid' AS status, created_at, NULL AS failure_reason
       FROM bookings
-      ${bookingFilter.clause ? `WHERE ${bookingFilter.clause}` : ''}
+      ${dateWhere}
       ORDER BY created_at DESC LIMIT 5
-    `, bookingFilter.params);
+    `, params);
     const [prasadhamTx] = await db.execute(`
       SELECT 'prasadham' AS type, primary_name, event_title, total_amount AS amount, payment_id, 'paid' AS status, created_at, NULL AS failure_reason
       FROM prasadham_bookings
-      ${bookingFilter.clause ? `WHERE ${bookingFilter.clause}` : ''}
+      ${dateWhere}
       ORDER BY created_at DESC LIMIT 5
-    `, bookingFilter.params);
+    `, params);
     const [royalTx] = await db.execute(`
       SELECT 'royal' AS type, primary_name, event_title, total_amount AS amount, payment_id, 'paid' AS status, created_at, NULL AS failure_reason
       FROM special_royal_bookings
-      ${royalFilter.clause ? `WHERE ${royalFilter.clause}` : ''}
+      ${dateWhere}
       ORDER BY created_at DESC LIMIT 5
-    `, royalFilter.params);
+    `, params);
     const [vipTx] = await db.execute(`
       SELECT 'vip' AS type, av2_full_name AS primary_name, NULL AS event_title, amount AS amount, payment_id, booking_status AS status, created_at, NULL AS failure_reason
       FROM av2_vip_access
-      ${vipFilter.clause ? `WHERE ${vipFilter.clause}` : ''}
+      WHERE booking_status='CONFIRMED' ${dateAnd}
       ORDER BY created_at DESC LIMIT 5
-    `, vipFilter.params);
+    `, params);
 
     const recentTransactions = [...donationTx, ...bookingTx, ...prasadhamTx, ...royalTx, ...vipTx]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -378,113 +464,30 @@ router.get('/dashboard', auth, async (req, res) => {
 
     const [dailyTrend] = await db.execute(`
       SELECT day, COUNT(*) AS count, SUM(revenue) AS revenue FROM (
-        SELECT DATE(created_at) AS day, amount_inr AS revenue FROM donations WHERE status='paid' ${donationFilter.clause ? `AND ${donationFilter.clause}` : ''}
+        SELECT DATE(created_at) AS day, amount_inr AS revenue FROM donations WHERE status='paid' ${dateAnd}
         UNION ALL
-        SELECT DATE(created_at) AS day, total_amount AS revenue FROM bookings ${bookingFilter.clause ? `WHERE ${bookingFilter.clause}` : ''}
+        SELECT DATE(created_at) AS day, total_amount AS revenue FROM bookings ${dateWhere}
         UNION ALL
-        SELECT DATE(created_at) AS day, total_amount AS revenue FROM prasadham_bookings ${bookingFilter.clause ? `WHERE ${bookingFilter.clause}` : ''}
+        SELECT DATE(created_at) AS day, total_amount AS revenue FROM prasadham_bookings ${dateWhere}
         UNION ALL
-        SELECT DATE(created_at) AS day, total_amount AS revenue FROM special_royal_bookings ${royalFilter.clause ? `WHERE ${royalFilter.clause}` : ''}
+        SELECT DATE(created_at) AS day, total_amount AS revenue FROM special_royal_bookings ${dateWhere}
         UNION ALL
-        SELECT DATE(created_at) AS day, amount AS revenue FROM av2_vip_access WHERE booking_status='CONFIRMED' ${vipFilter.clause ? `AND ${vipFilter.clause}` : ''}
+        SELECT DATE(created_at) AS day, amount AS revenue FROM av2_vip_access WHERE booking_status='CONFIRMED' ${dateAnd}
       ) t
       GROUP BY day
       ORDER BY day
-    `, [...donationFilter.params, ...bookingFilter.params, ...bookingFilter.params, ...royalFilter.params, ...vipFilter.params]);
+    `, [...params, ...params, ...params, ...params, ...params]);
 
     const [cityDist] = await db.execute(`
       SELECT city, COUNT(*) AS count FROM (
-        SELECT city FROM donations WHERE city IS NOT NULL ${donationFilter.clause ? `AND ${donationFilter.clause}` : ''}
+        SELECT city FROM donations WHERE city IS NOT NULL ${dateAnd}
         UNION ALL
-        SELECT av2_city AS city FROM av2_free_entries ${freeFilter.clause ? `WHERE ${freeFilter.clause}` : ''}
+        SELECT av2_city AS city FROM av2_free_entries ${dateWhere}
         UNION ALL
-        SELECT av2_city AS city FROM av2_vip_access ${vipFilter.clause ? `WHERE ${vipFilter.clause}` : ''}
+        SELECT av2_city AS city FROM av2_vip_access ${dateWhere}
       ) c
       GROUP BY city ORDER BY count DESC LIMIT 10
-    `, [...donationFilter.params, ...freeFilter.params, ...vipFilter.params]);
-
-    const auditLimit = Math.min(100, Math.max(1, parseInt(req.query.audit_limit) || 10));
-    const auditPage = Math.max(1, parseInt(req.query.audit_page) || 1);
-    const auditOffset = (auditPage - 1) * auditLimit;
-    const [auditLogs] = await db.execute(`
-      SELECT a.id, a.action, a.target_resource, a.details, a.created_at, u.name AS admin_name
-      FROM audit_logs a
-      LEFT JOIN admin_users u ON u.id = a.admin_id
-      ORDER BY a.created_at DESC
-      LIMIT ? OFFSET ?
-    `, [auditLimit, auditOffset]);
-
-    const totalRegistered = Number(entryStats.total_registered || 0) + Number(freeStats.free_count || 0) + Number(vipStats.vip_count || 0);
-    const checkedIn = Number(entryStats.checked_in || 0) + Number(freeStats.checked_in || 0) + Number(vipStats.checked_in || 0);
-    const attendanceRate = totalRegistered > 0 ? ((checkedIn / totalRegistered) * 100).toFixed(1) : 0;
-    const totalRevenue =
-      Number(donationStats.donation_revenue || 0) +
-      Number(bookingStats.booking_revenue || 0) +
-      Number(prasadhamStats.prasadham_revenue || 0) +
-      Number(royalStats.royal_revenue || 0) +
-      Number(vipStats.vip_revenue || 0) +
-      Number(packageStats.package_revenue || 0);
-    const totalPaidBookings =
-      Number(bookingStats.booking_count || 0) +
-      Number(prasadhamStats.prasadham_count || 0) +
-      Number(royalStats.royal_count || 0) +
-      Number(vipStats.vip_count || 0) +
-      Number(packageStats.package_count || 0);
-    const paymentTotal = Number(donationStats.paid_count || 0) + Number(donationStats.failed_count || 0);
-
-    res.json({
-      summary: {
-        net_revenue: totalRevenue,
-        paid_bookings: totalPaidBookings,
-        donation_payment_success_rate: paymentTotal > 0 ? ((Number(donationStats.paid_count || 0) / paymentTotal) * 100).toFixed(1) : 0,
-        attendance_rate: attendanceRate,
-      },
-      revenue: {
-        donation: Number(donationStats.donation_revenue || 0),
-        bookings: Number(bookingStats.booking_revenue || 0),
-        prasadham: Number(prasadhamStats.prasadham_revenue || 0),
-        royal: Number(royalStats.royal_revenue || 0),
-        vip: Number(vipStats.vip_revenue || 0),
-        packages: Number(packageStats.package_revenue || 0),
-      },
-      attendance: {
-        total_registered: totalRegistered,
-        checked_in: checkedIn,
-        pending_checkin: Math.max(totalRegistered - checkedIn, 0),
-        attendance_rate: attendanceRate,
-      },
-      totals: {
-        total_revenue: totalRevenue,
-        donation_revenue: +donationStats.donation_revenue,
-        booking_revenue: +bookingStats.booking_revenue,
-        prasadham_revenue: +prasadhamStats.prasadham_revenue,
-        royal_revenue: +royalStats.royal_revenue,
-        vip_revenue: +vipStats.vip_revenue,
-        package_revenue: +packageStats.package_revenue,
-        total_bookings: totalPaidBookings,
-        paid: +donationStats.paid_count,
-        failed: +donationStats.failed_count,
-        pending: +donationStats.pending_count,
-        donation_success_rate: paymentTotal > 0 ? ((donationStats.paid_count / paymentTotal) * 100).toFixed(1) : 0,
-        free_entries: +freeStats.free_count,
-        free_tickets: +freeStats.free_tickets,
-        stall_bookings: +stallStats.stall_count,
-        vip_count: +vipStats.vip_count,
-        checked_in: checkedIn,
-        registered: totalRegistered,
-        attendance_rate: attendanceRate,
-        donation_count: +donationStats.total_donations,
-        prasadham_count: +prasadhamStats.prasadham_count,
-        royal_count: +royalStats.royal_count,
-        sponsorships_count: +sponsorshipStats.sponsorship_count,
-        general_bookings_count: +bookingStats.booking_count,
-        package_count: +packageStats.package_count,
-      },
-      audit_logs: auditLogs,
-      recent_transactions: recentTransactions,
-      daily_trend: dailyTrend,
-      city_distribution: cityDist,
-    });
+    `, [...params, ...params, ...params]);;
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -1695,40 +1698,6 @@ router.get('/audit-logs', auth, requireRole(['Super Admin']), async (req, res) =
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ─── Refresh Token ──────────────────────────────────────────────
-router.post('/refresh', async (req, res) => {
-  const { refresh_token } = req.body;
-  if (!refresh_token) return res.status(400).json({ error: 'Refresh token required' });
-  try {
-    let payload;
-    try {
-      payload = jwt.verify(refresh_token, process.env.ADMIN_JWT_SECRET);
-    } catch {
-      return res.status(401).json({ error: 'Invalid refresh token' });
-    }
-    const db = req.app.locals.db;
-    const [rows] = await db.execute('SELECT * FROM refresh_tokens WHERE admin_id = ? AND expires_at > NOW()', [payload.id]);
-    if (!rows.length) return res.status(401).json({ error: 'Refresh token expired or revoked' });
-
-    let matched = false;
-    for (const row of rows) {
-      if (await bcrypt.compare(refresh_token, row.token_hash)) {
-        matched = true;
-        await db.execute('DELETE FROM refresh_tokens WHERE id = ?', [row.id]);
-        break;
-      }
-    }
-    if (!matched) return res.status(401).json({ error: 'Refresh token not found' });
-
-    const newToken = jwt.sign({ id: payload.id, email: payload.email, role: payload.role, name: payload.name }, process.env.ADMIN_JWT_SECRET, { expiresIn: '8h' });
-    const newRefresh = generateRefreshToken();
-    await storeRefreshToken(db, payload.id, newRefresh);
-    res.json({ token: newToken, refresh_token: newRefresh });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // ─── Jothidam Dashboard ──────────────────────────────────────────────────
 router.get('/jothidam/dashboard', auth, async (req, res) => {
   const db = req.app.locals.db;
@@ -2129,5 +2098,222 @@ router.get('/webhooks/stats', auth, requireRole(['Super Admin', 'Admin']), async
 });
 
 export default router;
+
+// ─── Modern Admin Panel API Endpoints ───────────────────────────────
+// Get admin profile and settings
+router.get('/profile/me', auth, async (req, res) => {
+  const db = req.app.locals.db;
+  try {
+    if (req.admin.id === 0) {
+      return res.json({
+        id: 0,
+        name: req.admin.name || 'System Admin',
+        email: req.admin.email || process.env.ADMIN_EMAIL,
+        role: 'Super Admin',
+        is_env_admin: true,
+        stats: {
+          total_logins: 0,
+          last_login: null,
+          total_actions: 0
+        }
+      });
+    }
+    const [users] = await db.execute(
+      'SELECT id, name, email, role, created_at, last_login, total_actions FROM admin_users WHERE id = ?',
+      [req.admin.id]
+    );
+    if (!users.length) return res.status(404).json({ error: 'User not found' });
+    res.json(users[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Update admin profile
+router.patch('/profile', auth, validateBody({ name: { maxLength: 255 } }), async (req, res) => {
+  const { name } = req.body;
+  const db = req.app.locals.db;
+  try {
+    await db.execute('UPDATE admin_users SET name = ?, updated_at = NOW() WHERE id = ?', [name, req.admin.id]);
+    await logAudit(req, 'UPDATE', 'admin_users', { id: req.admin.id, field: 'name' });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Password change for non-super-admin
+router.patch('/profile/password', auth, validateBody({ old_password: { maxLength: 255 }, new_password: { required: true, minLength: 8 } }), async (req, res) => {
+  const { old_password, new_password } = req.body;
+  const db = req.app.locals.db;
+
+  if (req.admin.id === 0) {
+    return res.status(400).json({ error: 'System Admin password is configured via .env' });
+  }
+
+  if (req.admin.role !== 'Super Admin' && !old_password) {
+    return res.status(400).json({ error: 'Current password required' });
+  }
+  if (new_password.length < 8) {
+    return res.status(400).json({ error: 'New password must be at least 8 characters' });
+  }
+
+  try {
+    if (req.admin.role !== 'Super Admin') {
+      const [user] = await db.execute('SELECT password_hash FROM admin_users WHERE id = ?', [req.admin.id]);
+      const match = await bcrypt.compare(old_password, user.password_hash);
+      if (!match) return res.status(400).json({ error: 'Current password incorrect' });
+    }
+    const hash = await bcrypt.hash(new_password, 10);
+    await db.execute('UPDATE admin_users SET password_hash = ?, updated_at = NOW() WHERE id = ?', [hash, req.admin.id]);
+    await logAudit(req, 'UPDATE', 'admin_users', { id: req.admin.id, field: 'password' });
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Bulk user operations
+router.post('/users/bulk', auth, requireRole(['Super Admin']), validateBody({
+  action: { required: true, enum: ['activate', 'deactivate', 'toggle_role', 'delete'] },
+  target_ids: { type: 'array', required: true }
+}), async (req, res) => {
+  const { action, target_ids } = req.body;
+  const db = req.app.locals.db;
+  try {
+    if (action === 'delete') {
+      // Can't delete super admin or themselves
+      if (target_ids.includes(req.admin.id)) return res.status(400).json({ error: 'Cannot delete own account' });
+      await db.execute('DELETE FROM admin_users WHERE id IN (' + target_ids.map(() => '?').join(',') + ')', target_ids);
+      await logAudit(req, 'BULK_DELETE', 'admin_users', { count: target_ids.length, ids: target_ids });
+      res.json({ success: true, deleted: target_ids.length });
+    } else if (action === 'activate') {
+      await db.execute('UPDATE admin_users SET locked_until = NULL, updated_at = NOW() WHERE id IN (' + target_ids.map(() => '?').join(',') + ')', target_ids);
+      await logAudit(req, 'BULK_ACTIVATE', 'admin_users', { count: target_ids.length, ids: target_ids });
+      res.json({ success: true, activated: target_ids.length });
+    } else if (action === 'deactivate') {
+      await db.execute('UPDATE admin_users SET locked_until = NOW(), updated_at = NOW() WHERE id IN (' + target_ids.map(() => '?').join(',') + ')', target_ids);
+      await logAudit(req, 'BULK_DEACTIVATE', 'admin_users', { count: target_ids.length, ids: target_ids });
+      res.json({ success: true, deactivated: target_ids.length });
+    } else if (action === 'toggle_role') {
+      const [roleUpdates] = await db.execute('SELECT role FROM admin_users WHERE id IN (' + target_ids.map(() => '?').join(',') + ')', target_ids);
+      const newRoles = roleUpdates.map(u => {
+        const current = u.role;
+        if (current === 'Super Admin') return 'Admin';
+        if (current === 'Admin') return 'Event Manager';
+        if (current === 'Event Manager') return 'Viewer';
+        return 'Super Admin';
+      });
+      const updatePromises = target_ids.map((id, i) =>
+        db.execute('UPDATE admin_users SET role = ?, updated_at = NOW() WHERE id = ?', [newRoles[i], id])
+      );
+      await Promise.all(updatePromises);
+      await logAudit(req, 'BULK_TOGGLE_ROLE', 'admin_users', { count: target_ids.length, ids: target_ids, new_roles: newRoles });
+      res.json({ success: true, updated: target_ids.length, new_roles });
+    }
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Admin statistics dashboard
+router.get('/stats', auth, requireRole(['Super Admin']), async (req, res) => {
+  const db = req.app.locals.db;
+  try {
+    const today = new Date();
+    const todayStart = today.toISOString().slice(0, 10);
+    
+    const stats = {
+      users: {
+        total: 0,
+        active: 0,
+        locked: 0,
+        by_role: {}
+      },
+      activity: {
+        today: 0,
+        this_week: 0,
+        total_actions: 0
+      },
+      systems: {
+        active_sessions: 0,
+        last_restart: null
+      }
+    };
+
+    // User stats
+    const [users] = await db.execute(
+      `SELECT id, role, locked_until, created_at FROM admin_users`
+    );
+    stats.users.total = users.length;
+    users.forEach(u => {
+      stats.users.by_role[u.role] = (stats.users.by_role[u.role] || 0) + 1;
+      if (u.locked_until && new Date(u.locked_until) > new Date()) stats.users.locked++;
+      else stats.users.active++;
+    });
+
+    // Today's activity
+    const [activity] = await db.execute(
+      `SELECT COUNT(*) as count FROM audit_logs WHERE DATE(created_at) = ?`, [todayStart]
+    );
+    stats.activity.today = activity[0]?.count || 0;
+
+    res.json({ success: true, stats });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// System health and info
+router.get('/system-info', auth, requireRole(['Super Admin']), async (req, res) => {
+  const db = req.app.locals.db;
+  try {
+    const [poolStatus] = await db.execute('SELECT COUNT(*) as connections FROM information_schema.processlist WHERE db = DATABASE()');
+    const [dbStats] = await db.execute('SELECT SUM(data_length + index_length) as total_size FROM information_schema.tables WHERE table_schema = DATABASE()');
+    const [sseClients] = await db.execute('SELECT COUNT(*) as client_count FROM (SELECT DISTINCT client_id FROM sse_clients) as t'); // Will fail in prod without Redis
+    
+    res.json({
+      success: true,
+      system: {
+        node_env: process.env.NODE_ENV,
+        uptime_seconds: Math.round((Date.now() - (global.startedAt || Date.now())) / 1000),
+        db_connections: poolStatus[0]?.connections || 0,
+        db_size_mb: Math.round((dbStats[0]?.total_size || 0) / 1024 / 1024),
+        sse_clients: 0, // Will be replaced with actual count
+        redis_available: false // Checked at runtime
+      }
+    });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Export admin activity log as CSV
+router.get('/export/audit-log', auth, requireRole(['Super Admin', 'Admin']), async (req, res) => {
+  const db = req.app.locals.db;
+  const { start, end } = req.query;
+  const params = [];
+  let where = '1=1';
+  
+  if (start) { where += ' AND created_at >= ?'; params.push(start); }
+  if (end) { where += ' AND created_at <= ?'; params.push(end); }
+  
+  try {
+    const [rows] = await db.execute(
+      `SELECT id, action, target_resource, details, ip_address, created_at, admin_name FROM audit_logs WHERE ${where} ORDER BY created_at DESC`,
+      params
+    );
+    
+    const omitFields = new Set(['details']); // Don't expose raw details in CSV export
+    const columns = Object.keys(rows[0]).filter(k => !omitFields.has(k));
+    
+    const csvRows = [columns.join(',')];
+    for (const row of rows) {
+      const line = columns.map(col => {
+        let val = row[col];
+        if (val === null || val === undefined) return '""';
+        const stringVal = String(val).replace(/"/g, '""');
+        return `"${stringVal}"`;
+      });
+      csvRows.push(line.join(','));
+    }
+    
+    const csvContent = '\uFEFF' + csvRows.join('\r\n');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename=audit_log_${Date.now()}.csv`);
+    return res.send(csvContent);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─── END Modern Admin Panel API Endpoints ───
+
 
 

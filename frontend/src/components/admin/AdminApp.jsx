@@ -39,6 +39,7 @@ import AV2EntryDashboard from './AV2EntryDashboard';
 import DevoteesManagement from './DevoteesManagement';
 import BlogManagement from './BlogManagement';
 import MediaLibrary from './MediaLibrary';
+import BirthdayReminder from './BirthdayReminder';
 
 const AdminApp = () => {
   const navigate = useNavigate();
@@ -94,6 +95,16 @@ const AdminApp = () => {
           <Route path="media" element={
             <ProtectedRoute allowedRoles={['Super Admin', 'Admin']}>
               <MediaLibrary />
+            </ProtectedRoute>
+          } />
+          <Route path="birthdays" element={
+            <ProtectedRoute allowedRoles={['Super Admin', 'Admin']}>
+              <BirthdayReminder />
+            </ProtectedRoute>
+          } />
+          <Route path="wedding-anniversaries" element={
+            <ProtectedRoute allowedRoles={['Super Admin', 'Admin']}>
+              <WeddingAnniversary />
             </ProtectedRoute>
           } />
           <Route path="packages" element={<Navigate to="categories" replace />} />

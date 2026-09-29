@@ -84,6 +84,21 @@ const escapeXml = (unsafe = "") => {
   });
 };
 
+// Helper: Server-side HTML sanitization (defense-in-depth against stored XSS)
+export const sanitizeHtmlServer = (html = "") => {
+  if (!html || typeof html !== "string") return "";
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<iframe\b[^>]*>(.*?)<\/iframe>/gi, (match) => {
+      const allowed = ["youtube.com", "youtu.be", "vimeo.com", "player.vimeo.com"];
+      return allowed.some((d) => match.includes(d)) ? match : "";
+    })
+    .replace(/\bon\w+\s*=\s*(["']).*?\1/gi, "")
+    .replace(/\bon\w+\s*=\s*[^>\s]+/gi, "")
+    .replace(/href\s*=\s*(["'])\s*(javascript:|vbscript:|data:).*?\1/gi, 'href="#"')
+    .replace(/src\s*=\s*(["'])\s*(javascript:|vbscript:).*?\1/gi, 'src=""');
+};
+
 // ─── PUBLIC CONTROLLERS ──────────────────────────────────────────────────────
 
 // Dynamic XML Sitemap for Blog Posts
@@ -139,12 +154,18 @@ export const getBlogSitemapXml = async (req, res) => {
   }
 };
 
-// Get all published blogs
+// Get all published blogs (lightweight summary fields only - omits heavy MEDIUMTEXT)
 export const getPublishedBlogs = async (req, res) => {
-  const { year, month, limit, offset } = req.query;
+  const { year, month, limit, offset, category, exclude_id, search } = req.query;
   try {
     let sql = `
-      SELECT b.*, u.name AS author_name 
+      SELECT 
+        b.id, b.slug, b.title, b.title_en, b.title_ta,
+        b.snippet, b.snippet_en, b.snippet_ta,
+        b.thumbnail_url, b.featured_media_id,
+        b.category, b.tags, b.author_id, b.status,
+        b.created_at, b.updated_at,
+        u.name AS author_name 
       FROM blogs b
       LEFT JOIN admin_users u ON b.author_id = u.id
       WHERE b.status = 'Published'
@@ -159,12 +180,27 @@ export const getPublishedBlogs = async (req, res) => {
       sql += " AND MONTH(b.created_at) = ?";
       params.push(month);
     }
+    if (category) {
+      sql += " AND b.category = ?";
+      params.push(category);
+    }
+    if (exclude_id) {
+      sql += " AND b.id != ?";
+      params.push(parseInt(exclude_id, 10));
+    }
+    if (search) {
+      const pattern = `%${search}%`;
+      sql += " AND (b.title_en LIKE ? OR b.title_ta LIKE ? OR b.snippet_en LIKE ? OR b.snippet_ta LIKE ? OR b.title LIKE ? OR b.snippet LIKE ?)";
+      params.push(pattern, pattern, pattern, pattern, pattern, pattern);
+    }
 
     sql += " ORDER BY b.created_at DESC";
 
     if (limit) {
+      const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+      const offsetNum = Math.max(0, parseInt(offset || 0, 10) || 0);
       sql += " LIMIT ? OFFSET ?";
-      params.push(parseInt(limit, 10), parseInt(offset || 0, 10));
+      params.push(limitNum, offsetNum);
     }
 
     const [rows] = await pool.execute(sql, params);
@@ -173,6 +209,49 @@ export const getPublishedBlogs = async (req, res) => {
   } catch (error) {
     console.error("GET PUBLISHED BLOGS ERROR:", error);
     return res.status(500).json({ error: "Failed to fetch published blogs" });
+  }
+};
+
+// Get lightweight related blogs for a post (efficient sidebar and recommendation feeder)
+export const getRelatedBlogs = async (req, res) => {
+  const { id } = req.params;
+  const limit = parseInt(req.query.limit, 10) || 4;
+  try {
+    const numericId = parseInt(id, 10) || -1;
+    const [target] = await pool.execute(
+      "SELECT id, category FROM blogs WHERE id = ? OR slug = ? LIMIT 1",
+      [numericId, id]
+    );
+    const currentCategory = target.length ? target[0].category : null;
+    const currentId = target.length ? target[0].id : numericId;
+
+    let sql = `
+      SELECT 
+        b.id, b.slug, b.title, b.title_en, b.title_ta,
+        b.snippet, b.snippet_en, b.snippet_ta,
+        b.thumbnail_url, b.featured_media_id,
+        b.category, b.tags, b.created_at,
+        u.name AS author_name 
+      FROM blogs b
+      LEFT JOIN admin_users u ON b.author_id = u.id
+      WHERE b.status = 'Published' AND b.id != ?
+    `;
+    const params = [currentId];
+
+    if (currentCategory) {
+      sql += " ORDER BY (b.category = ?) DESC, b.created_at DESC LIMIT ?";
+      params.push(currentCategory, limit);
+    } else {
+      sql += " ORDER BY b.created_at DESC LIMIT ?";
+      params.push(limit);
+    }
+
+    const [rows] = await pool.execute(sql, params);
+    const enriched = await Promise.all(rows.map(enrichBlogWithMedia));
+    return res.json(enriched);
+  } catch (error) {
+    console.error("GET RELATED BLOGS ERROR:", error);
+    return res.status(500).json({ error: "Failed to fetch related blogs" });
   }
 };
 
@@ -317,7 +396,9 @@ export const createBlog = async (req, res) => {
       }
     }
 
-    const fallbackSnippet = snippet_en || snippet_ta || (content_en || content_ta || "").replace(/<[^>]+>/g, " ");
+    const cleanContentEn = content_en ? sanitizeHtmlServer(content_en) : null;
+    const cleanContentTa = content_ta ? sanitizeHtmlServer(content_ta) : null;
+    const fallbackSnippet = snippet_en || snippet_ta || (cleanContentEn || cleanContentTa || "").replace(/<[^>]+>/g, " ");
     const finalMetaTitle = String(meta_title || title_en || title_ta || "").trim().slice(0, 255) || null;
     const finalMetaDesc = String(meta_description || fallbackSnippet || "").trim().slice(0, 500) || null;
     const finalFocusKeyword = String(focus_keyword || "").trim().slice(0, 100) || null;
@@ -333,12 +414,12 @@ export const createBlog = async (req, res) => {
     `;
     const [result] = await pool.execute(sql, [
       title_en || title_ta,
-      content_en || content_ta,
-      snippet_en || snippet_ta,
+      cleanContentEn || cleanContentTa || "",
+      snippet_en || snippet_ta || fallbackSnippet || null,
       title_en || null,
       title_ta || null,
-      content_en || null,
-      content_ta || null,
+      cleanContentEn || null,
+      cleanContentTa || null,
       snippet_en || null,
       snippet_ta || null,
       resolvedThumbnailUrl,
@@ -460,7 +541,9 @@ export const updateBlog = async (req, res) => {
       resolvedFeaturedMediaId = null;
     }
 
-    const fallbackSnippet = snippet_en || snippet_ta || (content_en || content_ta || "").replace(/<[^>]+>/g, " ");
+    const cleanContentEn = content_en !== undefined ? (content_en ? sanitizeHtmlServer(content_en) : "") : existing[0].content_en;
+    const cleanContentTa = content_ta !== undefined ? (content_ta ? sanitizeHtmlServer(content_ta) : "") : existing[0].content_ta;
+    const fallbackSnippet = snippet_en || snippet_ta || (cleanContentEn || cleanContentTa || "").replace(/<[^>]+>/g, " ");
     const finalMetaTitle = String(meta_title || title_en || title_ta || "").trim().slice(0, 255) || null;
     const finalMetaDesc = String(meta_description || fallbackSnippet || "").trim().slice(0, 500) || null;
     const finalFocusKeyword = String(focus_keyword || "").trim().slice(0, 100) || null;
@@ -479,13 +562,13 @@ export const updateBlog = async (req, res) => {
       WHERE id = ?
     `;
     await pool.execute(sql, [
-      title_en || title_ta,
-      content_en || content_ta,
-      snippet_en || snippet_ta,
+      title_en || title_ta || existing[0].title_en || "",
+      cleanContentEn || cleanContentTa || "",
+      snippet_en || snippet_ta || fallbackSnippet || null,
       title_en || null,
       title_ta || null,
-      content_en || null,
-      content_ta || null,
+      cleanContentEn || null,
+      cleanContentTa || null,
       snippet_en || null,
       snippet_ta || null,
       resolvedThumbnailUrl,
@@ -733,10 +816,56 @@ export const deleteBlog = async (req, res) => {
 };
 
 // ─── SSE REAL-TIME STREAMING ──────────────────────────────────────────────────
+// Uses Redis for cross-instance coordination in load-balanced deployments.
+// Falls back to in-memory state for single-instance deployments.
 
-// Set to keep track of active client connections
 export const sseClients = new Set();
 const connectionsPerIp = {};
+
+// Maximum number of SSE clients to prevent memory exhaustion
+const MAX_SSE_CLIENTS = 100;
+
+// Periodic cleanup of stale SSE clients to prevent memory leaks
+setInterval(() => {
+  if (sseClients.size > MAX_SSE_CLIENTS) {
+    // Remove oldest clients first (Set doesn't preserve order, so we randomly remove)
+    const clientsToRemove = sseClients.size - MAX_SSE_CLIENTS;
+    let removed = 0;
+    for (const client of sseClients) {
+      if (removed >= clientsToRemove) break;
+      sseClients.delete(client);
+      removed++;
+    }
+  }
+}, 60000); // Cleanup every minute
+
+// Redis pub/sub channel for cross-instance SSE broadcasting
+let redisPubSub = null;
+
+// Redis availability check (updated periodically)
+let redisAvailable = false;
+
+// Initialize Redis pub/sub for cross-instance broadcasting
+const initRedisPubSub = async () => {
+  if (!redisAvailable) return;
+  try {
+    const { createClient } = await import("redis");
+    redisPubSub = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
+    await redisPubSub.connect();
+    await redisPubSub.subscribe("sse_blogs", async (message) => {
+      try {
+        const data = JSON.parse(message.data);
+        console.log(`📡 Received SSE broadcast: ${data.event}`);
+      } catch (err) {
+        console.warn("Redis SSE message parse error:", err.message);
+      }
+    });
+    console.log("✅ Redis pub/sub initialized for SSE broadcasting");
+  } catch (err) {
+    console.warn("⚠️  Redis pub/sub initialization failed:", err.message);
+    redisAvailable = false; // Mark Redis as unavailable on failure
+  }
+};
 
 // Periodic cleanup of stale IP entries to prevent memory leaks
 setInterval(() => {
@@ -748,6 +877,26 @@ setInterval(() => {
   }
 }, 30000);
 
+// Periodic Redis availability check
+setInterval(async () => {
+  try {
+    const { createClient } = await import("redis");
+    const client = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
+    await client.connect();
+    await client.ping();
+    if (!redisAvailable) {
+      redisAvailable = true;
+      console.log("✅ Redis connection re-established");
+    }
+    client.quit();
+  } catch (err) {
+    if (redisAvailable) {
+      redisAvailable = false;
+      console.warn("⚠️  Redis connection lost");
+    }
+  }
+}, 15000); // Check every 15 seconds
+
 // Get real-time stream of blog events
 export const getBlogsStream = async (req, res) => {
   const ip = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
@@ -758,6 +907,9 @@ export const getBlogsStream = async (req, res) => {
   }
 
   connectionsPerIp[ip] = { count: currentCount + 1, lastSeen: Date.now() };
+
+  // Initialize Redis pub/sub if not already done
+  initRedisPubSub();
 
   // Disable socket timeout for long-lived SSE streaming
   req.socket.setTimeout(0);
@@ -774,29 +926,62 @@ export const getBlogsStream = async (req, res) => {
   // Send initial connection message
   res.write("data: " + JSON.stringify({ event: "connected" }) + "\n\n");
 
-  // Send backlog of latest 10 published blogs
+  // Send backlog of latest published blogs (configurable limit)
+const BACKLOG_LIMIT = Number(process.env.SSE_BACKLOG_LIMIT || 10);
   try {
     const [blogs] = await pool.execute(
-      "SELECT id, title, slug, created_at FROM blogs WHERE status = 'Published' ORDER BY id DESC LIMIT 10"
+      `SELECT id, title, slug, created_at FROM blogs WHERE status = 'Published' ORDER BY id DESC LIMIT ${BACKLOG_LIMIT}`
     );
     res.write("data: " + JSON.stringify({ event: "backlog", data: blogs }) + "\n\n");
   } catch (err) {
     console.error("SSE BACKLOG FETCH ERROR:", err.message);
   }
 
+  // Use Redis-set for cross-instance tracking (falls back to in-memory)
+  const clientId = `${ip}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  // Limit SSE clients to prevent memory exhaustion
+  if (sseClients.size >= MAX_SSE_CLIENTS) {
+    // Remove oldest client (randomly selected from Set)
+    const oldClient = sseClients.values().next().value;
+    if (oldClient) {
+      sseClients.delete(oldClient);
+      if (redisAvailable) {
+        try { await redisClient.sRem("sse_clients", oldClient); } catch (e) {}
+      }
+    }
+  }
   sseClients.add(res);
 
+  // Store client info in Redis for cross-instance awareness
+  if (redisAvailable) {
+    try {
+      await redisClient.sAdd("sse_clients", clientId);
+      await redisClient.expire("sse_clients", 300); // 5 min expiry
+    } catch (err) {
+      console.warn("Redis SSE client tracking error:", err.message);
+    }
+  }
+
   // Keep connection alive with periodic pings (every 20s)
-  const pingInterval = setInterval(() => {
+  let pingIntervalId = null;
+function startPingInterval() {
+  if (pingIntervalId) clearInterval(pingIntervalId);
+  pingIntervalId = setInterval(() => {
     try {
       res.write("data: " + JSON.stringify({ event: "ping" }) + "\n\n");
     } catch (writeError) {
       console.warn("SSE write failure, closing client connection:", writeError.message);
-      clearInterval(pingInterval);
+      clearInterval(pingIntervalId);
       sseClients.delete(res);
+      if (redisAvailable) {
+        redisClient.sRem("sse_clients", clientId).catch((e) => {
+          console.warn("Redis SSE client removal error:", e.message);
+        });
+      }
       res.end();
-    }
-  }, 20000);
+    }, 20000);
+}
+startPingInterval();
 
   req.on("close", () => {
     clearInterval(pingInterval);
@@ -807,18 +992,25 @@ export const getBlogsStream = async (req, res) => {
     } else {
       delete connectionsPerIp[ip];
     }
+    // Remove from Redis tracking
+    if (redisAvailable) {
+      await redisClient.sRem("sse_clients", clientId).catch((e) => { console.warn("Redis SSE client removal error:", e.message); });
+    }
   });
 };
 
 // Helper to broadcast events to all clients
+// Can be called from any server instance - uses Redis pub/sub for cross-instance
 export const broadcastBlogEvent = (event, data = {}) => {
   const payload = JSON.stringify({ event, data });
-  sseClients.forEach((client) => {
+  
+  // Publish to Redis channel for cross-instance broadcasting
+  if (redisAvailable && redisPubSub) {
     try {
-      client.write("data: " + payload + "\n\n");
+      await redisPubSub.publish("sse_blogs", payload);
+      return;
     } catch (err) {
-      console.warn("Pruning dead SSE client on broadcast:", err.message);
-      sseClients.delete(client);
+      console.warn("Redis SSE publish error:", err.message);
     }
-  });
+  }
 };

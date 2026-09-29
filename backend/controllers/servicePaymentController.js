@@ -67,7 +67,7 @@ export const createOrder = async (req, res) => {
 
 export const verifyPayment = async (req, res) => {
   const db = getDb(req);
-  const connection = await db.getConnection ? db.getConnection() : null;
+  const connection = typeof db.getConnection === "function" ? await db.getConnection() : null;
   const usingConnection = !!connection;
   const exec = usingConnection ? connection.execute.bind(connection) : db.execute.bind(db);
 

@@ -21,12 +21,18 @@ const pool = mysql.createPool({
   database: env("MYSQL_DATABASE", "DB_NAME") || 'jaivarahi',
   port: Number(env("MYSQL_PORT", "DB_PORT")) || 3306,
   waitForConnections: true,
-  connectionLimit: Number(env("DB_POOL_LIMIT", "MYSQL_POOL_LIMIT") || 25),
-  maxIdle: 10,
-  idleTimeout: 60000,
+  connectionLimit: Number(env("DB_POOL_LIMIT", "MYSQL_POOL_LIMIT") || 100),
+  maxIdle: Number(env("DB_POOL_MAX_IDLE", "MYSQL_POOL_MAX_IDLE") || 50),
+  idleTimeout: 120000,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000,
-  queueLimit: 0,
+  queueLimit: Number(env("DB_QUEUE_LIMIT", "MYSQL_QUEUE_LIMIT") || 500),
+  connectTimeout: 20000,
+});
+
+// Graceful connection error handling
+pool.on("error", (err) => {
+  console.error("⚠️ Unexpected MySQL Pool Error:", err.message || err);
 });
 
 if (!hasMysqlConfig) {

@@ -5,4 +5,10 @@
     PassengerStartupFile server.js
     PassengerAppType node
     PassengerNodejs /usr/local/bin/node
+
+    # High Concurrency & Availability Tuning
+    PassengerMinInstances 2
+    PassengerMaxPoolSize 10
+    PassengerMaxRequestQueueSize 250
+    PassengerStatThrottleRate 60
 </IfModule>

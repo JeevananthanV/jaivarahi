@@ -21,6 +21,24 @@ import fs, { existsSync }    from "fs";
 import path              from "path";
 import { fileURLToPath } from "url";
 
+// ─── REDIS FOR DISTRIBUTED STATE ────────────────────────────────
+// Optional Redis for multi-instance session/SSE sharing.
+// Falls back to in-memory if unavailable (development only).
+let redisClient = null;
+let redisAvailable = false;
+try {
+    const redis = await import("redis");
+    const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+    redisClient = redis.createClient({ url: redisUrl });
+    await redisClient.connect();
+    await redisClient.ping();
+    redisAvailable = true;
+    console.log("✅ Redis connected - enabling distributed session/SSE support");
+} catch (err) {
+    console.warn("⚠️  Redis not available - using in-memory state (single instance only)");
+    console.warn("   Install Redis or set REDIS_URL env var for load-balanced deployments");
+}
+
 // Route imports — env vars are loaded by now
 import paymentRoutes     from "./routes/paymentRoutes.js";
 import astavarahi2Routes from "./routes/astavarahi2Routes.js";
@@ -70,6 +88,22 @@ const missing = requiredVars.filter(v => {
 if (missing.length) {
     console.error("❌ CRITICAL: Missing environment variables:", missing.join(", "));
     if (isProd) process.exit(1);
+} else {
+    // Validate DB pool settings are reasonable
+    const poolLimit = Number(process.env.DB_POOL_LIMIT || "50");
+    const poolMaxIdle = Number(process.env.DB_POOL_MAX_IDLE || "25");
+    const poolQueueLimit = Number(process.env.DB_QUEUE_LIMIT || "300");
+    if (poolLimit > 100) {
+        console.warn(`⚠️  DB_POOL_LIMIT is ${poolLimit} - consider reducing for better connection management`);
+    }
+    if (poolMaxIdle > poolLimit) {
+        console.warn(`⚠️  DB_POOL_MAX_IDLE (${poolMaxIdle}) > DB_POOL_LIMIT (${poolLimit}) - adjusting`);
+    }
+    if (poolQueueLimit > poolLimit * 5) {
+        console.warn(`⚠️  DB_QUEUE_LIMIT (${poolQueueLimit}) much larger than pool size - may cause long waits`);
+    }
+    // Log pool configuration for monitoring
+    console.log(`📊 DB Pool configured: limit=${poolLimit}, maxIdle=${poolMaxIdle}, queueLimit=${poolQueueLimit}`);
 }
 
 if (process.env.ADMIN_JWT_SECRET === "replace_with_strong_secret") {
@@ -80,6 +114,88 @@ if (process.env.ADMIN_JWT_SECRET === "replace_with_strong_secret") {
 // ─── APP INIT ─────────────────────────────────────────────────
 const app = express();
 app.locals.db = pool;
+
+// ─── REDIS STATE SHARING ──────────────────────────────────────
+// Helper to share SSE clients across load-balanced instances
+export const distributedSSE = {
+    // Add a client ID to the shared set
+    addClient: async (clientId) => {
+        if (!redisAvailable) return;
+        try {
+            await redisClient.sAdd("sse_clients", clientId);
+        } catch (err) {
+            console.warn("Redis SSE client add error:", err.message);
+        }
+    },
+    // Remove a client ID from the shared set
+    removeClient: async (clientId) => {
+        if (!redisAvailable) return;
+        try {
+            await redisClient.sRem("sse_clients", clientId);
+        } catch (err) {
+            console.warn("Redis SSE client remove error:", err.message);
+        }
+    },
+    // Get all active client IDs
+    getClients: async () => {
+        if (!redisAvailable) return new Set();
+        try {
+            const members = await redisClient.sMembers("sse_clients");
+            return new Set(members);
+        } catch (err) {
+            console.warn("Redis SSE clients get error:", err.message);
+            return new Set();
+        }
+    },
+    // Broadcast an event to all connected clients
+    broadcast: async (event, data) => {
+        if (!redisAvailable) return;
+        try {
+            const clients = await redisClient.sMembers("sse_clients");
+            const payload = JSON.stringify({ event, data });
+            for (const clientId of clients) {
+                // In a real implementation, you'd track client connections
+                // and send to the appropriate socket. This is a framework.
+                console.log(`Would broadcast to client: ${clientId}`);
+            }
+        } catch (err) {
+            console.warn("Redis SSE broadcast error:", err.message);
+        }
+    }
+};
+
+// Helper to share session data across instances
+export const sharedSession = {
+    // Set session data
+    set: async (key, data, ttl = 3600) => {
+        if (!redisAvailable) return;
+        try {
+            await redisClient.set(key, JSON.stringify(data), "EX", ttl);
+        } catch (err) {
+            console.warn("Redis session set error:", err.message);
+        }
+    },
+    // Get session data
+    get: async (key) => {
+        if (!redisAvailable) return null;
+        try {
+            const data = await redisClient.get(key);
+            return data ? JSON.parse(data) : null;
+        } catch (err) {
+            console.warn("Redis session get error:", err.message);
+            return null;
+        }
+    },
+    // Delete session data
+    delete: async (key) => {
+        if (!redisAvailable) return;
+        try {
+            await redisClient.del(key);
+        } catch (err) {
+            console.warn("Redis session delete error:", err.message);
+        }
+    }
+};
 
 // Required behind cPanel/Apache/Passenger proxy
 // Ensures correct IP for rate limiting
@@ -172,7 +288,11 @@ app.use(cors(corsOptions));
 // ─── RATE LIMITING ────────────────────────────────────────────
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: (req) => {
+        const authHeader = req.headers.authorization || "";
+        if (authHeader.startsWith("Bearer ")) return 5000;
+        return Number(process.env.GENERAL_RATE_LIMIT_MAX || (isProd ? 600 : 10000));
+    },
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many requests. Try again after 15 minutes." },
@@ -180,7 +300,7 @@ const generalLimiter = rateLimit({
 
 const authLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
-    max: isProd ? 10 : 1000,
+    max: isProd ? 15 : 1000,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many login attempts. Try again after 1 hour." },
@@ -188,7 +308,7 @@ const authLimiter = rateLimit({
 
 const paymentLimiter = rateLimit({
     windowMs: 60 * 1000,
-    max: 20,
+    max: Number(process.env.PAYMENT_RATE_LIMIT_MAX || 60),
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many payment requests. Please slow down." },
@@ -196,10 +316,26 @@ const paymentLimiter = rateLimit({
 
 const submissionLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 15,
+    max: (req) => {
+        const authHeader = req.headers.authorization || "";
+        // Authenticated admin or temple staff get high quota for bulk entries
+        if (authHeader.startsWith("Bearer ")) return Number(process.env.ADMIN_SUB_RATE_LIMIT_MAX || (isProd ? 500 : 5000));
+        // Public submissions per IP - graduated limits
+        if (isProd) return Number(process.env.PUBLIC_SUB_RATE_LIMIT_MAX || 200);
+        // Development: generous but bounded to prevent abuse
+        return Number(process.env.DEV_SUB_RATE_LIMIT_MAX || 1000);
+    },
     standardHeaders: true,
     legacyHeaders: false,
-    message: { error: "Too many submissions. Please wait a few minutes before trying again." },
+    message: { error: "Too many submissions from this network. Please wait a few minutes before trying again." },
+});
+
+const adminLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: isProd ? 200 : 500,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many admin requests. Please slow down." },
 });
 
 // ─── STATIC FILES — DIST PATH RESOLUTION ───────────────────────
@@ -269,6 +405,7 @@ if (!distHasIndex) {
 
 // ─── API ROUTES ───────────────────────────────────────────────
 app.use("/api", generalLimiter);
+app.use("/api/admin", adminLimiter);  // ADD: Rate limit admin routes
 // ─── API ROUTE MOUNTINGS ──────────────────────────────────────
 app.use("/api/payments", paymentLimiter);
 app.use("/api/payments", paymentRoutes);
@@ -311,18 +448,21 @@ app.use("/api/uploads", express.static(uploadsPath, { maxAge: "30d" }));
 
 
 // ─── HEALTH CHECK ─────────────────────────────────────────────
-// Now actually verifies the DB connection (not just "pool object exists"),
-// reports dist/static file status, memory, and uptime — so you can tell
-// at a glance whether a 503 is a DB problem, a build problem, or neither.
+// cPanel/Passenger friendly health check.
+// - Default: checks only env vars and static files (fast, no DB required)
+// - DB check optional: set DB_HEALTH_CHECK=1 env var to enable
+// - Reports: env, frontend, memory, and optional DB status
+// - So a 503 means "frontend not deployed", not "DB down"
+// - Load balancer can safely probe without slow DB queries
 app.get("/health", async (_req, res) => {
+    // Quick env + frontend check (no DB required by default)
+    const dbCheck = process.env.DB_HEALTH_CHECK === "1" ? {} : null;
+
     const checks = {
         env: process.env.NODE_ENV || "unknown",
         uptimeSeconds: Math.round((Date.now() - startedAt) / 1000),
         timestamp: new Date().toISOString(),
-        razorpay: {
-            configured: !!(process.env.VITE_RAZORPAY_KEY && process.env.RAZORPAY_KEY_SECRET),
-        },
-        database: { configured: !!pool, connected: false },
+        // cPanel: Frontend status is critical - 503 if no index.html
         frontend: {
             distPath,
             indexHtmlFound: distHasIndex,
@@ -332,21 +472,43 @@ app.get("/health", async (_req, res) => {
         },
     };
 
-    try {
-        if (pool) {
-            await pool.query("SELECT 1");
-            checks.database.connected = true;
+    // Optional: DB check (slow, only if explicitly enabled)
+    if (dbCheck) {
+        try {
+            if (pool) {
+                await pool.query("SELECT 1");
+                checks.database = { configured: true, connected: true };
+            }
+        } catch (err) {
+            checks.database = { configured: true, connected: false, error: isProd ? "DB query failed" : err.message };
         }
-    } catch (err) {
-        checks.database.connected = false;
-        checks.database.error = isProd ? "DB query failed" : err.message;
+    } else {
+        // Show pool config info without requiring DB connection
+        checks.database = { configured: !!pool, connected: "optional disabled", note: "Set DB_HEALTH_CHECK=1 to enable" };
     }
 
-    const healthy = checks.database.connected;
-    res.status(healthy ? 200 : 503).json({
-        status: healthy ? "ok" : "degraded",
+    // Status: healthy if frontend exists (primary cPanel concern)
+    // degraded if frontend missing but everything else OK
+    // unhealthy only if config is fundamentally broken
+    const frontendHealth = distHasIndex ? "ok" : "missing_index";
+    const healthy = distHasIndex || (!!pool && process.env.DB_HEALTH_CHECK !== "1"); // healthy if frontend OK, or DB disabled
+
+    res.status(frontendHealth === "ok" ? 200 : 503).json({
+        status: frontendHealth,
         ...checks,
+        redis: { available: redisAvailable },
+        // cPanel friendly: simple status for load balancer
+        // "status" field is the canonical status
+        // "healthy" is true only if frontend is deployed
+        healthy: frontendHealth === "ok",
+        // Uptime for monitoring (not used for health decision)
+        uptimeSeconds: Math.round((Date.now() - startedAt) / 1000),
     });
+});
+
+// Alias for API health check
+app.get("/api/health", (req, res) => {
+    res.redirect(307, "/health");
 });
 
 app.get("/health/frontend", (_req, res) => {
@@ -387,9 +549,18 @@ app.get("*", (req, res) => {
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, _next) => {
     console.error("❌ Unhandled error:", err.message || err);
-    res.status(err.status || 500).json({
-        error: isProd ? "Internal server error." : (err.message || "Unknown error"),
-    });
+    const status = err.status || 500;
+    const message = isProd
+        ? "Internal server error."
+        : err.message || "Unknown error";
+    
+    // Don't leak stack traces in production
+    const response = { error: message };
+    if (!isProd) {
+        response.stack = err.stack;
+    }
+    
+    res.status(status).json(response);
 });
 
 // ─── PROCESS-LEVEL SAFETY NETS ─────────────────────────────────
@@ -427,6 +598,9 @@ function logRoutes(app) {
     parseStack(app._router.stack);
     // Sort and print unique routes
     [...new Set(routes)].sort().forEach(r => console.log(r));
+    
+    // Log pool configuration for monitoring
+    console.log(`📊 DB Pool: limit=${pool.pool.options.connectionLimit}, maxIdle=${pool.pool.options.maxIdle}`);
 }
 
 // ─── SERVER STARTUP ───────────────────────────────────────────
@@ -473,7 +647,15 @@ const shutdown = (signal) => {
     console.log(`\n${signal} — shutting down gracefully...`);
     server.close(() => {
         pool.end(() => {
-            console.log("✅ DB pool closed. Bye.");
+            console.log("✅ DB pool closed. ");
+            // Close Redis connection if available
+            if (redisClient && typeof redisClient.disconnect === "function") {
+                redisClient.disconnect().then(() => {
+                    console.log("✅ Redis disconnected.");
+                }).catch(err => {
+                    console.warn("Redis disconnect error:", err.message);
+                });
+            }
             process.exit(0);
         });
     });

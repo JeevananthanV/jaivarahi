@@ -3,7 +3,9 @@ import pool from "../db/pool.js";
 export const listServices = async (req, res) => {
   try {
     const { category_id, status, search, page = 1, limit = 20 } = req.query;
-    const offset = (Number(page) - 1) * Number(limit);
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+    const offset = (pageNum - 1) * limitNum;
 
     let where = "WHERE 1=1";
     const params = [];
@@ -28,7 +30,7 @@ export const listServices = async (req, res) => {
        ${where}
        ORDER BY s.sort_order ASC, s.name ASC
        LIMIT ? OFFSET ?`,
-      [...params, Number(limit), offset]
+      [...params, limitNum, offset]
     );
 
     const [countRows] = await pool.query(
@@ -39,9 +41,9 @@ export const listServices = async (req, res) => {
     res.json({
       success: true,
       data: rows,
-      total: countRows[0].total,
-      page: Number(page),
-      limit: Number(limit),
+      total: countRows[0]?.total || 0,
+      page: pageNum,
+      limit: limitNum,
     });
   } catch (error) {
     console.error("LIST SERVICES ERROR:", error);

@@ -356,6 +356,19 @@ const BlogManagement = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showForm, formData]);
 
+  // Auto-backup draft to localStorage for new blog creation
+  useEffect(() => {
+    if (!showForm || formData.id) return;
+    const timer = setTimeout(() => {
+      if (formData.title_en || formData.title_ta || formData.content_en || formData.content_ta) {
+        try {
+          localStorage.setItem("blog_editor_draft", JSON.stringify(formData));
+        } catch (_) {}
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [formData, showForm]);
+
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -399,7 +412,7 @@ const BlogManagement = () => {
   };
 
   const handleCreateNew = () => {
-    setFormData({
+    let initialDraft = {
       id: null,
       title_en: "",
       title_ta: "",
@@ -417,7 +430,21 @@ const BlogManagement = () => {
       meta_title: "",
       meta_description: "",
       review_notes: ""
-    });
+    };
+
+    try {
+      const saved = localStorage.getItem("blog_editor_draft");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && (parsed.title_en || parsed.title_ta || parsed.content_en || parsed.content_ta)) {
+          if (window.confirm("Found an unsaved draft from your previous session. Would you like to restore it?")) {
+            initialDraft = { ...initialDraft, ...parsed, id: null };
+          }
+        }
+      }
+    } catch (_) {}
+
+    setFormData(initialDraft);
     setEditTab("ta");
     setShowForm(true);
     setLastSavedTime(null);
@@ -486,6 +513,9 @@ const BlogManagement = () => {
       }
 
       setLastSavedTime(new Date());
+      try {
+        localStorage.removeItem("blog_editor_draft");
+      } catch (_) {}
       fetchBlogs();
       if (forcedAction === "publishLive") {
         alert("🎉 Blog post published live to the temple website!");

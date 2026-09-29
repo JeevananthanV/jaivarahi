@@ -5,18 +5,21 @@ import pool from "../db/pool.js";
 import { syncSingleContact } from "../lib/contactSync.js";
 import { sendTemplatedSMS } from "../lib/templateService.js";
 import { safeCompare } from "../lib/cryptoUtils.js";
+import { normalizePhone } from "../lib/phoneUtils.js";
 import { originGuard } from "../admin-routes.js";
 
 const router = express.Router();
 
-const razorpay = new Razorpay({
-  key_id: process.env.VITE_RAZORPAY_KEY,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+const getRazorpay = () => {
+  const key_id = process.env.VITE_RAZORPAY_KEY || process.env.RAZORPAY_KEY_ID;
+  const key_secret = process.env.RAZORPAY_KEY_SECRET;
+  if (!key_id || !key_secret) {
+    throw new Error("Razorpay credentials (VITE_RAZORPAY_KEY and RAZORPAY_KEY_SECRET) are missing.");
+  }
+  return new Razorpay({ key_id, key_secret });
+};
 
 const supportPhone = "+91 90928 78389";
-
-const normalizePhone = (value = "") => String(value).replace(/\s+/g, "");
 
 router.post("/create-order", originGuard, async (req, res) => {
   try {
@@ -41,7 +44,7 @@ router.post("/create-order", originGuard, async (req, res) => {
       return res.status(400).json({ success: false, message: "Valid amount is required" });
     }
 
-    const order = await razorpay.orders.create({
+    const order = await getRazorpay().orders.create({
       amount: Math.round(amount * 100),
       currency: "INR",
       receipt: `ashada_${Date.now()}`,
@@ -184,7 +187,7 @@ router.post("/packages/create-order", originGuard, async (req, res) => {
       return res.status(400).json({ success: false, message: "Valid amount is required" });
     }
 
-    const order = await razorpay.orders.create({
+    const order = await getRazorpay().orders.create({
       amount: Math.round(amount * 100),
       currency: "INR",
       receipt: `pkg_${Date.now()}`,

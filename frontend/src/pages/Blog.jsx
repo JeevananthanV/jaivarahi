@@ -283,23 +283,21 @@ const Blog = () => {
     return blogs.filter((b) => {
       // 1. Language Filter: Verify content exists in active language
       const blogTitle = activeLang === "ta" ? b.title_ta : b.title_en;
-      const blogContent = activeLang === "ta" ? b.content_ta : b.content_en;
+      const blogSnippet = activeLang === "ta" ? b.snippet_ta : b.snippet_en;
       const titleText = blogTitle || b.title;
-      const contentText = blogContent || b.content;
+      const snippetText = blogSnippet || b.snippet || "";
 
-      if (!titleText && !contentText) return false;
+      if (!titleText && !snippetText) return false;
 
       // 2. Search Query Filter
       if (searchQuery.trim() !== "") {
         const query = searchQuery.toLowerCase();
-        const snippetVal = activeLang === "ta" ? b.snippet_ta : b.snippet_en;
-        const snippetText = snippetVal || b.snippet || "";
-
-        const titleMatch = titleText.toLowerCase().includes(query);
-        const snippetMatch = snippetText.toLowerCase().includes(query);
-        const contentMatch = contentText.toLowerCase().includes(query);
+        const titleMatch = titleText ? titleText.toLowerCase().includes(query) : false;
+        const snippetMatch = snippetText ? snippetText.toLowerCase().includes(query) : false;
         const authorMatch = (b.author_name || "Pallur Varahi Dhasan").toLowerCase().includes(query);
-        if (!titleMatch && !snippetMatch && !contentMatch && !authorMatch) {
+        const categoryMatch = (b.category || "").toLowerCase().includes(query);
+        const tagsMatch = (b.tags || "").toLowerCase().includes(query);
+        if (!titleMatch && !snippetMatch && !authorMatch && !categoryMatch && !tagsMatch) {
           return false;
         }
       }

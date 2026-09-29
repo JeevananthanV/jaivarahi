@@ -160,7 +160,9 @@ export const createBooking = async (req, res) => {
 export const listBookings = async (req, res) => {
   const db = getDb(req);
   const { page = 1, limit = 20, status, search, category_id, start, end } = req.query;
-  const offset = (Number(page) - 1) * Number(limit);
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+  const offset = (pageNum - 1) * limitNum;
   const params = [];
   let where = ["1=1"];
 
@@ -202,15 +204,15 @@ export const listBookings = async (req, res) => {
        WHERE ${where.join(" AND ")}
        ORDER BY sb.created_at DESC
        LIMIT ? OFFSET ?`,
-      [...params, Number(limit), offset]
+      [...params, limitNum, offset]
     );
 
     res.json({
       success: true,
       data: rows,
-      total,
-      page: Number(page),
-      limit: Number(limit),
+      total: total || 0,
+      page: pageNum,
+      limit: limitNum,
     });
   } catch (error) {
     console.error("LIST SERVICE BOOKINGS ERROR:", error);

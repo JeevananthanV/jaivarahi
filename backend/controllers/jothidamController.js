@@ -318,7 +318,9 @@ export const verifyPayment = async (req, res) => {
 export const getBookings = async (req, res) => {
   const db = getDb(req);
   const { page = 1, limit = 20, search = "", status = "", service_type = "", start = "", end = "" } = req.query;
-  const offset = (page - 1) * limit;
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+  const offset = (pageNum - 1) * limitNum;
   const params = [];
   let where = ["1=1"];
 
@@ -347,14 +349,14 @@ export const getBookings = async (req, res) => {
     const [[{ total }]] = await db.execute(`SELECT COUNT(*) AS total FROM ${TABLE} WHERE ${where.join(" AND ")}`, params);
     const [rows] = await db.execute(
       `SELECT * FROM ${TABLE} WHERE ${where.join(" AND ")} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-      [...params, +limit, +offset]
+      [...params, limitNum, offset]
     );
 
     return res.json({
       rows: rows.map(buildBookingRow),
-      total,
-      page: +page,
-      limit: +limit,
+      total: total || 0,
+      page: pageNum,
+      limit: limitNum,
     });
   } catch (error) {
     console.error("GET JOTHIDAM BOOKINGS ERROR:", error);

@@ -137,6 +137,9 @@ const adminApi = {
   updateMyPassword: async (old_password, new_password) => (await api.patch('/users/me/password', { old_password, new_password }, withToken())).data,
   updateUserPassword: async (id, new_password) => (await api.patch(`/users/${id}/password`, { new_password }, withToken())).data,
 
+  // Birthdays
+  getAdminBirthdays: async () => (await api.get('/admin/birthdays', withToken())).data,
+
   // Status updates
   updateDonationStatus: async (id, status) => (await api.patch(`/donations/${id}/status`, { status }, withToken())).data,
   updatePrasadhamStatus: async (id, status) => (await api.patch(`/prasadham/${id}`, { booking_status: status }, withToken())).data,
@@ -283,7 +286,7 @@ const adminApi = {
 
   // Devotees details
   getDevotees: wrapGet('/devotees'),
-  createDevotee: async (payload) => (await publicApi.post('/devotees', payload)).data,
+  createDevotee: async (payload) => (await publicApi.post('/devotees', payload, withToken())).data,
   updateDevotee: async (id, payload) => (await api.put(`/devotees/${id}`, payload, withToken())).data,
   deleteDevotee: async (id) => (await api.delete(`/devotees/${id}`, withToken())).data,
 
@@ -299,6 +302,7 @@ const adminApi = {
   deleteBlog: async (id) => (await api.delete(`/blogs/${id}`, withToken())).data,
   getBlogs: async (params = {}) => (await publicApi.get('/blogs', { params })).data,
   getBlogById: async (id) => (await publicApi.get(`/blogs/${id}`)).data,
+  getRelatedBlogs: async (id, params = {}) => (await publicApi.get(`/blogs/${id}/related`, { params })).data,
   uploadBlogImage: async (file) => {
     const formData = new FormData();
     formData.append('image', file);

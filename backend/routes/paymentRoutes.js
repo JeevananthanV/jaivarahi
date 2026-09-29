@@ -10,10 +10,14 @@ import { originGuard } from "../admin-routes.js";
 
 const router = express.Router();
 
-const razorpay = new Razorpay({
-  key_id: process.env.VITE_RAZORPAY_KEY,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+const getRazorpay = () => {
+  const key_id = process.env.VITE_RAZORPAY_KEY || process.env.RAZORPAY_KEY_ID;
+  const key_secret = process.env.RAZORPAY_KEY_SECRET;
+  if (!key_id || !key_secret) {
+    throw new Error("Razorpay credentials (VITE_RAZORPAY_KEY and RAZORPAY_KEY_SECRET) are missing.");
+  }
+  return new Razorpay({ key_id, key_secret });
+};
 
 const categoryPrices = {
   Abishyam: 3001,

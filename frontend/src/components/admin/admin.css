@@ -547,6 +547,7 @@ a { text-decoration: none; color: inherit; }
 .admin-app .b-wa, .admin-app .b-warning { background: var(--wab); color: var(--wa); }
 .admin-app .b-in, .admin-app .b-info    { background: var(--inb); color: var(--in); }
 .admin-app .b-purple { background: rgba(139, 92, 246, 0.1); color: var(--purple); }
+.admin-app .b-gold { background: rgba(242, 201, 76, 0.12); color: var(--gold); }
 .admin-app .b-mu { background: var(--bg3); color: var(--tx2); }
 
 /* ══════════════════════════════
@@ -809,3 +810,12 @@ a { text-decoration: none; color: inherit; }
   .admin-app .dash-chart { height: 280px; }
   .admin-app .dash-title { font-size: 22px; }
 }
+
+/* ── Birthday Reminder List Styles ─────────────────────────────────────── */
+.admin-app .admin-list { padding: 0; margin: 0; list-style: none; }
+.admin-app .admin-list-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--bd); }
+.admin-app .admin-list-item:last-child { border-bottom: none; }
+.admin-app .avatar { width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: linear-gradient(135deg, var(--primary-color), var(--special-color)); color: #fff; flex-shrink: 0; }
+.admin-app .flex-1 { flex: 1; }
+.admin-app .mb-1 { margin-bottom: 4px; }
+.admin-app .text-muted { color: var(--tx3); }

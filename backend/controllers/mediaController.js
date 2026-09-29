@@ -327,50 +327,54 @@ export const uploadMedia = async (req, res) => {
 export const getMedia = async (req, res) => {
   try {
     const { folder_id, type, search, page = 1, limit = 50 } = req.query;
-    const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 50));
+    const offset = (pageNum - 1) * limitNum;
 
-    let sql = `
-      SELECT m.*, f.name as folder_name, f.path as folder_path
-      FROM media m
-      LEFT JOIN media_folders f ON m.folder_id = f.id
-      WHERE 1=1
-    `;
+    const whereConditions = ["1=1"];
     const params = [];
 
     if (folder_id) {
-      sql += " AND m.folder_id = ?";
+      whereConditions.push("m.folder_id = ?");
       params.push(parseInt(folder_id, 10));
     }
 
     if (type) {
-      sql += " AND m.mime_type LIKE ?";
+      whereConditions.push("m.mime_type LIKE ?");
       params.push(`${type}%`);
     }
 
     if (search) {
-      sql += " AND (m.original_name LIKE ? OR m.alt_text LIKE ? OR m.caption LIKE ?)";
+      whereConditions.push("(m.original_name LIKE ? OR m.alt_text LIKE ? OR m.caption LIKE ?)");
       const term = `%${search}%`;
       params.push(term, term, term);
     }
 
-    sql += " ORDER BY m.created_at DESC LIMIT ? OFFSET ?";
-    params.push(parseInt(limit, 10), offset);
+    const whereClause = whereConditions.join(" AND ");
 
-    const [rows] = await pool.execute(sql, params);
+    const sql = `
+      SELECT m.*, f.name as folder_name, f.path as folder_path
+      FROM media m
+      LEFT JOIN media_folders f ON m.folder_id = f.id
+      WHERE ${whereClause}
+      ORDER BY m.created_at DESC LIMIT ? OFFSET ?
+    `;
+
+    const countParams = [...params];
+    const dataParams = [...params, limitNum, offset];
+
+    const [rows] = await pool.execute(sql, dataParams);
 
     const [countRows] = await pool.execute(
-      "SELECT COUNT(*) as total FROM media m WHERE 1=1" +
-        (folder_id ? " AND m.folder_id = ?" : "") +
-        (type ? " AND m.mime_type LIKE ?" : "") +
-        (search ? " AND (m.original_name LIKE ? OR m.alt_text LIKE ? OR m.caption LIKE ?)" : ""),
-      folder_id ? [parseInt(folder_id, 10)] : type ? [type] : search ? [`%${search}%`, `%${search}%`, `%${search}%`] : []
+      `SELECT COUNT(*) as total FROM media m WHERE ${whereClause}`,
+      countParams
     );
 
     return res.json({
       data: rows,
       total: countRows[0]?.total || 0,
-      page: parseInt(page, 10),
-      limit: parseInt(limit, 10),
+      page: pageNum,
+      limit: limitNum,
     });
   } catch (error) {
     console.error("GET MEDIA ERROR:", error);

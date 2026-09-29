@@ -222,10 +222,9 @@ const BlogDetail = () => {
   useEffect(() => {
     const fetchSidebarData = async () => {
       try {
-        const data = await adminApi.getBlogs();
-        setAllBlogs(data);
-        const filtered = data.filter(b => b.id !== parseInt(id)).slice(0, 3);
-        setRecentBlogs(filtered);
+        const related = await adminApi.getRelatedBlogs(id, { limit: 6 });
+        setAllBlogs(related);
+        setRecentBlogs(related.slice(0, 3));
       } catch (err) {
         console.error("Failed to fetch sidebar data:", err);
       }
