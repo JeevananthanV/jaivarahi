@@ -600,7 +600,9 @@ function logRoutes(app) {
     [...new Set(routes)].sort().forEach(r => console.log(r));
     
     // Log pool configuration for monitoring
-    console.log(`📊 DB Pool: limit=${pool.pool.options.connectionLimit}, maxIdle=${pool.pool.options.maxIdle}`);
+    const poolLimit = process.env.DB_POOL_LIMIT || process.env.MYSQL_POOL_LIMIT || 100;
+    const poolMaxIdle = process.env.DB_POOL_MAX_IDLE || process.env.MYSQL_POOL_MAX_IDLE || 50;
+    console.log(`📊 DB Pool Config: limit=${poolLimit}, maxIdle=${poolMaxIdle}`);
 }
 
 // ─── SERVER STARTUP ───────────────────────────────────────────
