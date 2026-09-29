@@ -132,9 +132,12 @@ const adminApi = {
   // Refresh Token
   refreshToken: async (refresh_token) => (await api.post('/refresh', { refresh_token }, withToken())).data,
 
-  // Users - me
-  getMe: async () => (await api.get('/users/me', withToken())).data,
-  updateMyPassword: async (old_password, new_password) => (await api.patch('/users/me/password', { old_password, new_password }, withToken())).data,
+  // Users - me & Profile
+  getMe: async () => (await api.get('/profile/me', withToken())).data,
+  getProfile: async () => (await api.get('/profile/me', withToken())).data,
+  updateProfile: async (payload) => (await api.patch('/profile', payload, withToken())).data,
+  updateProfilePassword: async (payload) => (await api.patch('/profile/password', payload, withToken())).data,
+  updateMyPassword: async (old_password, new_password) => (await api.patch('/profile/password', { old_password, new_password }, withToken())).data,
   updateUserPassword: async (id, new_password) => (await api.patch(`/users/${id}/password`, { new_password }, withToken())).data,
 
   // Birthdays

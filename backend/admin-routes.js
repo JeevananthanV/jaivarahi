@@ -2442,6 +2442,8 @@ router.get('/profile/me', auth, async (req, res) => {
         email: req.admin.email || process.env.ADMIN_EMAIL,
         role: 'Super Admin',
         is_env_admin: true,
+        date_of_birth: null,
+        date_of_wedding: null,
         stats: {
           total_logins: 0,
           last_login: null,
@@ -2450,7 +2452,7 @@ router.get('/profile/me', auth, async (req, res) => {
       });
     }
     const [users] = await db.execute(
-      'SELECT id, name, email, role, created_at, last_login, total_actions FROM admin_users WHERE id = ?',
+      'SELECT id, name, email, role, date_of_birth, date_of_wedding, created_at, last_login, total_actions FROM admin_users WHERE id = ?',
       [req.admin.id]
     );
     if (!users.length) return res.status(404).json({ error: 'User not found' });
@@ -2459,13 +2461,23 @@ router.get('/profile/me', auth, async (req, res) => {
 });
 
 // Update admin profile
-router.patch('/profile', auth, validateBody({ name: { maxLength: 255 } }), async (req, res) => {
-  const { name } = req.body;
+router.patch('/profile', auth, async (req, res) => {
+  const { name, date_of_birth, date_of_wedding } = req.body;
   const db = req.app.locals.db;
   try {
-    await db.execute('UPDATE admin_users SET name = ?, updated_at = NOW() WHERE id = ?', [name, req.admin.id]);
-    await logAudit(req, 'UPDATE', 'admin_users', { id: req.admin.id, field: 'name' });
-    res.json({ success: true });
+    const normDob = date_of_birth && date_of_birth.trim() !== '' ? date_of_birth : null;
+    const normWedding = date_of_wedding && date_of_wedding.trim() !== '' ? date_of_wedding : null;
+
+    if (req.admin.id === 0) {
+      return res.json({ success: true, message: 'System Admin profile updated in memory' });
+    }
+
+    await db.execute(
+      'UPDATE admin_users SET name = COALESCE(?, name), date_of_birth = ?, date_of_wedding = ?, updated_at = NOW() WHERE id = ?',
+      [name || null, normDob, normWedding, req.admin.id]
+    );
+    await logAudit(req, 'UPDATE', 'admin_users', { id: req.admin.id, fields: ['name', 'date_of_birth', 'date_of_wedding'] });
+    res.json({ success: true, message: 'Profile updated successfully' });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
