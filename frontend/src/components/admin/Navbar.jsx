@@ -1,243 +1,89 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Moon, Sun, User, ChevronRight, Settings, Cake, Heart, LogOut, Shield } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Cake, ChevronRight, Gift, LogOut, Menu, Moon, PanelLeftClose, PanelLeftOpen, Settings, Shield, Sun, User, X } from 'lucide-react';
 import { useAdminAuth } from './AdminAuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
 import ReminderNotification from './ReminderNotification';
 
-const Navbar = ({ isDark, toggleDark }) => {
+const labels = {
+  admin: 'Admin', dashboard: 'Dashboard', donations: 'Donations', devotees: 'Devotees', prasadham: 'Calendar bookings', royal: 'Royal bookings',
+  services: 'Temple services', categories: 'Categories', list: 'Services', bookings: 'Bookings', reports: 'Reports',
+  'ashada-navarathiri': 'Ashada Navarathiri', 'av2-entry': 'AV2 entry', 'vip-checkin': 'VIP check-in', 'free-checkin': 'Free check-in',
+  vip: 'VIP access', free: 'Free entries', stalls: 'Stall bookings', sponsors: 'Sponsorships', packages: 'Packages',
+  users: 'Admin users', 'audit-logs': 'Audit logs', profile: 'Profile settings', blogs: 'Blog management', media: 'Media library',
+  birthdays: 'Birthday reminders', 'wedding-anniversaries': 'Anniversaries', jothidam: 'Jothidam', 'jothidam-dashboard': 'Jothidam dashboard',
+  'jothidam-bookings': 'Jothidam bookings', 'jothidam-astrologers': 'Astrologers', 'jothidam-pricing': 'Jothidam pricing', 'jothidam-reports': 'Jothidam reports',
+};
+
+const Navbar = ({ isDark, toggleDark, sidebarOpen = false, onMenuToggle, sidebarCollapsed = false, onSidebarCollapseToggle }) => {
   const { user, logout } = useAdminAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
+  const profileButtonRef = useRef(null);
+  const parts = pathname.split('/').filter(Boolean);
+  const crumbs = parts.map((part, index) => ({
+    label: labels[part] || part.replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()),
+    path: `/${parts.slice(0, index + 1).join('/')}`,
+  }));
+  if (!crumbs.length) crumbs.push({ label: 'Dashboard', path: '/admin/dashboard' });
 
-  const getBreadcrumbs = () => {
-    const parts = location.pathname.split('/').filter(Boolean);
-    if (parts.length <= 1) return [{ label: 'Admin', path: '/admin' }, { label: 'Dashboard', path: '/admin/dashboard' }];
-    
-    return parts.map((part, index) => {
-      const path = '/' + parts.slice(0, index + 1).join('/');
-      const label = part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' ');
-      return { label, path };
-    });
-  };
-
-  const breadcrumbs = getBreadcrumbs();
-
-  // Close user menu on outside click
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+    if (!userMenuOpen) return undefined;
+    const closeOutside = (event) => { if (userMenuRef.current && !userMenuRef.current.contains(event.target)) setUserMenuOpen(false); };
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') {
         setUserMenuOpen(false);
+        profileButtonRef.current?.focus();
       }
     };
-    if (userMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('pointerdown', closeOutside);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
   }, [userMenuOpen]);
 
   return (
-    <div className="topbar">
-      <div>
-        <div className="tb-breadcrumbs">
-          {breadcrumbs.map((crumb, idx) => (
-            <React.Fragment key={crumb.path}>
-              {idx > 0 && <ChevronRight size={12} style={{ opacity: 0.5 }} />}
-              <span className={idx === breadcrumbs.length - 1 ? 'tb-crumb-active' : ''}>
-                {crumb.label}
-              </span>
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-
-      <div className="tb-r">
-        <div className="live-status-pill" title="Backend connectivity active">
-          <div className="live-dot"></div>
-          <span>Live Sync</span>
-        </div>
-
-        {/* Reminders Notification Bell */}
-        <ReminderNotification />
-
-        <button 
-          className="ic-btn" 
-          onClick={toggleDark} 
-          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          style={{ transition: 'transform 0.3s ease' }}
-        >
-          {isDark ? <Sun size={16} color="var(--special-color-light)" /> : <Moon size={16} />}
+    <header className="topbar">
+      <div className="tb-l">
+        <button type="button" className="ic-btn mobile-menu-btn" onClick={onMenuToggle} aria-label={sidebarOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={sidebarOpen} aria-controls="admin-sidebar">
+          {sidebarOpen ? <X size={19} aria-hidden="true" /> : <Menu size={19} aria-hidden="true" />}
         </button>
-
-        {/* User Profile Trigger & Dropdown */}
-        <div style={{ position: 'relative' }} ref={userMenuRef}>
-          <div 
-            onClick={() => setUserMenuOpen(!userMenuOpen)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              cursor: 'pointer',
-              padding: '4px 8px',
-              borderRadius: 'var(--r)',
-              transition: 'background-color 0.2s ease',
-              background: userMenuOpen ? 'var(--bg3)' : 'transparent',
-            }}
-            title="Account Menu"
-          >
-            <div className="avatar" title={`${user?.name} (${user?.role || 'Admin'})`}>
-              {user?.name ? user.name.charAt(0).toUpperCase() : <User size={16} />}
+        <button type="button" className="ic-btn desktop-sidebar-toggle" onClick={onSidebarCollapseToggle} aria-label={sidebarCollapsed ? 'Expand navigation sidebar' : 'Collapse navigation sidebar'} title={sidebarCollapsed ? 'Expand navigation' : 'Collapse navigation'} aria-expanded={!sidebarCollapsed} aria-controls="admin-sidebar">
+          {sidebarCollapsed ? <PanelLeftOpen size={17} aria-hidden="true" /> : <PanelLeftClose size={17} aria-hidden="true" />}
+        </button>
+        <nav className="tb-breadcrumbs" aria-label="Breadcrumb">
+          {crumbs.map((crumb, index) => <React.Fragment key={crumb.path}>
+            {index > 0 && <ChevronRight size={13} className="tb-crumb-separator" aria-hidden="true" />}
+            {index === crumbs.length - 1 ? <span className="tb-crumb-active" aria-current="page">{crumb.label}</span> : <Link className="tb-crumb-link" to={crumb.path}>{crumb.label}</Link>}
+          </React.Fragment>)}
+        </nav>
+      </div>
+      <div className="tb-r">
+        <span className="live-status-pill"><span className="live-dot" aria-hidden="true" /><span>Admin workspace</span></span>
+        <ReminderNotification />
+        <button type="button" className="ic-btn" onClick={toggleDark} aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'} title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}>
+          {isDark ? <Sun size={17} aria-hidden="true" /> : <Moon size={17} aria-hidden="true" />}
+        </button>
+        <div className="tb-user-wrap" ref={userMenuRef}>
+          <button ref={profileButtonRef} type="button" className={`tb-profile-trigger${userMenuOpen ? ' is-open' : ''}`} onClick={() => setUserMenuOpen((open) => !open)} aria-expanded={userMenuOpen} aria-controls="admin-user-menu" aria-haspopup="true">
+            <span className="avatar" aria-hidden="true">{user?.name ? user.name.charAt(0).toUpperCase() : <User size={16} />}</span>
+            <span className="tb-profile-copy"><strong>{user?.name || 'Admin user'}</strong><small>{user?.role || 'Administrator'}</small></span>
+            <ChevronRight className={`tb-profile-chevron${userMenuOpen ? ' is-open' : ''}`} size={14} aria-hidden="true" />
+          </button>
+          <div id="admin-user-menu" className="tb-user-menu" hidden={!userMenuOpen}>
+            <div className="tb-user-menu-head"><strong>{user?.name || 'Administrator'}</strong><span>{user?.email || 'Signed in'}</span><span className="dash-pill in"><Shield size={12} aria-hidden="true" />{user?.role || 'Admin'}</span></div>
+            <div className="tb-user-menu-links">
+              <Link to="/admin/profile" className="tb-user-menu-item" onClick={() => setUserMenuOpen(false)}><Settings size={16} aria-hidden="true" />My profile & settings</Link>
+              <Link to="/admin/birthdays" className="tb-user-menu-item" onClick={() => setUserMenuOpen(false)}><Cake size={16} aria-hidden="true" />Birthday reminders</Link>
+              <Link to="/admin/wedding-anniversaries" className="tb-user-menu-item" onClick={() => setUserMenuOpen(false)}><Gift size={16} aria-hidden="true" />Anniversaries</Link>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--tx)', lineHeight: 1.2 }}>
-                {user?.name || 'Admin User'}
-              </span>
-              <span style={{ fontSize: 10, color: 'var(--special-color)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                {user?.role || 'Super Admin'}
-              </span>
-            </div>
+            <div className="tb-user-menu-footer"><button type="button" className="tb-signout" onClick={() => { setUserMenuOpen(false); logout(); }}><LogOut size={15} aria-hidden="true" />Sign out</button></div>
           </div>
-
-          {/* User Popover Menu */}
-          {userMenuOpen && (
-            <div
-              style={{
-                position: 'absolute',
-                top: 'calc(100% + 8px)',
-                right: 0,
-                width: 240,
-                background: 'var(--bg2)',
-                border: '1px solid var(--bd)',
-                borderRadius: 'var(--rx)',
-                boxShadow: 'var(--sh-lg)',
-                zIndex: 300,
-                overflow: 'hidden',
-                animation: 'modalSlide 0.2s var(--ease)',
-              }}
-            >
-              {/* Header */}
-              <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--bd)', background: 'var(--bg3)' }}>
-                <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--tx)' }}>{user?.name || 'Administrator'}</div>
-                <div style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 2 }}>{user?.email || 'admin@jaivarahi.org'}</div>
-                <span className={`dash-pill ${user?.role === 'Super Admin' ? 'ok' : 'in'}`} style={{ fontSize: 10, marginTop: 6 }}>
-                  <Shield size={10} style={{ marginRight: 3 }} /> {user?.role || 'Admin'}
-                </span>
-              </div>
-
-              {/* Links */}
-              <div style={{ padding: '6px 0' }}>
-                <button
-                  onClick={() => {
-                    setUserMenuOpen(false);
-                    navigate('/admin/profile');
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '10px 16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'var(--tx)',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg3)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
-                >
-                  <Settings size={15} color="var(--primary-color)" />
-                  <span>My Profile & Settings</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setUserMenuOpen(false);
-                    navigate('/admin/birthdays');
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '10px 16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'var(--tx)',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg3)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
-                >
-                  <Cake size={15} color="var(--accent-color)" />
-                  <span>Birthday Reminders</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setUserMenuOpen(false);
-                    navigate('/admin/wedding-anniversaries');
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '10px 16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: 'var(--tx)',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg3)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
-                >
-                  <Heart size={15} color="#db2777" />
-                  <span>Wedding Anniversaries</span>
-                </button>
-              </div>
-
-              {/* Logout */}
-              <div style={{ padding: '6px 8px 8px', borderTop: '1px solid var(--bd)' }}>
-                <button
-                  onClick={() => {
-                    setUserMenuOpen(false);
-                    logout();
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    background: 'var(--erb)',
-                    border: '1px solid var(--erb)',
-                    borderRadius: 'var(--r-sm)',
-                    fontSize: 12.5,
-                    fontWeight: 700,
-                    color: 'var(--er)',
-                    cursor: 'pointer',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <LogOut size={14} />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 
