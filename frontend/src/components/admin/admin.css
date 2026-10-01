@@ -1054,3 +1054,12 @@ a { text-decoration: none; color: inherit; }
 /* WhatsApp button */
 .admin-app .btn-whatsapp { background: var(--whatsapp); border-color: var(--whatsapp); color: var(--light-text); }
 .admin-app .btn-whatsapp:hover { background: #1db954; border-color: #1db954; }
+
+
+/* Dashboard range guidance and accessible control focus */
+.admin-app .dash-range-hint { margin: 0 0 16px; align-items: center; }
+.admin-app .dash-range-hint p { margin: 0; line-height: 1.5; }
+.admin-app .dash-tab:focus-visible,
+.admin-app .dash-actions .btn:focus-visible,
+.admin-app .dash-actions input:focus-visible { outline: 3px solid var(--saf); outline-offset: 2px; }
+.admin-app .dash-state-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }

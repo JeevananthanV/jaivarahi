@@ -2,6 +2,8 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { parseDateRange as parseDashboardDateRange } from './lib/dashboardDateRange.js';
+import { buildDashboardMetrics, numberOrZero } from './lib/dashboardMetrics.js';
 
 const router = express.Router();
 
@@ -97,7 +99,7 @@ const parseDateRange = (reqQuery) => {
   return { start, end };
 };
 
-const toSqlDateTime = (date) => date.toISOString().slice(0, 19).replace('T', ' ');
+const toSqlDateTime = (date) => date.toISOString().slice(0, 23).replace('T', ' ');
 const buildDateFilter = (column, startSql, endSql) => {
   if (!startSql && !endSql) return { clause: '', params: [] };
   if (!startSql) return { clause: `${column} <= ?`, params: [endSql] };
@@ -656,8 +658,11 @@ router.get('/notifications/feed', auth, async (req, res) => {
 // ─── Dashboard Summary ────────────────────────────────────────────────────────
 router.get('/dashboard', auth, async (req, res) => {
   const db = req.app.locals.db;
+  if (!db || typeof db.execute !== 'function') {
+    return res.status(503).json({ error: 'Dashboard data source is unavailable' });
+  }
   try {
-    const { start, end } = parseDateRange(req.query);
+    const { start, end } = parseDashboardDateRange(req.query);
     const startSql = start ? toSqlDateTime(start) : null;
     const endSql = end ? toSqlDateTime(end) : null;
         // Single date filter for all tables using 'created_at'
@@ -707,8 +712,9 @@ router.get('/dashboard', auth, async (req, res) => {
     `, params);
     const [[stallStats]] = await db.execute(`SELECT COUNT(*) AS stall_count FROM av2_stall_bookings ${dateWhere}`, params);
     const [[sponsorshipStats]] = await db.execute(`SELECT COUNT(*) AS sponsorship_count FROM av2_sponsorships ${dateWhere}`, params);
-    const [[bookingStats]] = await db.execute(`SELECT COUNT(*) AS booking_count, COALESCE(SUM(total_amount),0) AS booking_revenue FROM bookings ${dateWhere}`, params);
-    const [[packageStats]] = await db.execute(`SELECT COALESCE(SUM(total_amount),0) AS package_revenue, COUNT(DISTINCT id) AS package_count FROM bookings WHERE package_tier IS NOT NULL ${dateAnd}`, params);
+    const [[bookingStats]] = await db.execute(`SELECT COUNT(*) AS booking_count, COALESCE(SUM(total_amount),0) AS booking_revenue FROM bookings WHERE package_tier IS NULL ${dateAnd}`, params);
+    const [[legacyPackageStats]] = await db.execute(`SELECT COALESCE(SUM(total_amount),0) AS package_revenue, COUNT(*) AS package_count FROM bookings WHERE package_tier IS NOT NULL ${dateAnd}`, params);
+    const [[packageBookingStats]] = await db.execute(`SELECT COALESCE(SUM(total_amount),0) AS package_revenue, COUNT(*) AS package_count FROM package_bookings WHERE booking_status='CONFIRMED' ${dateAnd}`, params);
 
     const [donationTx] = await db.execute(`
       SELECT 'donation' AS type, name AS primary_name, NULL AS event_title, amount_inr AS amount, payment_id, status, created_at, failure_reason
@@ -719,7 +725,13 @@ router.get('/dashboard', auth, async (req, res) => {
     const [bookingTx] = await db.execute(`
       SELECT 'booking' AS type, primary_name, event_title, total_amount AS amount, payment_id, 'paid' AS status, created_at, NULL AS failure_reason
       FROM bookings
-      ${dateWhere}
+      WHERE package_tier IS NULL ${dateAnd}
+      ORDER BY created_at DESC LIMIT 5
+    `, params);
+    const [legacyPackageTx] = await db.execute(`
+      SELECT 'package' AS type, primary_name, event_title, total_amount AS amount, payment_id, 'paid' AS status, created_at, NULL AS failure_reason
+      FROM bookings
+      WHERE package_tier IS NOT NULL ${dateAnd}
       ORDER BY created_at DESC LIMIT 5
     `, params);
     const [prasadhamTx] = await db.execute(`
@@ -740,8 +752,14 @@ router.get('/dashboard', auth, async (req, res) => {
       WHERE booking_status='CONFIRMED' ${dateAnd}
       ORDER BY created_at DESC LIMIT 5
     `, params);
+    const [packageBookingTx] = await db.execute(`
+      SELECT 'package' AS type, primary_name, package_name AS event_title, total_amount AS amount, payment_id, booking_status AS status, created_at, NULL AS failure_reason
+      FROM package_bookings
+      WHERE booking_status='CONFIRMED' ${dateAnd}
+      ORDER BY created_at DESC LIMIT 5
+    `, params);
 
-    const recentTransactions = [...donationTx, ...bookingTx, ...prasadhamTx, ...royalTx, ...vipTx]
+    const recentTransactions = [...donationTx, ...bookingTx, ...legacyPackageTx, ...prasadhamTx, ...royalTx, ...vipTx, ...packageBookingTx]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .slice(0, 10);
 
@@ -756,10 +774,12 @@ router.get('/dashboard', auth, async (req, res) => {
         SELECT DATE(created_at) AS day, total_amount AS revenue FROM special_royal_bookings ${dateWhere}
         UNION ALL
         SELECT DATE(created_at) AS day, amount AS revenue FROM av2_vip_access WHERE booking_status='CONFIRMED' ${dateAnd}
+        UNION ALL
+        SELECT DATE(created_at) AS day, total_amount AS revenue FROM package_bookings WHERE booking_status='CONFIRMED' ${dateAnd}
       ) t
       GROUP BY day
       ORDER BY day
-    `, [...params, ...params, ...params, ...params, ...params]);
+    `, [...params, ...params, ...params, ...params, ...params, ...params]);
 
     const [cityDist] = await db.execute(`
       SELECT city, COUNT(*) AS count FROM (
@@ -783,80 +803,50 @@ router.get('/dashboard', auth, async (req, res) => {
       LIMIT ? OFFSET ?
     `, [auditLimit, auditOffset]);
 
-    const totalRegistered = Number(entryStats.total_registered || 0) + Number(freeStats.free_count || 0) + Number(vipStats.vip_count || 0);
-    const checkedIn = Number(entryStats.checked_in || 0) + Number(freeStats.checked_in || 0) + Number(vipStats.checked_in || 0);
-    const attendanceRate = totalRegistered > 0 ? ((checkedIn / totalRegistered) * 100).toFixed(1) : 0;
-    const totalRevenue =
-      Number(donationStats.donation_revenue || 0) +
-      Number(bookingStats.booking_revenue || 0) +
-      Number(prasadhamStats.prasadham_revenue || 0) +
-      Number(royalStats.royal_revenue || 0) +
-      Number(vipStats.vip_revenue || 0) +
-      Number(packageStats.package_revenue || 0);
-    const totalPaidBookings =
-      Number(bookingStats.booking_count || 0) +
-      Number(prasadhamStats.prasadham_count || 0) +
-      Number(royalStats.royal_count || 0) +
-      Number(vipStats.vip_count || 0) +
-      Number(packageStats.package_count || 0);
-    const paymentTotal = Number(donationStats.paid_count || 0) + Number(donationStats.failed_count || 0) + Number(donationStats.pending_count || 0);
+    const dashboardMetrics = buildDashboardMetrics({
+      donationStats,
+      bookingStats,
+      legacyPackageStats,
+      packageBookingStats,
+      prasadhamStats,
+      royalStats,
+      vipStats,
+      freeStats,
+      entryStats,
+      stallStats,
+      sponsorshipStats,
+    });
 
     res.json({
-      summary: {
-        net_revenue: totalRevenue,
-        paid_bookings: totalPaidBookings,
-        donation_payment_success_rate: paymentTotal > 0 ? ((Number(donationStats.paid_count || 0) / paymentTotal) * 100).toFixed(1) : 0,
-        attendance_rate: attendanceRate,
-      },
-      revenue: {
-        donation: Number(donationStats.donation_revenue || 0),
-        bookings: Number(bookingStats.booking_revenue || 0),
-        prasadham: Number(prasadhamStats.prasadham_revenue || 0),
-        royal: Number(royalStats.royal_revenue || 0),
-        vip: Number(vipStats.vip_revenue || 0),
-        packages: Number(packageStats.package_revenue || 0),
-      },
-      attendance: {
-        total_registered: totalRegistered,
-        checked_in: checkedIn,
-        pending_checkin: Math.max(totalRegistered - checkedIn, 0),
-        attendance_rate: attendanceRate,
-      },
-      totals: {
-        total_revenue: totalRevenue,
-        donation_revenue: +donationStats.donation_revenue,
-        booking_revenue: +bookingStats.booking_revenue,
-        prasadham_revenue: +prasadhamStats.prasadham_revenue,
-        royal_revenue: +royalStats.royal_revenue,
-        vip_revenue: +vipStats.vip_revenue,
-        package_revenue: +packageStats.package_revenue,
-        total_bookings: totalPaidBookings,
-        paid: +donationStats.paid_count,
-        failed: +donationStats.failed_count,
-        pending: +donationStats.pending_count,
-        donation_success_rate: paymentTotal > 0 ? ((donationStats.paid_count / paymentTotal) * 100).toFixed(1) : 0,
-        free_entries: +freeStats.free_count,
-        free_tickets: +freeStats.free_tickets,
-        stall_bookings: +stallStats.stall_count,
-        vip_count: +vipStats.vip_count,
-        checked_in: checkedIn,
-        registered: totalRegistered,
-        attendance_rate: attendanceRate,
-        donation_count: +donationStats.total_donations,
-        prasadham_count: +prasadhamStats.prasadham_count,
-        royal_count: +royalStats.royal_count,
-        sponsorships_count: +sponsorshipStats.sponsorship_count,
-        general_bookings_count: +bookingStats.booking_count,
-        package_count: +packageStats.package_count,
-      },
-      audit_logs: auditLogs,
-      recent_transactions: recentTransactions,
-      daily_trend: dailyTrend,
-      city_distribution: cityDist,
+      ...dashboardMetrics,
+      audit_logs: auditLogs.map((row) => ({
+        ...row,
+        id: numberOrZero(row.id),
+        details: row.details == null ? null : (typeof row.details === 'string' ? row.details : JSON.stringify(row.details)),
+        created_at: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at ?? null,
+      })),
+      recent_transactions: recentTransactions.map((row) => ({
+        ...row,
+        amount: numberOrZero(row.amount),
+        created_at: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at ?? null,
+      })),
+      daily_trend: dailyTrend.map((row) => ({
+        ...row,
+        day: row.day instanceof Date ? row.day.toISOString().slice(0, 10) : row.day == null ? null : String(row.day).slice(0, 10),
+        count: numberOrZero(row.count),
+        revenue: numberOrZero(row.revenue),
+      })),
+      city_distribution: cityDist.map((row) => ({
+        city: row.city == null ? 'Unknown' : String(row.city),
+        count: numberOrZero(row.count),
+      })),
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    console.error('Dashboard summary error:', err);
+    const statusCode = err.statusCode === 400 ? 400 : 500;
+    return res.status(statusCode).json({
+      error: statusCode === 400 ? err.message : 'Failed to fetch dashboard data',
+    });
   }
 });
 
@@ -2692,6 +2682,4 @@ router.get('/export/audit-log', auth, requireRole(['Super Admin', 'Admin']), asy
 });
 
 // ─── END Modern Admin Panel API Endpoints ───
-
-
 

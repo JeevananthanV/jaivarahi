@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   BarChart3,
   CheckCircle2,
   CircleDollarSign,
   Download,
   Filter,
-  Gauge,
   Globe2,
   Activity,
   Clock3,
@@ -34,10 +33,18 @@ const DATE_RANGES = [
   { key: 'custom', label: 'Custom' },
 ];
 
-const INR = (value) =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(value || 0));
+const EMPTY_RECORD = Object.freeze({});
+const isRecord = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 
-const pct = (value) => `${Number(value || 0).toFixed(1)}%`;
+const finiteNumber = (value) => {
+  const number = Number(value ?? 0);
+  return Number.isFinite(number) ? number : 0;
+};
+
+const INR = (value) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(finiteNumber(value));
+
+const pct = (value) => `${finiteNumber(value).toFixed(1)}%`;
 
 const toDisplayDate = (value) => {
   if (!value) return '';
@@ -72,37 +79,96 @@ const Dashboard = () => {
   });
   const [dismissedAlerts, setDismissedAlerts] = useState([]);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [clock, setClock] = useState(Date.now());
+  const [error, setError] = useState('');
+  const [exportError, setExportError] = useState('');
+  const [notice, setNotice] = useState('');
+  const requestSequenceRef = useRef(0);
+  const activeRequestRef = useRef(null);
+  const hasDashboardDataRef = useRef(false);
+  const customRangeReady = selectedRange !== 'custom' || Boolean(customRange.from && customRange.to);
 
   const fetchData = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
+    if (selectedRange === 'custom' && (!customRange.from || !customRange.to)) {
+      activeRequestRef.current?.abort();
+      activeRequestRef.current = null;
+      requestSequenceRef.current += 1;
+      setError('');
+      setExportError('');
+      setNotice('');
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
+    const requestId = ++requestSequenceRef.current;
+    if (isRefresh) {
+      setRefreshing(true);
+      if (!hasDashboardDataRef.current) setLoading(true);
+    } else {
+      setLoading(true);
+      setRefreshing(false);
+      hasDashboardDataRef.current = false;
+      setData(null);
+    }
+    setError('');
+    setExportError('');
+    setNotice('');
     try {
       const params = { range: selectedRange };
       if (selectedRange === 'custom') {
         if (customRange.from) params.from = customRange.from;
         if (customRange.to) params.to = customRange.to;
       }
-      const result = await adminApi.getDashboard(params);
-      setData(result);
+      const result = await adminApi.getDashboard(params, { signal: controller.signal });
+      if (requestId !== requestSequenceRef.current) return;
+      const dashboardData = result && typeof result === 'object' && !Array.isArray(result) ? result : {};
+      hasDashboardDataRef.current = true;
+      setData(dashboardData);
       setLastUpdated(new Date());
     } catch (err) {
+      if (controller.signal.aborted || requestId !== requestSequenceRef.current) return;
       console.error('Failed to load dashboard data', err);
+      setError(err?.response?.data?.error || err?.response?.data?.message || err?.message || 'We could not load dashboard data. Please try again.');
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (requestId === requestSequenceRef.current) {
+        setLoading(false);
+        setRefreshing(false);
+        if (activeRequestRef.current === controller) activeRequestRef.current = null;
+      }
     }
   }, [selectedRange, customRange.from, customRange.to]);
 
   useEffect(() => {
     fetchData(false);
+    return () => {
+      requestSequenceRef.current += 1;
+      activeRequestRef.current?.abort();
+      activeRequestRef.current = null;
+    };
   }, [fetchData]);
 
   useEffect(() => {
-    const timer = setInterval(() => fetchData(true), 60000);
-    return () => clearInterval(timer);
-  }, [fetchData]);
+    if (!customRangeReady) return undefined;
+    const timer = window.setInterval(() => fetchData(true), 60000);
+    return () => window.clearInterval(timer);
+  }, [fetchData, customRangeReady]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setClock(Date.now()), 10000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   // Scroll reveal animation
   useEffect(() => {
+    const targets = document.querySelectorAll('.reveal:not(.active)');
+    if (typeof IntersectionObserver === 'undefined') {
+      document.querySelectorAll('.reveal').forEach((el) => el.classList.add('active'));
+      return undefined;
+    }
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -114,16 +180,12 @@ const Dashboard = () => {
       { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
     );
 
-    document.querySelectorAll('.reveal:not(.active)').forEach((el) => {
-      observer.observe(el);
-    });
+    targets.forEach((el) => observer.observe(el));
 
     return () => {
-      document.querySelectorAll('.reveal:not(.active)').forEach((el) => {
-        observer.unobserve(el);
-      });
+      observer.disconnect();
     };
-  }, []);
+  }, [data, loading, customRangeReady]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -143,37 +205,42 @@ const Dashboard = () => {
     }
   }, [selectedRange, customRange]);
 
-  const totals = data?.totals || {};
-  const summary = data?.summary || {};
-  const attendance = data?.attendance || {};
-  const recentTransactions = data?.recent_transactions || [];
-  const dailyTrend = data?.daily_trend || [];
-  const cityDistribution = data?.city_distribution || [];
+  const totals = isRecord(data?.totals) ? data.totals : EMPTY_RECORD;
+  const summary = isRecord(data?.summary) ? data.summary : EMPTY_RECORD;
+  const attendance = isRecord(data?.attendance) ? data.attendance : EMPTY_RECORD;
+  const recentTransactions = Array.isArray(data?.recent_transactions) ? data.recent_transactions.filter(Boolean) : [];
+  const dailyTrend = Array.isArray(data?.daily_trend) ? data.daily_trend.filter(Boolean) : [];
+  const cityDistribution = Array.isArray(data?.city_distribution) ? data.city_distribution.filter(Boolean) : [];
 
   const metrics = useMemo(() => {
-    const netRevenue = Number(totals.total_revenue || 0);
-    const paidBookings = Number(summary.paid_bookings ?? totals.total_bookings ?? 0);
-    const successRate = Number(summary.payment_success_rate ?? totals.success_rate ?? 0);
+    const netRevenue = finiteNumber(totals.total_revenue);
+    const paidBookings = finiteNumber(summary.total_bookings ?? totals.total_bookings ?? summary.paid_bookings);
+    const successRate = finiteNumber(summary.donation_payment_success_rate ?? summary.payment_success_rate ?? totals.donation_success_rate ?? totals.success_rate);
+    const failedDonations = finiteNumber(totals.failed);
+    const packageCount = finiteNumber(totals.package_count);
     const attendanceRate = attendance.attendance_rate != null
-      ? Number(attendance.attendance_rate)
-      : (totals.attendance_rate != null ? Number(totals.attendance_rate) : 0);
+      ? finiteNumber(attendance.attendance_rate)
+      : (totals.attendance_rate != null ? finiteNumber(totals.attendance_rate) : 0);
+    const registered = finiteNumber(attendance.total_registered ?? totals.registered);
+    const checkedIn = finiteNumber(attendance.checked_in ?? totals.checked_in);
+    const rangeLabel = DATE_RANGES.find((item) => item.key === selectedRange)?.label || '30D';
 
     return [
       {
         key: 'revenue',
         label: 'Net Revenue',
         value: INR(netRevenue),
-        delta: Number(totals.failed || 0) > 0 ? `${totals.failed} failed` : 'Healthy',
-        helper: 'Combined from paid categories available in the current schema',
+        delta: rangeLabel,
+        helper: 'Recorded revenue across donations, bookings, packages, and event sources',
         icon: CircleDollarSign,
         tone: 'rev',
       },
       {
         key: 'bookings',
-        label: 'Paid Bookings',
+        label: 'Total Bookings',
         value: Number.isFinite(paidBookings) ? paidBookings.toLocaleString('en-IN') : '0',
-        delta: Number(totals.failed || 0) > 0 ? `${totals.failed} failed` : 'Healthy',
-        helper: 'Completed paid records across booking sources',
+        delta: packageCount ? `${packageCount.toLocaleString('en-IN')} packages` : 'All booking categories',
+        helper: 'Booking, package, and event records in the selected period',
         icon: Wallet,
         tone: 'bk',
       },
@@ -181,8 +248,8 @@ const Dashboard = () => {
         key: 'success',
         label: 'Payment Success Rate',
         value: pct(successRate),
-        delta: Number(totals.failed || 0) > 0 ? `${totals.failed} failed` : 'Healthy',
-        helper: 'Paid / (paid + failed) across donation payments',
+        delta: failedDonations > 0 ? `${failedDonations.toLocaleString('en-IN')} failed` : 'No failed donations',
+        helper: 'Paid / (paid + failed + pending) donation payments',
         icon: CheckCircle2,
         tone: 'ok',
       },
@@ -190,23 +257,20 @@ const Dashboard = () => {
         key: 'attendance',
         label: 'Attendance Rate',
         value: pct(attendanceRate),
-        delta: attendance.total_registered != null && attendance.checked_in != null
-          ? `${attendance.checked_in}/${attendance.total_registered}`
-          : totals.checked_in != null && totals.registered != null
-            ? `${totals.checked_in}/${totals.registered}`
-            : '0/0',
+        delta: `${checkedIn.toLocaleString('en-IN')}/${registered.toLocaleString('en-IN')}`,
         helper: 'Checked in versus registered visitors',
         icon: Users,
         tone: 'in',
       },
     ];
-  }, [totals, summary, attendance]);
+  }, [totals, summary, attendance, selectedRange]);
 
   const alerts = useMemo(() => {
     const items = [];
-    if (Number(totals.failed || 0) > 0) items.push({ key: 'failed', icon: ShieldAlert, tone: 'er', text: `${totals.failed} failed payments need review.` });
-    if (Number(totals.pending || 0) > 0) items.push({ key: 'pending', icon: Clock3, tone: 'wa', text: `${totals.pending} pending payments are awaiting action.` });
-    items.push({ key: 'attendance', icon: Gauge, tone: 'in', text: 'Attendance is tracking within the healthy range.' });
+    const failed = finiteNumber(totals.failed);
+    const pending = finiteNumber(totals.pending);
+    if (failed > 0) items.push({ key: 'failed', icon: ShieldAlert, tone: 'er', text: `${failed.toLocaleString('en-IN')} donation payments need review.` });
+    if (pending > 0) items.push({ key: 'pending', icon: Clock3, tone: 'wa', text: `${pending.toLocaleString('en-IN')} donation payments are awaiting action.` });
     return items.filter((item) => !dismissedAlerts.includes(item.key));
   }, [totals.failed, totals.pending, dismissedAlerts]);
 
@@ -218,7 +282,7 @@ const Dashboard = () => {
     datasets: [
       {
         label: 'Revenue',
-        data: dailyTrend.map((d) => Number(d.revenue || 0)),
+        data: dailyTrend.map((d) => finiteNumber(d.revenue)),
         borderColor: '#D35400',
         backgroundColor: 'rgba(211, 84, 0, 0.16)',
         tension: 0.35,
@@ -228,7 +292,7 @@ const Dashboard = () => {
       },
       {
         label: 'Bookings',
-        data: dailyTrend.map((d) => Number(d.count || 0)),
+        data: dailyTrend.map((d) => finiteNumber(d.count)),
         borderColor: '#7b1a1a',
         backgroundColor: 'rgba(123, 26, 26, 0.12)',
         tension: 0.35,
@@ -276,11 +340,11 @@ const Dashboard = () => {
   };
 
   const breakdownData = {
-    labels: ['Donation', 'VIP', 'Royal', 'Prasadham', 'Bookings'],
+    labels: ['Donation', 'VIP', 'Royal', 'Prasadham', 'Bookings', 'Packages'],
     datasets: [
       {
-        data: [totals.donation_revenue || 0, totals.vip_revenue || 0, totals.royal_revenue || 0, totals.prasadham_revenue || 0, totals.booking_revenue || 0],
-        backgroundColor: ['#7b1a1a', '#2563eb', '#c9952c', '#b45309', '#16a085'],
+        data: [totals.donation_revenue, totals.vip_revenue, totals.royal_revenue, totals.prasadham_revenue, totals.booking_revenue, totals.package_revenue].map(finiteNumber),
+        backgroundColor: ['#7b1a1a', '#2563eb', '#c9952c', '#b45309', '#16a085', '#7c3aed'],
         borderWidth: 0,
         hoverOffset: 6,
       },
@@ -291,7 +355,7 @@ const Dashboard = () => {
     labels: ['Paid', 'Pending', 'Failed'],
     datasets: [
       {
-        data: [totals.paid || 0, totals.pending || 0, totals.failed || 0],
+        data: [totals.paid, totals.pending, totals.failed].map(finiteNumber),
         backgroundColor: ['#16a085', '#b45309', '#e85a4f'],
         borderWidth: 0,
       },
@@ -302,8 +366,8 @@ const Dashboard = () => {
     labels: cityDistribution.map((item) => normalizeLabel(item.city)),
     datasets: [
       {
-        label: 'Donors',
-        data: cityDistribution.map((item) => Number(item.count || 0)),
+        label: 'Records',
+        data: cityDistribution.map((item) => finiteNumber(item.count)),
         backgroundColor: '#b45309',
         borderRadius: 10,
         barPercentage: 0.7,
@@ -331,36 +395,16 @@ const Dashboard = () => {
   };
 
   const activityRows = (Array.isArray(data?.audit_logs) ? data.audit_logs : []).filter(Boolean).slice(0, 6);
-  const updatedAgo = lastUpdated ? Math.max(1, Math.round((Date.now() - lastUpdated.getTime()) / 1000)) : 0;
+  const updatedAgo = lastUpdated ? Math.max(1, Math.round((clock - lastUpdated.getTime()) / 1000)) : 0;
 
-  const exportCsv = () => adminApi.exportCSV('bookings');
-
-  if (loading) {
-    return (
-      <div className="page on">
-        <div className="ph">
-          <div>
-            <div className="ph-title">Revenue Analytics</div>
-            <div className="ph-sub">Loading executive summary and operational health...</div>
-          </div>
-        </div>
-        <div className="dash-skel">
-          <div className="sk-row sk-kpi">
-            {Array.from({ length: 4 }).map((_, i) => <div key={i} className="sk-card" />)}
-          </div>
-          <div className="sk-row sk-hero">
-            <div className="sk-card tall" />
-            <div className="sk-stack">
-              <div className="sk-card half" />
-              <div className="sk-card half" />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!data) return <div className="alert a-er">Failed to load dashboard data.</div>;
+  const exportCsv = async () => {
+    setError('');
+    setExportError('');
+    setNotice('');
+    const succeeded = await adminApi.exportCSV('bookings');
+    if (succeeded) setNotice('Bookings export downloaded.');
+    else setExportError('The bookings export could not be downloaded. Please try again.');
+  };
 
   return (
     <div className="page on dash-page">
@@ -377,7 +421,7 @@ const Dashboard = () => {
           <div className="dash-actions">
             <div className="dash-tabs">
               {DATE_RANGES.map((range) => (
-                <button key={range.key} className={`dash-tab ${selectedRange === range.key ? 'on' : ''}`} onClick={() => setSelectedRange(range.key)}>
+                <button type="button" key={range.key} className={`dash-tab ${selectedRange === range.key ? 'on' : ''}`} aria-pressed={selectedRange === range.key} onClick={() => setSelectedRange(range.key)}>
                   {range.label}
                 </button>
               ))}
@@ -388,6 +432,7 @@ const Dashboard = () => {
                   className="fi"
                   type="date"
                   value={customRange.from}
+                  max={customRange.to || undefined}
                   onChange={(e) => setCustomRange((prev) => ({ ...prev, from: e.target.value }))}
                   aria-label="Start date"
                 />
@@ -395,37 +440,77 @@ const Dashboard = () => {
                   className="fi"
                   type="date"
                   value={customRange.to}
+                  min={customRange.from || undefined}
                   onChange={(e) => setCustomRange((prev) => ({ ...prev, to: e.target.value }))}
                   aria-label="End date"
                 />
               </div>
             )}
-            <button className="btn btn-ol" onClick={() => fetchData(true)} disabled={refreshing}>
+            <button type="button" className="btn btn-ol" onClick={() => fetchData(true)} disabled={refreshing || loading}>
               <RefreshCw size={14} /> {refreshing ? 'Refreshing' : 'Refresh'}
             </button>
-            <button className="btn btn-sf" onClick={exportCsv}>
+            <button type="button" className="btn btn-sf" onClick={exportCsv} disabled={refreshing || loading}>
               <Download size={14} /> Export
             </button>
           </div>
         </div>
 
-        <div className="dash-alerts">
-          {alerts.map((alert) => {
-            const Icon = alert.icon;
-            return (
-              <div key={alert.key} className="reveal dash-alert">
-                <div className="dash-alert-main">
-                  <Icon className="dash-alert-ic" size={18} />
-                  <div className="dash-alert-txt">{alert.text}</div>
-                </div>
-                <div className="d-flex align-center gap-8">
-                  <span className={`dash-pill ${alert.tone}`}>{alert.tone.toUpperCase()}</span>
-                  <button className="dash-alert-btn" onClick={() => setDismissedAlerts((prev) => [...prev, alert.key])}>Dismiss</button>
-                </div>
+        {!customRangeReady ? (
+          <div className="alert a-in dash-range-hint" role="status">
+            <div>
+              <strong>Choose a complete date range</strong>
+              <p>Select both a start date and an end date to load this view.</p>
+            </div>
+          </div>
+        ) : loading && !data ? (
+          <div className="dash-skel" role="status" aria-live="polite" aria-label="Loading dashboard data">
+            <div className="sk-row sk-kpi">
+              {Array.from({ length: 4 }, (_, index) => <div key={index} className="sk-card" aria-hidden="true" />)}
+            </div>
+            <div className="sk-row sk-hero">
+              <div className="sk-card tall" aria-hidden="true" />
+              <div className="sk-stack">
+                <div className="sk-card half" aria-hidden="true" />
+                <div className="sk-card half" aria-hidden="true" />
               </div>
-            );
-          })}
-        </div>
+            </div>
+          </div>
+        ) : !data ? (
+          <div className="alert a-er" role="alert">
+            <div>
+              <strong>Dashboard data is unavailable.</strong>
+              <p>{error || 'Check the connection and try again.'}</p>
+              <div className="dash-state-actions">
+                <button type="button" className="btn btn-ol" onClick={() => fetchData(true)} disabled={refreshing}>
+                  <RefreshCw size={14} /> {refreshing ? 'Retrying…' : 'Try again'}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+        {error && <div className="alert a-er" role="alert"><strong>Dashboard refresh failed:</strong><span>{error}</span></div>}
+        {exportError && <div className="alert a-er" role="alert"><strong>Export failed:</strong><span>{exportError}</span></div>}
+        {notice && <div className="alert a-ok" role="status" aria-live="polite">{notice}</div>}
+        {alerts.length > 0 && (
+          <div className="dash-alerts">
+            {alerts.map((alert) => {
+              const Icon = alert.icon;
+              return (
+                <div key={alert.key} className="reveal dash-alert">
+                  <div className="dash-alert-main">
+                    <Icon className="dash-alert-ic" size={18} />
+                    <div className="dash-alert-txt">{alert.text}</div>
+                  </div>
+                  <div className="d-flex align-center gap-8">
+                    <span className={`dash-pill ${alert.tone}`}>{alert.tone.toUpperCase()}</span>
+                    <button type="button" className="dash-alert-btn" onClick={() => setDismissedAlerts((prev) => [...prev, alert.key])}>Dismiss</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="dash-kpis stagger-children">
           {metrics.map((metric) => {
@@ -465,7 +550,7 @@ const Dashboard = () => {
             <div className="dash-card-hd">
               <div>
                 <div className="dash-card-title">Revenue Breakdown</div>
-                <div className="dash-card-sub">Donation, VIP, Royal, and Prasadham share.</div>
+              <div className="dash-card-sub">Revenue mix across donations, bookings, event passes, and packages.</div>
               </div>
               <Filter size={16} color="var(--tx3)" />
             </div>
@@ -492,7 +577,7 @@ const Dashboard = () => {
             <div className="dash-card-hd">
               <div>
                 <div className="dash-card-title">Top Cities</div>
-                <div className="dash-card-sub">Where bookings and donations are coming from.</div>
+                <div className="dash-card-sub">Donation and event-pass records grouped by city.</div>
               </div>
               <Globe2 size={16} color="var(--tx3)" />
             </div>
@@ -507,7 +592,7 @@ const Dashboard = () => {
             <div className="dash-card-hd">
               <div>
                 <div className="dash-card-title">Payment Health</div>
-                <div className="dash-card-sub">Operational view of paid, pending, and failed states.</div>
+                <div className="dash-card-sub">Donation payment states for the selected period.</div>
               </div>
               <Activity size={16} color="var(--tx3)" />
             </div>
@@ -596,10 +681,12 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="alert a-in" style={{ marginTop: 16 }}>
-          <strong>Updated {updatedAgo}s ago</strong>
-          <span style={{ marginLeft: 8 }}>Auto-refreshes every 60 seconds and updates instantly when the range changes.</span>
+        <div className="alert a-in" style={{ marginTop: 16 }} role="status" aria-live="polite">
+          <strong>{refreshing || loading ? 'Updating dashboard…' : `Updated ${updatedAgo}s ago`}</strong>
+          <span style={{ marginLeft: 8 }}>Auto-refreshes every 60 seconds and reloads when the range changes.</span>
         </div>
+          </>
+        )}
       </div>
     </div>
   );
