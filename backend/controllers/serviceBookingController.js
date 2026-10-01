@@ -10,7 +10,8 @@ const generateBookingNumber = async (db) => {
     "SELECT COUNT(*) as cnt FROM service_bookings WHERE DATE(created_at) = CURDATE()"
   );
   const seq = String(rows[0].cnt + 1).padStart(4, "0");
-  return `SVC-${dateStr}-${seq}`;
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `SVC-${dateStr}-${seq}-${rand}`;
 };
 
 export const createBooking = async (req, res) => {

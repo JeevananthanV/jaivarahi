@@ -1,0 +1,282 @@
+# ─── Namespace ────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: varahi
+  labels:
+    name: varahi
+    environment: production
+---
+# ─── ConfigMap ────────────────────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: varahi-config
+  namespace: varahi
+data:
+  NODE_ENV: "production"
+  PORT: "5000"
+  CORS_ORIGINS: "https://jaivarahi.org,https://www.jaivarahi.org"
+  DB_HEALTH_CHECK: "1"
+  SSE_BACKLOG_LIMIT: "10"
+  DB_POOL_LIMIT: "100"
+  DB_POOL_MAX_IDLE: "50"
+  DB_QUEUE_LIMIT: "500"
+---
+# ─── Secret (apply separately with real values) ───────────────────────
+apiVersion: v1
+kind: Secret
+metadata:
+  name: varahi-secrets
+  namespace: varahi
+type: Opaque
+stringData:
+  MYSQL_HOST: "CHANGE_ME"
+  MYSQL_REPLICA_HOSTS: "CHANGE_ME"
+  MYSQL_USER: "CHANGE_ME"
+  MYSQL_PASSWORD: "CHANGE_ME"
+  MYSQL_DATABASE: "jaivarahi"
+  REDIS_URL: "CHANGE_ME"
+  ADMIN_JWT_SECRET: "CHANGE_ME_MIN_32_CHARS"
+  ADMIN_EMAIL: "admin@jaivarahi.org"
+  ADMIN_PASSWORD_HASH: "CHANGE_ME"
+  VITE_RAZORPAY_KEY: "CHANGE_ME"
+  RAZORPAY_KEY_SECRET: "CHANGE_ME"
+  GRAFANA_PASSWORD: "CHANGE_ME"
+---
+# ─── Service Account ──────────────────────────────────────────────────
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: varahi-backend
+  namespace: varahi
+---
+# ─── Deployment ───────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: varahi-backend
+  namespace: varahi
+  labels:
+    app: varahi-backend
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: varahi-backend
+  template:
+    metadata:
+      labels:
+        app: varahi-backend
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: varahi-backend
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: backend
+        image: ghcr.io/jeevananthanv/jaivarahi:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 5000
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: varahi-config
+        - secretRef:
+            name: varahi-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/uploads
+      volumes:
+      - name: uploads
+        persistentVolumeClaim:
+          claimName: varahi-uploads-pvc
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - varahi-backend
+              topologyKey: kubernetes.io/hostname
+---
+# ─── Service ──────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: varahi-backend
+  namespace: varahi
+  labels:
+    app: varahi-backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 5000
+    protocol: TCP
+    name: http
+  selector:
+    app: varahi-backend
+---
+# ─── Horizontal Pod Autoscaler ────────────────────────────────────────
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: varahi-backend-hpa
+  namespace: varahi
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: varahi-backend
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: sse_connections_active
+      target:
+        type: AverageValue
+        averageValue: "50"
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 4
+        periodSeconds: 15
+      selectPolicy: Max
+---
+# ─── Persistent Volume Claim for Uploads ──────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: varahi-uploads-pvc
+  namespace: varahi
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: efs-sc  # Use EFS CSI driver for RWX
+---
+# ─── Ingress ──────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: varahi-ingress
+  namespace: varahi
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:region:account:certificate/xxx
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: 'true'
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '30'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '3'
+    alb.ingress.kubernetes.io/success-codes: '200'
+    # SSE specific
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/load-balancer-attributes: routing.http2.enabled=true,routing.http.drop_invalid_header_fields.enabled=true,routing.http.x_amzn_tls_version_and_cipher_suite.enabled=true
+spec:
+  rules:
+  - host: jaivarahi.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: varahi-backend
+            port:
+              number: 80
+  - host: www.jaivarahi.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: varahi-backend
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - jaivarahi.org
+    - www.jaivarahi.org
+    secretName: varahi-tls-secret

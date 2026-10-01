@@ -1,145 +1,72 @@
 import express from "express";
-import { auth, requireRole } from "../admin-routes.js";
-import {
-  getPublishedBlogs,
-  getBlogById,
-  getRelatedBlogs,
-  getBlogSitemapXml,
-  getAdminBlogs,
-  createBlog,
-  updateBlog,
-  updateBlogStatus,
-  deleteBlog,
-  getBlogAuditLogs,
-  getBlogsStream
-} from "../controllers/blogController.js";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const BLOG_ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const BLOG_MAGIC_SIGNATURES = {
-  "image/jpeg": [0xff, 0xd8, 0xff],
-  "image/png": [0x89, 0x50, 0x4e, 0x47],
-  "image/webp": [0x52, 0x49, 0x46, 0x46],
-};
-
-const validateBlogImageMagic = (filePath, mimetype) => {
-  const buffer = fs.readFileSync(filePath);
-  const header = Array.from(buffer.slice(0, 12));
-  const expected = BLOG_MAGIC_SIGNATURES[mimetype];
-  if (!expected) {
-    throw new Error(`Unsupported MIME type: ${mimetype}`);
-  }
-  const matches = expected.every((byte, idx) => header[idx] === byte);
-  if (!matches) {
-    throw new Error("File magic bytes do not match the declared MIME type. Possible fake image file.");
-  }
-};
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = path.resolve(__dirname, "../uploads");
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    const originalNameWithoutExt = path.parse(file.originalname).name;
-    const sanitized = originalNameWithoutExt
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e4);
-    cb(null, (sanitized || "blog-image") + "-" + uniqueSuffix + path.extname(file.originalname).toLowerCase());
-  }
-});
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: function (req, file, cb) {
-    const filetypes = /jpeg|jpg|png|webp/;
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    if (mimetype && extname) {
-      return cb(null, true);
-    }
-    cb(new Error("File upload only supports images (jpeg, jpg, png, webp)"));
-  }
-});
-
-const validateBlogImage = (req, file, cb) => {
-  if (!file) return cb();
-  try {
-    validateBlogImageMagic(file.path, file.mimetype);
-    cb(null, true);
-  } catch (err) {
-    cb(err);
-  }
-};
-
-const blogUpload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: function (req, file, cb) {
-    const filetypes = /jpeg|jpg|png|webp/;
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    if (mimetype && extname) {
-      return cb(null, true);
-    }
-    cb(new Error("File upload only supports images (jpeg, jpg, png, webp)"));
-  }
-});
+import { originGuard } from "../admin-routes.js";
+import { realtime } from "../server.js";
 
 const router = express.Router();
 
-// Public endpoints
-router.get("/blogs/stream", getBlogsStream);
-router.get("/sitemap-blogs.xml", getBlogSitemapXml);
-router.get("/blogs/sitemap.xml", getBlogSitemapXml);
-router.get("/blogs", getPublishedBlogs);
-router.get("/blogs/:id/related", getRelatedBlogs);
-router.get("/blogs/:id", getBlogById);
+// ── NEW: Real-Time SSE Endpoints ──────────────────────────────────────
+// These endpoints subscribe to Redis channels and keep SSE connection open
+// IMPORTANT for load-balanced deployments: clients are tracked in Redis
+// sse_clients set. Proper disconnect handling prevents accumulation of
+// stale client entries across instances.
+router.get("/realtime/birthdays", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Allow-Headers", "Cache-Control");
 
-// Admin endpoints (authenticated)
-router.get("/admin/blogs", auth, requireRole(["Super Admin", "Admin"]), getAdminBlogs);
-router.post("/admin/blogs", auth, requireRole(["Super Admin", "Admin"]), createBlog);
-router.put("/admin/blogs/:id", auth, requireRole(["Super Admin", "Admin"]), updateBlog);
-router.put("/admin/blogs/:id/status", auth, requireRole(["Super Admin", "Admin"]), updateBlogStatus);
-router.get("/admin/blogs/:id/audit-logs", auth, requireRole(["Super Admin", "Admin"]), getBlogAuditLogs);
-router.delete("/admin/blogs/:id", auth, requireRole(["Super Admin"]), deleteBlog);
+  // Immediately send current state
+  res.write(`event: initial\ndata: {"event":"initial","data":{},"timestamp":${Date.now()}}\n\n`);
 
-// Blog Image Upload Route (legacy - for backward compatibility)
-router.post("/admin/blogs/upload", auth, requireRole(["Super Admin", "Admin"]), (req, res) => {
-  upload.single("image")(req, res, function (err) {
-    if (err instanceof multer.MulterError) {
-      return res.status(400).json({ error: `Upload error: ${err.message}` });
-    } else if (err) {
-      return res.status(400).json({ error: err.message });
-    }
-    if (!req.file) {
-      return res.status(400).json({ error: "No image file provided" });
-    }
-    try {
-      validateBlogImageMagic(req.file.path, req.file.mimetype);
-    } catch (validationErr) {
-      try {
-        if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-      } catch (unlinkErr) {
-        console.warn("Failed to delete invalid upload file:", unlinkErr.message);
-      }
-      return res.status(400).json({ error: validationErr.message });
-    }
-    const fileUrl = `/api/uploads/${req.file.filename}`;
-    return res.json({ url: fileUrl });
+  // Track client ID for disconnection cleanup
+  const clientId = `sse_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+  req.clientId = clientId;
+
+  // Add client to shared Redis set
+  realtime.addClient(clientId).catch((err) =>
+    console.warn("Redis SSE client add error on open:", err.message)
+  );
+
+  // CLEANUP: Remove client when connection closes (disconnects, refresh, etc.)
+  res.on("close", () => {
+    realtime.removeClient(req.clientId).catch((err) =>
+      console.warn("Redis SSE client remove error on close:", err.message)
+    );
+    console.log(`SSE connection closed for birthdays (client: ${req.clientId})`);
   });
+
+  console.log("SSE connection opened for birthdays");
+});
+
+router.get("/realtime/anniversaries", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Allow-Headers", "Cache-Control");
+
+  // Immediately send current state
+  res.write(`event: initial\ndata: {"event":"initial","data":{},"timestamp":${Date.now()}}\n\n`);
+
+  // Track client ID for disconnection cleanup
+  const clientId = `sse_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+  req.clientId = clientId;
+
+  // Add client to shared Redis set
+  realtime.addClient(clientId).catch((err) =>
+    console.warn("Redis SSE client add error on open:", err.message)
+  );
+
+  // CLEANUP: Remove client when connection closes (disconnects, refresh, etc.)
+  res.on("close", () => {
+    realtime.removeClient(req.clientId).catch((err) =>
+      console.warn("Redis SSE client remove error on close:", err.message)
+    );
+    console.log(`SSE connection closed for anniversaries (client: ${req.clientId})`);
+  });
+
+  console.log("SSE connection opened for anniversaries");
 });
 
 export default router;

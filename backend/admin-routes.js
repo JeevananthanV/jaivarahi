@@ -21,9 +21,9 @@ export const originGuard = (req, res, next) => {
   // Check ALL mutating methods, not just POST
   if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) return next();
   const origin = req.get("origin");
-  const referer = req.get("referer");
+  // Strict origin check - no referer fallback (referer is easily spoofed)
   const isAllowed = ALLOWED_PUBLIC_ORIGINS.some(
-    (o) => origin?.startsWith(o) || referer?.startsWith(o)
+    (o) => origin?.startsWith(o)
   );
   if (!isAllowed) {
     return res.status(403).json({ error: "Invalid origin" });
@@ -378,6 +378,23 @@ router.get('/birthdays', auth, async (req, res) => {
     }
 
     birthdays.sort((a, b) => a.days_until - b.days_until);
+
+    // ─── REAL-TIME BROADCAST ───
+    try {
+      const formattedBirthdays = birthdays.map(b => ({
+        id: b.id,
+        type: b.type,
+        name: b.name,
+        days_until: b.days_until,
+        birthday: b.birthday,
+        role: b.role,
+      }));
+      await realtime.broadcastBirthday(formattedBirthdays);
+      await realtime.addClient(`admin-${req.admin.id}`);
+    } catch (broadcastErr) {
+      console.warn("Birthday realtime broadcast warning:", broadcastErr.message);
+    }
+
     res.json({ success: true, birthdays });
   } catch (err) {
     console.error('BIRTHDAY FETCH ERROR:', err);
@@ -462,6 +479,24 @@ router.get('/wedding-anniversaries', auth, async (req, res) => {
     }
 
     weddingAnniversaries.sort((a, b) => a.days_until - b.days_until);
+
+    // ─── REAL-TIME BROADCAST ───
+    try {
+      const formattedAnniversaries = weddingAnniversaries.map(a => ({
+        id: a.id,
+        type: a.type,
+        name: a.name,
+        days_until: a.days_until,
+        wedding_date: a.wedding_date,
+        years_married: a.years_married,
+        role: a.role,
+      }));
+      await realtime.broadcastAnniversary(formattedAnniversaries);
+      await realtime.addClient(`admin-${req.admin.id}`);
+    } catch (broadcastErr) {
+      console.warn("Anniversary realtime broadcast warning:", broadcastErr.message);
+    }
+
     res.json({ success: true, weddingAnniversaries });
   } catch (err) {
     console.error('WEDDING ANNIVERSARY FETCH ERROR:', err);

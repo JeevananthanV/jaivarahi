@@ -252,3 +252,25 @@ Pre-configured templates for automated notifications:
 - `booking_reminder` - SMS reminder before date
 - `booking_completed` - Email after completion
 - `booking_cancelled` - Email on cancellation
+
+## 7. Security Concerns & Mitigations
+
+| Concern | Potential Impact | Architecture Mitigation |
+| :--- | :--- | :--- |
+| **Client-Controlled Pricing** | Attackers manipulate frontend payload to pay lower amounts (e.g. ₹1 instead of ₹1000). | **Server-side price verification**: Prices and totals are recalculated strictly on the server from the database catalog before creating Razorpay orders. |
+| **Public Form Abuse / DoS** | Malicious bots flood registration and booking endpoints, exhausting DB pools and third-party SMS/WhatsApp quotas. | • `express-rate-limit` per IP on all public submission routes.<br>• Honeypot input fields and Cloudflare Turnstile bot verification.<br>• Input payload size limitation (`limit: '10kb'`). |
+| **SQL Injection (SQLi)** | Unsanitized devotee inputs executing arbitrary SQL commands. | Mandatory parameterized prepared statements (`connection.execute(sql, [params])`) using `mysql2`. |
+| **Stored Cross-Site Scripting (XSS)** | Malicious scripts submitted via devotee names/notes executed in the Admin Dashboard. | • Input sanitization on entry.<br>• React JSX automatic contextual escaping on render.<br>• DOMPurify sanitization on rich text inputs before saving and displaying. |
+| **Broken Access Control on Admin Endpoints** | Unauthenticated users or non-admin roles accessing devotee/booking records and modifying statuses. | JWT token authentication combined with mandatory RBAC middleware (`requireRole(['Super Admin', 'Admin'])`) on all `/api/admin/*` endpoints. |
+| **Unprotected Environment Secrets** | `.env` exposure on shared cPanel hosting via `public_html`. | Backend code and `.env` placed strictly outside `public_html` (e.g., `/home/username/backend`). Apache `.htaccess` rules blocking dotfiles (`<Files ~ "^\."> Deny from all </Files>`). |
+| **Webhook Forgery** | Fake Razorpay webhook events marking unpaid bookings as paid. | Cryptographic HMAC signature validation (`X-Razorpay-Signature`) against `RAZORPAY_WEBHOOK_SECRET` before processing. |
+
+## 8. Load Balancing & Concurrency Concerns (cPanel / Multi-Worker)
+
+| Concurrency / Load Concern | Problem Under High Traffic | Architecture Mitigation |
+| :--- | :--- | :--- |
+| **Booking Sequence Race Condition** | Multiple devotees submitting forms at the same millisecond receive the same sequence number from `SELECT COUNT(*)`. | Switch booking number generator to atomic UUID / timestamp / random suffix, or MySQL auto-incrementing ID. |
+| **Duplicate Submissions (Double Click)** | Users on slow networks submitting the form multiple times in rapid succession. | • Client-side button disabling (`disabled={isSubmitting}`) with loading indicator.<br>• Idempotency checks and database `UNIQUE KEY` constraints on `(phone, event_date, service_id)`. |
+| **Database Pool Exhaustion** | High volume of simultaneous bookings holding MySQL connections open and crashing the backend. | • `mysql2` connection pooling with tuned `connectionLimit` (10–25 per worker).<br>• Guaranteed release using `try { ... } finally { connection.release(); }`.<br>• Asynchronous non-blocking queries throughout. |
+| **Multi-Worker Load Balancing (cPanel)** | Handling CPU-bound workloads and traffic spikes across multi-core servers. | • **Phusion Passenger** (cPanel Node.js Selector) or **PM2 Cluster Mode** (`exec_mode: 'cluster'`, `instances: 'max'`) distributing requests across worker processes.<br>• Reverse proxy via Apache `.htaccess` with `app.set('trust proxy', 1)` in Express to preserve client IP addresses for rate limiting. |
+| **Static vs API Separation** | Heavy static asset requests competing with critical booking API requests. | React `dist/` served directly by Apache/LiteSpeed web server (with gzip/deflate and browser caching headers), offloading Node.js workers to process only dynamic `/api/*` traffic. |

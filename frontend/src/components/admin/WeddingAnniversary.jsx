@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAdminAuth } from './AdminAuthContext';
 import {
   Heart,
@@ -23,6 +23,9 @@ const WeddingAnniversary = () => {
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all'); // all, devotee, admin
   const [selectedPerson, setSelectedPerson] = useState(null);
+  const modalRef = useRef(null);
+  const previousActiveElement = useRef(null);
+  const sseRef = useRef(null);
 
   const fetchAnniversaries = async () => {
     setLoading(true);
@@ -40,6 +43,37 @@ const WeddingAnniversary = () => {
 
   useEffect(() => {
     fetchAnniversaries();
+  }, []);
+
+  // ── REAL-TIME SSE SUBSCRIPTION ──────────────────────────────────────
+  useEffect(() => {
+    // Subscribe to real-time anniversary updates via SSE
+    const sse = adminApi.createAnniversarySSE((message) => {
+      const data = JSON.parse(message.data);
+      if (data.event === "initial") {
+        // Initial state - could populate from Redis if needed
+        console.log("Anniversary SSE initial state received");
+      } else if (data.event === "anniversary" && data.data) {
+        // New anniversary received - update state
+        const newAnniversary = data.data;
+        setAnniversaries(prev => {
+          // Check if already exists
+          const exists = prev.some(a => a.id === newAnniversary.id);
+          if (exists) return prev;
+          
+          // Add new anniversary and keep sorted by days_until
+          const updated = [...prev, newAnniversary].sort((a, b) => a.days_until - b.days_until);
+          return updated.slice(0, 100); // Limit to 100 max
+        });
+      }
+    });
+
+    sseRef.current = sse;
+
+    // Cleanup on unmount
+    return () => {
+      if (sse) sse.close();
+    };
   }, []);
 
   const filteredAnniversaries = anniversaries.filter(a => {
@@ -61,12 +95,25 @@ const WeddingAnniversary = () => {
     return `In ${days} days`;
   };
 
+  const openModal = (person) => {
+    previousActiveElement.current = document.activeElement;
+    setSelectedPerson(person);
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => modalRef.current?.focus(), 0);
+  };
+
+  const closeModal = () => {
+    setSelectedPerson(null);
+    document.body.style.overflow = '';
+    previousActiveElement.current?.focus();
+  };
+
   return (
-    <>
+    < >
       <div className="dash-card">
-        <div className="dash-card-hd" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--sp-2)' }}>
+        <div className="dash-card-hd d-flex align-center justify-between flex-wrap gap-2">
           <div>
-            <div className="dash-card-title" style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
+            <div className="dash-card-title d-flex align-center gap-2">
               <Heart size={18} color="var(--accent-color)" />
               <span>Wedding Anniversaries</span>
               <span className="dash-pill in" style={{ fontSize: 11 }}>{anniversaries.length}</span>
@@ -74,34 +121,30 @@ const WeddingAnniversary = () => {
             <div className="dash-card-sub">Devotees & admins in the next 60 days</div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
-            <div className="btn-group" style={{ display: 'flex', gap: 'var(--sp-1)' }}>
+          <div className="d-flex align-center gap-2">
+            <div className="btn-group gap-1">
               <button
                 onClick={() => setFilter('all')}
-                className={`btn btn-sm ${filter === 'all' ? 'btn-primary' : 'btn-outline'}`}
-                style={{ fontSize: 11, padding: '2px 8px' }}
-              >
-                All
-              </button>
+                className={`btn btn-sm ${filter === 'all' ? 'btn-primary' : 'btn-outline'} fs-11 p-1`}
+                aria-pressed={filter === 'all'}
+              >All</button>
               <button
                 onClick={() => setFilter('devotee')}
-                className={`btn btn-sm ${filter === 'devotee' ? 'btn-primary' : 'btn-outline'}`}
-                style={{ fontSize: 11, padding: '2px 8px' }}
-              >
-                Devotees
-              </button>
+                className={`btn btn-sm ${filter === 'devotee' ? 'btn-primary' : 'btn-outline'} fs-11 p-1`}
+                aria-pressed={filter === 'devotee'}
+              >Devotees</button>
               <button
                 onClick={() => setFilter('admin')}
-                className={`btn btn-sm ${filter === 'admin' ? 'btn-primary' : 'btn-outline'}`}
-                style={{ fontSize: 11, padding: '2px 8px' }}
-              >
-                Admins
-              </button>
+                className={`btn btn-sm ${filter === 'admin' ? 'btn-primary' : 'btn-outline'} fs-11 p-1`}
+                aria-pressed={filter === 'admin'}
+              >Admins</button>
             </div>
             <button
               onClick={fetchAnniversaries}
               title="Refresh"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tx3)' }}
+              className="ic-btn"
+              aria-label="Refresh anniversary list"
+              disabled={loading}
             >
               <RefreshCw size={14} className={loading ? 'spin' : ''} />
             </button>
@@ -110,57 +153,42 @@ const WeddingAnniversary = () => {
 
         <div className="dash-card-bd" style={{ maxHeight: 380, overflowY: 'auto' }}>
           {loading ? (
-            <div className="spin-w" style={{ padding: 'var(--sp-6)', textAlign: 'center' }}>
+            <div className="spin-w">
               <div className="spin" />
             </div>
           ) : error ? (
             <div className="alert a-er">{error}</div>
           ) : filteredAnniversaries.length === 0 ? (
-            <div style={{ padding: 'var(--sp-6) 0', textAlign: 'center', color: 'var(--tx3)' }}>
-              No upcoming anniversaries found for this selection.
-            </div>
+            <div className="p-4 text-center text-muted">No upcoming anniversaries found for this selection.</div>
           ) : (
             <div className="dash-list">
               {filteredAnniversaries.map((a, idx) => (
                 <div
                   className="dash-row"
                   key={a.id || idx}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '10px 0',
-                    borderBottom: '1px solid var(--bd)'
-                  }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
+                  <div className="d-flex align-center gap-3">
                     <div
+                      className="avatar"
                       style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: '50%',
                         background: a.type === 'admin' ? 'var(--inb)' : 'var(--special-08)',
                         color: a.type === 'admin' ? 'var(--in)' : 'var(--special)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 600,
-                        fontSize: 13,
                       }}
+                      aria-hidden="true"
                     >
                       {a.type === 'admin' ? <Shield size={16} /> : <Heart size={16} />}
                     </div>
 
                     <div>
-                      <div style={{ fontWeight: 600, color: 'var(--tx)', fontSize: 13 }}>
+                      <div className="fw-600 tx fs-13">
                         {a.name}
                         {a.years_married > 0 && (
-                          <span style={{ fontSize: 11, color: 'var(--tx3)', marginLeft: 6, fontWeight: 400 }}>
+                          <span className="tx3 fs-11 ml-2 fw-400">
                             ({a.years_married} Years Completed)
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 2 }}>
+                      <div className="tx3 fs-11 mt-1">
                         {a.wedding_date ? new Date(a.wedding_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : ''}
                         {a.role && a.type === 'admin' && ` • ${a.role}`}
                         {a.type === 'devotee' && ` • Devotee`}
@@ -168,23 +196,17 @@ const WeddingAnniversary = () => {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
+                  <div className="d-flex align-center gap-2">
                     {/* View Details Button */}
                     <button
-                      onClick={() => setSelectedPerson(a)}
+                      onClick={() => openModal(a)}
                       className="btn btn-sm btn-outline"
                       title="View Full Details"
-                      style={{
-                        padding: '4px 8px',
-                        fontSize: 11,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        borderRadius: 'var(--r-sm)',
-                      }}
+                      style={{ padding: '4px 8px', fontSize: 11 }}
+                      aria-label={`View wedding anniversary details for ${a.name}`}
                     >
                       <Eye size={12} />
-                      <span>View</span>
+                      <span className="d-none d-sm-inline">View</span>
                     </button>
 
                     {/* WhatsApp Wish Button */}
@@ -193,23 +215,12 @@ const WeddingAnniversary = () => {
                         href={`https://wa.me/91${a.contact.replace(/\D/g, '')}?text=Happy%20Wedding%20Anniversary%20${encodeURIComponent(a.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings%20and%20harmony%20on%20your%20family.`}
                         target="_blank"
                         rel="noopener noreferrer"
+                        className="btn btn-sm btn-whatsapp"
                         title="Send WhatsApp Wish"
-                        style={{
-                          padding: '4px 8px',
-                          background: 'rgba(37, 211, 102, 0.1)',
-                          border: '1px solid rgba(37, 211, 102, 0.25)',
-                          borderRadius: 'var(--r-sm)',
-                          color: 'var(--whatsapp)',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 4,
-                          fontSize: 11,
-                          textDecoration: 'none',
-                          fontWeight: 500,
-                        }}
+                        style={{ padding: '4px 8px', fontSize: 11 }}
                       >
                         <MessageCircle size={12} />
-                        <span>Wish</span>
+                        <span className="d-none d-sm-inline">Wish</span>
                       </a>
                     )}
                     <span className={getBadgeClass(a.days_until)}>
@@ -225,28 +236,38 @@ const WeddingAnniversary = () => {
 
       {/* Full Details Modal */}
       {selectedPerson && (
-        <div className="modal-ov" onClick={() => setSelectedPerson(null)}>
-          <div className="modal" style={{ maxWidth: 540 }} onClick={(e) => e.stopPropagation()}>
+        <div
+          className="modal-ov"
+          onClick={() => setSelectedPerson(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="wedding-modal-title"
+        >
+          <div
+            ref={modalRef}
+            className="modal"
+            style={{ maxWidth: 540 }}
+            onClick={(e) => e.stopPropagation()}
+            tabIndex="-1"
+          >
             {/* Modal Header */}
             <div className="modal-hd">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
+              <div className="d-flex align-center gap-3">
                 <div
+                  className="avatar-lg"
                   style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
                     background: selectedPerson.type === 'admin' ? 'var(--inb)' : 'var(--special-08)',
                     color: selectedPerson.type === 'admin' ? 'var(--in)' : 'var(--special)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
                   }}
+                  aria-hidden="true"
                 >
                   <Heart size={20} />
                 </div>
                 <div>
-                  <h4 className="modal-title" style={{ margin: 0 }}>{selectedPerson.name}</h4>
-                  <span className="dash-pill in" style={{ fontSize: 11, marginTop: 2 }}>
+                  <h4 id="wedding-modal-title" className="modal-title" style={{ margin: 0 }}>
+                    {selectedPerson.name}
+                  </h4>
+                  <span className="dash-pill in fs-11 mt-1">
                     {selectedPerson.source || selectedPerson.role || 'Devotee'}
                   </span>
                 </div>
@@ -256,6 +277,7 @@ const WeddingAnniversary = () => {
                 className="modal-x"
                 onClick={() => setSelectedPerson(null)}
                 title="Close"
+                aria-label="Close modal"
               >
                 <X size={20} />
               </button>
@@ -265,22 +287,20 @@ const WeddingAnniversary = () => {
             <div className="modal-body">
               {/* Countdown Banner */}
               <div
+                className="d-flex align-center justify-between flex-wrap gap-3"
                 style={{
                   background: 'var(--special-08)',
                   border: '1px solid var(--bd2)',
                   borderRadius: 'var(--r)',
                   padding: 'var(--sp-3) var(--sp-4)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
                   marginBottom: 'var(--sp-4)',
                 }}
               >
                 <div>
-                  <div style={{ fontSize: 11, color: 'var(--tx3)', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>
-                    Wedding Anniversary
+                  <div className="tx3 fw-600 fs-11 uppercase" style={{ letterSpacing: '0.5px' }}>
+                    Anniversary Celebration
                   </div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--tx)' }}>
+                  <div className="fw-700 tx fs-15">
                     {selectedPerson.wedding_date ? new Date(selectedPerson.wedding_date).toLocaleDateString('en-IN', {
                       weekday: 'short',
                       year: 'numeric',
@@ -295,7 +315,7 @@ const WeddingAnniversary = () => {
               </div>
 
               {/* Detail Rows using admin.css classes */}
-              <div style={{ background: 'var(--bg3)', borderRadius: 'var(--r)', padding: '0 var(--sp-4)', marginBottom: 'var(--sp-4)', border: '1px solid var(--bd)' }}>
+              <div className="p-4 rounded-lg" style={{ background: 'var(--bg3)', borderRadius: 'var(--r)', marginBottom: 'var(--sp-4)', border: '1px solid var(--bd)' }}>
                 {selectedPerson.years_married > 0 && (
                   <div className="detail-row">
                     <span className="detail-key">Completed Milestone</span>
@@ -335,18 +355,18 @@ const WeddingAnniversary = () => {
               </div>
 
               {/* Contact Information */}
-              <div style={{ background: 'var(--bg3)', padding: 'var(--sp-3) var(--sp-4)', borderRadius: 'var(--r)', border: '1px solid var(--bd)' }}>
-                <div style={{ fontSize: 11, color: 'var(--tx3)', marginBottom: 'var(--sp-2)', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 700 }}>
+              <div className="p-4 rounded-lg" style={{ background: 'var(--bg3)', borderRadius: 'var(--r)', border: '1px solid var(--bd)' }}>
+                <div className="tx3 fw-700 fs-11 uppercase mb-2" style={{ letterSpacing: '0.5px' }}>
                   Contact Information
                 </div>
 
                 {selectedPerson.contact && (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--sp-2)', flexWrap: 'wrap', gap: 'var(--sp-2)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 13, color: 'var(--tx)' }}>
+                  <div className="d-flex align-center justify-between flex-wrap gap-2 mb-2">
+                    <div className="d-flex align-center gap-2 tx fs-13">
                       <Phone size={14} color="var(--in)" />
                       <span>{selectedPerson.contact}</span>
                     </div>
-                    <div style={{ display: 'flex', gap: 'var(--sp-2)' }}>
+                    <div className="d-flex gap-2">
                       <a
                         href={`tel:${selectedPerson.contact}`}
                         className="btn btn-sm btn-outline"
@@ -368,7 +388,7 @@ const WeddingAnniversary = () => {
                 )}
 
                 {selectedPerson.email && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 13, marginBottom: 'var(--sp-2)', color: 'var(--tx)' }}>
+                  <div className="d-flex align-center gap-2 tx fs-13 mb-2">
                     <Mail size={14} color="var(--accent-color)" />
                     <a href={`mailto:${selectedPerson.email}`} style={{ color: 'var(--tx)', textDecoration: 'none' }}>
                       {selectedPerson.email}
@@ -377,15 +397,15 @@ const WeddingAnniversary = () => {
                 )}
 
                 {selectedPerson.postal_address && (
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--sp-2)', fontSize: 12, color: 'var(--tx2)', marginTop: 'var(--sp-2)' }}>
+                  <div className="d-flex align-start gap-2 tx2 fs-12 mt-2">
                     <MapPin size={14} color="var(--special)" style={{ marginTop: 2, flexShrink: 0 }} />
                     <span>{selectedPerson.postal_address}</span>
                   </div>
                 )}
 
                 {selectedPerson.note && (
-                  <div style={{ marginTop: 'var(--sp-2)', padding: 'var(--sp-2)', background: 'var(--bg2)', borderRadius: 'var(--r-sm)', fontSize: 12, color: 'var(--tx2)', border: '1px solid var(--bd)' }}>
-                    <strong style={{ color: 'var(--tx)' }}>Note:</strong> {selectedPerson.note}
+                  <div className="p-2 rounded-sm mt-2" style={{ background: 'var(--bg2)', fontSize: 12, color: 'var(--tx2)', border: '1px solid var(--bd)' }}>
+                    <strong className="tx">Note:</strong> {selectedPerson.note}
                   </div>
                 )}
               </div>

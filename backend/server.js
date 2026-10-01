@@ -65,6 +65,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 const isProd     = process.env.NODE_ENV === "production";
 const env        = (primary, fallback) => process.env[primary] || process.env[fallback] || "";
+// Safe number parser for env vars - prevents NaN from bad env values
+const safeNumber = (val, defaultVal) => {
+  const n = Number(val);
+  return Number.isNaN(n) ? defaultVal : n;
+};
 const startedAt  = Date.now();
 
 // ─── VALIDATE CRITICAL ENV VARS ───────────────────────────────
@@ -108,7 +113,7 @@ if (missing.length) {
 
 if (process.env.ADMIN_JWT_SECRET === "replace_with_strong_secret") {
     console.error("❌ CRITICAL: ADMIN_JWT_SECRET is still the default value!");
-    if (isProd) process.exit(1);
+    process.exit(1);
 }
 
 // ─── APP INIT ─────────────────────────────────────────────────
@@ -164,6 +169,74 @@ export const distributedSSE = {
     }
 };
 
+// ─── REAL-TIME BIRTHDAY/ANNIVERSARY BROADCAST ───────────────────────
+// Broadcast birthday/anniversary events to all connected instances via Redis
+export const realtime = {
+    // Add a client ID to the tracking set
+    addClient: async (clientId) => {
+        if (!redisAvailable) return;
+        try {
+            await redisClient.sAdd("sse_clients", clientId);
+        } catch (err) {
+            console.warn("Redis realtime client add error:", err.message);
+        }
+    },
+
+    // Remove a client ID from the tracking set
+    removeClient: async (clientId) => {
+        if (!redisAvailable) return;
+        try {
+            await redisClient.sRem("sse_clients", clientId);
+        } catch (err) {
+            console.warn("Redis realtime client remove error:", err.message);
+        }
+    },
+
+    // Broadcast birthday event to all instances
+    broadcastBirthday: async (birthdayData) => {
+        if (!redisAvailable) return;
+        try {
+            await redisClient.publish("sse_birthdays", JSON.stringify({
+                event: "birthday",
+                data: birthdayData,
+                timestamp: Date.now()
+            }));
+        } catch (err) {
+            console.warn("Redis birthday broadcast error:", err.message);
+        }
+    },
+
+    // Broadcast anniversary event to all instances
+    broadcastAnniversary: async (anniversaryData) => {
+        if (!redisAvailable) return;
+        try {
+            await redisClient.publish("sse_anniversaries", JSON.stringify({
+                event: "anniversary",
+                data: anniversaryData,
+                timestamp: Date.now()
+            }));
+        } catch (err) {
+            console.warn("Redis anniversary broadcast error:", err.message);
+        }
+    },
+
+    // Get last known birthday/anniversary state (for new clients)
+    getState: async () => {
+        if (!redisAvailable) return { birthdays: [], anniversaries: [] };
+        try {
+            const [birthdays] = await redisClient.get("realtime_birthdays");
+            const [anniversaries] = await redisClient.get("realtime_anniversaries");
+            return {
+                birthdays: birthdays ? JSON.parse(birthdays) : [],
+                anniversaries: anniversaries ? JSON.parse(anniversaries) : []
+            };
+        } catch (err) {
+            console.warn("Redis state get error:", err.message);
+            return { birthdays: [], anniversaries: [] };
+        }
+    }
+};
+
 // Helper to share session data across instances
 export const sharedSession = {
     // Set session data
@@ -196,6 +269,18 @@ export const sharedSession = {
         }
     }
 };
+
+// Redis client cleanup on process exit
+process.on("beforeExit", async () => {
+    if (redisClient && typeof redisClient.disconnect === "function") {
+        try {
+            await redisClient.disconnect();
+            console.log("✅ Redis disconnected on process exit");
+        } catch (err) {
+            console.warn("Redis disconnect error on exit:", err.message);
+        }
+    }
+});
 
 // Required behind cPanel/Apache/Passenger proxy
 // Ensures correct IP for rate limiting
@@ -242,15 +327,9 @@ const devOrigins = isProd ? [] : [
     "http://localhost:3000",
     "http://localhost:5173",
     "http://localhost:5174",
-    "http://localhost:5175",
-    "http://localhost:5176",
-    "http://localhost:5177",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:5174",
-    "http://127.0.0.1:5175",
-    "http://127.0.0.1:5176",
-    "http://127.0.0.1:5177",
 ];
 
 const envOrigins = (process.env.CORS_ORIGINS || process.env.FRONTEND_ORIGIN || "")
@@ -288,11 +367,7 @@ app.use(cors(corsOptions));
 // ─── RATE LIMITING ────────────────────────────────────────────
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: (req) => {
-        const authHeader = req.headers.authorization || "";
-        if (authHeader.startsWith("Bearer ")) return 5000;
-        return Number(process.env.GENERAL_RATE_LIMIT_MAX || (isProd ? 600 : 10000));
-    },
+    max: safeNumber(process.env.GENERAL_RATE_LIMIT_MAX, isProd ? 600 : 10000),
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many requests. Try again after 15 minutes." },
@@ -300,7 +375,7 @@ const generalLimiter = rateLimit({
 
 const authLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
-    max: isProd ? 15 : 1000,
+    max: safeNumber(process.env.AUTH_RATE_LIMIT_MAX, isProd ? 15 : 1000),
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many login attempts. Try again after 1 hour." },
@@ -308,7 +383,7 @@ const authLimiter = rateLimit({
 
 const paymentLimiter = rateLimit({
     windowMs: 60 * 1000,
-    max: Number(process.env.PAYMENT_RATE_LIMIT_MAX || 60),
+    max: safeNumber(process.env.PAYMENT_RATE_LIMIT_MAX, 60),
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many payment requests. Please slow down." },
@@ -319,11 +394,11 @@ const submissionLimiter = rateLimit({
     max: (req) => {
         const authHeader = req.headers.authorization || "";
         // Authenticated admin or temple staff get high quota for bulk entries
-        if (authHeader.startsWith("Bearer ")) return Number(process.env.ADMIN_SUB_RATE_LIMIT_MAX || (isProd ? 500 : 5000));
+        if (authHeader.startsWith("Bearer ")) return safeNumber(process.env.ADMIN_SUB_RATE_LIMIT_MAX, isProd ? 500 : 5000);
         // Public submissions per IP - graduated limits
-        if (isProd) return Number(process.env.PUBLIC_SUB_RATE_LIMIT_MAX || 200);
+        if (isProd) return safeNumber(process.env.PUBLIC_SUB_RATE_LIMIT_MAX, 200);
         // Development: generous but bounded to prevent abuse
-        return Number(process.env.DEV_SUB_RATE_LIMIT_MAX || 1000);
+        return safeNumber(process.env.DEV_SUB_RATE_LIMIT_MAX, 1000);
     },
     standardHeaders: true,
     legacyHeaders: false,
@@ -332,7 +407,7 @@ const submissionLimiter = rateLimit({
 
 const adminLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
-    max: isProd ? 200 : 500,
+    max: safeNumber(process.env.ADMIN_RATE_LIMIT_MAX, isProd ? 200 : 500),
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many admin requests. Please slow down." },
@@ -608,9 +683,10 @@ function logRoutes(app) {
 // ─── SERVER STARTUP ───────────────────────────────────────────
 const preferredPort = parseInt(process.env.PORT || "5000", 10);
 let port = preferredPort;
+let serverInstance = null;
 
 function startServer(portToTry) {
-    const server = app.listen(portToTry, "0.0.0.0", () => {
+    serverInstance = app.listen(portToTry, "0.0.0.0", () => {
         console.log("\n============================================================");
         console.log(`🚀 Server running in ${isProd ? "PRODUCTION" : "DEVELOPMENT"} mode`);
         console.log(`   Port              : ${portToTry}`);
@@ -625,7 +701,7 @@ function startServer(portToTry) {
         console.log("");
     });
 
-    server.on("error", (err) => {
+    serverInstance.on("error", (err) => {
         if (err.code === "EADDRINUSE") {
             console.warn(`⚠️  Port ${portToTry} is already in use.`);
             if (!isProd) {
@@ -644,13 +720,21 @@ function startServer(portToTry) {
 
 startServer(port);
 
+// ─── GLOBAL EXCEPTION & REJECTION HANDLERS (Anti-Crash) ──────
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("💥 Unhandled Promise Rejection:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+    console.error("💥 Uncaught Exception:", err);
+});
+
 // ─── GRACEFUL SHUTDOWN (for Passenger/cPanel) ─────────────────
 const shutdown = (signal) => {
     console.log(`\n${signal} — shutting down gracefully...`);
-    server.close(() => {
+    const closeDb = () => {
         pool.end(() => {
-            console.log("✅ DB pool closed. ");
-            // Close Redis connection if available
+            console.log("✅ DB pool closed.");
             if (redisClient && typeof redisClient.disconnect === "function") {
                 redisClient.disconnect().then(() => {
                     console.log("✅ Redis disconnected.");
@@ -660,7 +744,13 @@ const shutdown = (signal) => {
             }
             process.exit(0);
         });
-    });
+    };
+
+    if (serverInstance) {
+        serverInstance.close(closeDb);
+    } else {
+        closeDb();
+    }
     setTimeout(() => process.exit(1), 10000); // Force exit after 10s
 };
 

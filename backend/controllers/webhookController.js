@@ -3,8 +3,7 @@ import pool from "../db/pool.js";
 import { syncSingleContact } from "../lib/contactSync.js";
 import { sendTemplatedSMS } from "../lib/templateService.js";
 import { generateSecureToken } from "../lib/cryptoUtils.js";
-
-const normalizePhone = (value = "") => String(value || "").replace(/\s+/g, "");
+import { normalizePhone } from "../lib/phoneUtils.js";
 
 /**
  * Verify Razorpay Webhook Signature using HMAC SHA-256

@@ -101,6 +101,30 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, [fetchData]);
 
+  // Scroll reveal animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    document.querySelectorAll('.reveal:not(.active)').forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => {
+      document.querySelectorAll('.reveal:not(.active)').forEach((el) => {
+        observer.unobserve(el);
+      });
+    };
+  }, []);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     params.set('range', selectedRange);
@@ -389,12 +413,12 @@ const Dashboard = () => {
           {alerts.map((alert) => {
             const Icon = alert.icon;
             return (
-              <div key={alert.key} className="dash-alert">
+              <div key={alert.key} className="reveal dash-alert">
                 <div className="dash-alert-main">
                   <Icon className="dash-alert-ic" size={18} />
                   <div className="dash-alert-txt">{alert.text}</div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div className="d-flex align-center gap-8">
                   <span className={`dash-pill ${alert.tone}`}>{alert.tone.toUpperCase()}</span>
                   <button className="dash-alert-btn" onClick={() => setDismissedAlerts((prev) => [...prev, alert.key])}>Dismiss</button>
                 </div>
@@ -403,11 +427,11 @@ const Dashboard = () => {
           })}
         </div>
 
-        <div className="dash-kpis">
+        <div className="dash-kpis stagger-children">
           {metrics.map((metric) => {
             const Icon = metric.icon;
             return (
-              <div key={metric.key} className={`dash-kpi ${metric.tone}`}>
+              <div key={metric.key} className={`dash-kpi ${metric.tone} reveal`}>
                 <div className="dash-kpi-top">
                   <div>
                     <div className="dash-kpi-label">{metric.label}</div>
@@ -422,7 +446,7 @@ const Dashboard = () => {
         </div>
 
         <div className="dash-grid dash-hero">
-          <div className="dash-card">
+          <div className="dash-card reveal">
             <div className="dash-card-hd">
               <div>
                 <div className="dash-card-title">Revenue Trend</div>
@@ -437,7 +461,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="dash-card">
+          <div className="dash-card reveal">
             <div className="dash-card-hd">
               <div>
                 <div className="dash-card-title">Revenue Breakdown</div>
@@ -464,7 +488,7 @@ const Dashboard = () => {
         </div>
 
         <div className="dash-grid dash-mid">
-          <div className="dash-card">
+          <div className="dash-card reveal">
             <div className="dash-card-hd">
               <div>
                 <div className="dash-card-title">Top Cities</div>
@@ -479,7 +503,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="dash-card">
+          <div className="dash-card reveal">
             <div className="dash-card-hd">
               <div>
                 <div className="dash-card-title">Payment Health</div>
@@ -507,14 +531,14 @@ const Dashboard = () => {
 
         {/* Reminders & Celebrations Section for Admin & Super Admin */}
         {isRole(user, 'Super Admin', 'Admin') && (
-          <div className="dash-grid dash-bottom" style={{ marginBottom: 20 }}>
+          <div className="dash-grid dash-bottom reveal" style={{ marginBottom: 20 }}>
             <BirthdayReminder />
             <WeddingAnniversary />
           </div>
         )}
 
         <div className="dash-grid dash-bottom">
-          <div className="dash-card">
+          <div className="dash-card reveal">
             <div className="dash-card-hd">
               <div>
                 <div className="dash-card-title">Recent Transactions</div>
@@ -545,7 +569,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="dash-card">
+          <div className="dash-card reveal">
             <div className="dash-card-hd">
               <div>
                 <div className="dash-card-title">Admin Activity</div>

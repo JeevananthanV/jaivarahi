@@ -405,7 +405,30 @@ CREATE TABLE IF NOT EXISTS blogs (
     INDEX idx_blogs_reviewed_by (reviewed_by)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 15. Devotee Details Registration
+-- 15. Package Bookings Table
+CREATE TABLE IF NOT EXISTS package_bookings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    package_tier INT DEFAULT NULL,
+    package_name VARCHAR(255) NOT NULL,
+    primary_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    address TEXT NOT NULL,
+    pincode VARCHAR(12) NOT NULL,
+    gothuram VARCHAR(255) DEFAULT NULL,
+    notes TEXT DEFAULT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    booking_status VARCHAR(20) NOT NULL DEFAULT 'CONFIRMED',
+    order_id VARCHAR(64) NOT NULL,
+    payment_id VARCHAR(64) NOT NULL,
+    razorpay_signature VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_package_bookings_phone (phone),
+    INDEX idx_package_bookings_order (order_id),
+    INDEX idx_package_bookings_payment (payment_id),
+    INDEX idx_package_bookings_status (booking_status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 16. Devotee Details Registration
 CREATE TABLE IF NOT EXISTS devotee_details (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,

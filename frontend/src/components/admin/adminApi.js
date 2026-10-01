@@ -332,6 +332,44 @@ const adminApi = {
   getBirthdays: async (params = {}) => (await api.get('/birthdays', { params })).data,
   getWeddingAnniversaries: async (params = {}) => (await api.get('/wedding-anniversaries', { params })).data,
   getNotificationFeed: async () => (await api.get('/notifications/feed')).data,
+
+  // REAL-TIME METHODS
+  getRealtimeBirthdays: async () => {
+    const response = await api.get('/realtime/state/birthdays');
+    return response.data || { birthdays: [], anniversaries: [] };
+  },
+
+  getRealtimeAnniversaries: async () => {
+    const response = await api.get('/realtime/state/anniversaries');
+    return response.data || { birthdays: [], anniversaries: [] };
+  },
+
+  // SSE event source for live birthday/anniversary updates
+  createBirthdaySSE: (onMessage) => {
+    const source = new EventSource(`${BACKEND_URL}/api/realtime/birthdays`);
+    source.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (onMessage) onMessage(data);
+    };
+    source.onerror = (err) => {
+      console.warn("Birthday SSE error:", err);
+      source.close();
+    };
+    return source;
+  },
+
+  createAnniversarySSE: (onMessage) => {
+    const source = new EventSource(`${BACKEND_URL}/api/realtime/anniversaries`);
+    source.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (onMessage) onMessage(data);
+    };
+    source.onerror = (err) => {
+      console.warn("Anniversary SSE error:", err);
+      source.close();
+    };
+    return source;
+  },
 };
 
 export default adminApi;

@@ -802,20 +802,255 @@ a { text-decoration: none; color: inherit; }
 .admin-app .sk-card.tall { height: 340px; }
 .admin-app .sk-card.half { height: 162px; }
 @keyframes shimmer { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
-@media (max-width: 1024px) {
-  .admin-app .dash-kpis, .admin-app .dash-hero, .admin-app .dash-mid, .admin-app .dash-bottom, .admin-app .sk-kpi, .admin-app .sk-hero { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 640px) {
-  .admin-app .dash-kpis, .admin-app .dash-hero, .admin-app .dash-mid, .admin-app .dash-bottom, .admin-app .sk-kpi, .admin-app .sk-hero { grid-template-columns: 1fr; }
-  .admin-app .dash-chart { height: 280px; }
-  .admin-app .dash-title { font-size: 22px; }
-}
 
-/* ── Birthday Reminder List Styles ─────────────────────────────────────── */
-.admin-app .admin-list { padding: 0; margin: 0; list-style: none; }
-.admin-app .admin-list-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--bd); }
-.admin-app .admin-list-item:last-child { border-bottom: none; }
-.admin-app .avatar { width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: linear-gradient(135deg, var(--primary-color), var(--special-color)); color: #fff; flex-shrink: 0; }
+/* Skeleton table cell */
+.admin-app .sk-cell { height: 16px; border-radius: var(--r-sm); background: linear-gradient(90deg, rgba(128,128,128,.08), rgba(128,128,128,.16), rgba(128,128,128,.08)); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+
+/* Detail table in modal */
+.admin-app .detail-table { width: 100%; font-size: 13; border-collapse: collapse; }
+.admin-app .detail-table td { padding: 8px 0; border-bottom: 1px solid var(--bd); }
+.admin-app .detail-key { color: var(--tx3); font-weight: 500; width: 160px; text-transform: capitalize; padding-right: 16px; }
+.admin-app .detail-val { word-break: break-all; color: var(--tx); }
+.admin-app .detail-val em { color: var(--tx3); }
+.admin-app .detail-val pre { font-size: 11px; margin: 0; white-space: pre-wrap; background: var(--bg3); padding: 6px; border-radius: 4px; }
+
+/* Empty state */
+.admin-app .empty-state { padding: 48px 16px; text-align: center; }
+.admin-app .empty-state div:first-child { font-size: 32px; margin-bottom: 12px; }
+.admin-app .empty-state div:nth-child(2) { font-weight: 600; color: var(--tx); margin-bottom: 4px; }
+.admin-app .empty-state div:nth-child(3) { color: var(--tx3); font-size: 13px; }
+
+/* Pagination */
+.admin-app .pagination { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-top: 1px solid var(--bd); font-size: 12.5px; color: var(--tx2); }
+.admin-app .pagination-info { font-size: 12.5px; color: var(--tx2); }
+.admin-app .pagination-controls { display: flex; align-items: center; gap: 6px; }
+.admin-app .page-btn { width: 32px; height: 32px; border-radius: var(--r-sm); border: 1px solid var(--bd); background: var(--bg2); color: var(--tx2); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease; font-weight: 700; line-height: 1; box-sizing: border-box; }
+.admin-app .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.admin-app .page-btn:not(:disabled):hover { border-color: var(--bd2); color: var(--primary-color); }
+.admin-app[data-dark="1"] .page-btn:not(:disabled):hover { color: var(--gld); }
+.admin-app .page-btn.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+.admin-app[data-dark="1"] .page-btn.active { background: var(--gld); border-color: var(--gld); color: #1a0f04; }
+
+/* Loading spinner in table */
+.admin-app .loading-spinner { display: flex; align-items: center; justify-content: center; padding: 48px; gap: 12px; color: var(--tx3); }
+.admin-app .loading-spinner .spin { width: 34px; height: 34px; border: 3px solid var(--bd); border-top-color: var(--primary-color); border-radius: 50%; animation: sp 0.75s linear infinite; }
+
+/* Empty state styles */
+.admin-app .empty-state { padding: 48px 16px; text-align: center; }
+.admin-app .empty-icon { font-size: 32px; margin-bottom: 12px; }
+.admin-app .empty-title { font-weight: 600; color: var(--tx); margin-bottom: 4px; }
+.admin-app .empty-desc { color: var(--tx3); font-size: 13px; }
+
+/* Avatar utilities */
+.admin-app .avatar-sm { width: 28px; height: 28px; font-size: 11px; }
+.admin-app .avatar { width: 36px; height: 36px; font-size: 13px; }
+.admin-app .avatar-lg { width: 48px; height: 48px; font-size: 16px; }
+.admin-app .avatar-xl { width: 64px; height: 64px; font-size: 20px; }
+.admin-app .avatar { border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; background: linear-gradient(135deg, var(--primary-color), var(--special-color)); color: #fff; flex-shrink: 0; }
+
+/* Badge utilities */
+.admin-app .dash-pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+.admin-app .dash-pill.ok { background: var(--okb); color: var(--ok); }
+.admin-app .dash-pill.er { background: var(--erb); color: var(--er); }
+.admin-app .dash-pill.wa { background: var(--wab); color: var(--wa); }
+.admin-app .dash-pill.in { background: var(--inb); color: var(--in); }
+.admin-app .dash-pill.gold { background: var(--gld3); color: var(--gld); }
+
+/* Detail row utilities */
+.admin-app .detail-row { display: flex; align-items: center; border-bottom: 1px solid var(--bd); padding: 10px 0; }
+.admin-app .detail-row:last-child { border-bottom: none; }
+.admin-app .detail-key { width: 150px; color: var(--tx3); font-weight: 700; flex-shrink: 0; text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.8px; display: flex; align-items: center; min-height: 22px; }
+.admin-app .detail-val { color: var(--tx); font-size: 14px; word-break: break-word; font-weight: 600; display: flex; align-items: center; min-height: 22px; }
+
+/* Dash list/row utilities */
+.admin-app .dash-list { display: grid; gap: 10px; }
+.admin-app .dash-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--bd); }
+.admin-app .dash-row:last-child { border-bottom: none; }
+.admin-app .dash-row-title { font-weight: 700; color: var(--tx); }
+.admin-app .dash-row-meta { color: var(--tx3); font-size: 12px; margin-top: 4px; }
+
+/* Card utilities */
+.admin-app .dash-card { background: var(--bg2); border: 1px solid var(--bd); border-radius: 20px; overflow: hidden; box-shadow: 0 10px 24px rgba(0,0,0,.03); }
+.admin-app .dash-card-hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--bd); }
+.admin-app .dash-card-title { font-weight: 800; color: var(--tx); letter-spacing: .2px; }
+.admin-app .dash-card-sub { color: var(--tx3); font-size: 12px; margin-top: 4px; }
+.admin-app .dash-card-bd { padding: 16px 18px 18px; }
+
+/* Button group utilities */
+.admin-app .btn-group { display: inline-flex; gap: var(--sp-1); }
+.admin-app .btn-group .btn { border-radius: var(--r-sm); }
+
+/* WhatsApp button */
+.admin-app .btn-whatsapp { background: var(--whatsapp); border-color: var(--whatsapp); color: var(--light-text); }
+.admin-app .btn-whatsapp:hover { background: #1db954; border-color: #1db954; }
+
+/* Spinner utilities */
+.admin-app .spin-w { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--sp-6); color: var(--tx3); gap: 14px; }
+.admin-app .spin { width: 34px; height: 34px; border: 3px solid var(--bd); border-top-color: var(--primary-color); border-radius: 50%; animation: sp 0.75s linear infinite; }
+.admin-app[data-dark="1"] .spin { border-top-color: var(--gld); }
+@keyframes sp { to { transform: rotate(360deg); } }
+
+/* Alert utilities */
+.admin-app .alert { padding: 12px 16px; border-radius: var(--r); font-size: 13.5px; display: flex; align-items: flex-start; gap: 12px; border-left: 3px solid; }
+.admin-app .a-er { background: var(--erb); color: var(--er); border-color: var(--er); }
+.admin-app .a-ok { background: var(--okb); color: var(--ok); border-color: var(--ok); }
+.admin-app .a-in { background: var(--inb); color: var(--in); border-color: var(--in); }
+.admin-app .a-wa { background: var(--wab); color: var(--wa); border-color: var(--wa); }
+
+/* Modal utilities */
+.admin-app .modal-ov { position: fixed; inset: 0; background: rgba(10, 5, 5, 0.55); display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 200; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.admin-app .modal { background: var(--bg2); border-radius: var(--rx); border: 1px solid var(--bd); max-width: 550px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: var(--sh-lg); animation: modalSlide 0.28s var(--ease); }
+@keyframes modalSlide { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.admin-app .modal-hd { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--bd); }
+.admin-app .modal-title { font-family: var(--fd); font-size: 18px; font-weight: 700; color: var(--tx); }
+.admin-app .modal-x { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--tx3); padding: 0; line-height: 1; transition: color 0.18s ease; }
+.admin-app .modal-x:hover { color: var(--er); }
+.admin-app .modal-body { padding: 20px; }
+.admin-app .modal-ft { padding: 14px 20px; border-top: 1px solid var(--bd); display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+
+/* Form utilities */
+.admin-app .form-group { margin-bottom: 16px; }
+.admin-app .form-group label { display: block; font-size: 10.5px; font-weight: 700; color: var(--tx3); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.2px; }
+.admin-app .form-control { width: 100%; padding: 0 14px; height: 40px; border: 1px solid var(--bd); border-radius: var(--r); background: var(--bg3); color: var(--tx); font-family: var(--ff); font-size: 13.5px; outline: none; transition: border-color 0.18s var(--ease), box-shadow 0.18s var(--ease); box-sizing: border-box; }
+.admin-app .form-control:focus-visible { border-color: var(--primary-color); box-shadow: var(--sh-ring); }
+.admin-app[data-dark="1"] .form-control:focus-visible { border-color: var(--gld); }
+
+/* Toolbar utilities */
+.admin-app .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.admin-app .toolbar-l { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.admin-app .toolbar-r { display: flex; align-items: center; gap: 12px; }
+
+/* Table utilities */
+.admin-app .admin-table-wrap { overflow-x: auto; border-radius: var(--rl); border: 1px solid var(--bd); background: var(--bg2); box-shadow: var(--sh-sm); }
+.admin-app .admin-table { width: 100%; border-collapse: collapse; font-size: 13.5px; table-layout: auto; }
+.admin-app .admin-table thead th { background: var(--bg3); color: var(--tx3); font-weight: 700; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--bd); white-space: nowrap; }
+.admin-app .admin-table tbody td { padding: 12px 16px; border-bottom: 1px solid var(--bd); color: var(--tx); text-align: left; transition: background-color 0.15s ease; }
+.admin-app .admin-table tbody tr:last-child td { border-bottom: none; }
+.admin-app .admin-table tbody tr:nth-child(even) td { background: rgba(20, 12, 10, 0.012); }
+.admin-app[data-dark="1"] .admin-table tbody tr:nth-child(even) td { background: rgba(255, 255, 255, 0.012); }
+.admin-app .admin-table tbody tr:hover td { background: var(--primary-10); }
+.admin-app[data-dark="1"] .admin-table tbody tr:hover td { background: var(--gld3); }
+
+/* Badge utilities */
+.admin-app .badge { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.2px; white-space: nowrap; line-height: 1.4; }
+.admin-app .b-ok { background: var(--okb); color: var(--ok); }
+.admin-app .b-er { background: var(--erb); color: var(--er); }
+.admin-app .b-wa { background: var(--wab); color: var(--wa); }
+.admin-app .b-in { background: var(--inb); color: var(--in); }
+.admin-app .b-purple { background: rgba(139, 92, 246, 0.1); color: var(--purple); }
+.admin-app .b-gold { background: var(--gld3); color: var(--gld); }
+.admin-app .b-mu { background: var(--bg3); color: var(--tx2); }
+
+/* Flex utilities */
 .admin-app .flex-1 { flex: 1; }
-.admin-app .mb-1 { margin-bottom: 4px; }
+.admin-app .d-flex { display: flex; }
+.admin-app .align-center { align-items: center; }
+.admin-app .justify-between { justify-content: space-between; }
+.admin-app .gap-1 { gap: var(--sp-1); }
+.admin-app .gap-2 { gap: var(--sp-2); }
+.admin-app .gap-3 { gap: var(--sp-3); }
+.admin-app .gap-4 { gap: var(--sp-4); }
+
+/* Text utilities */
 .admin-app .text-muted { color: var(--tx3); }
+.admin-app .text-primary { color: var(--primary-color); }
+.admin-app .text-special { color: var(--special-color); }
+.admin-app .text-success { color: var(--ok); }
+.admin-app .text-error { color: var(--er); }
+.admin-app .text-warning { color: var(--wa); }
+.admin-app .fw-600 { font-weight: 600; }
+.admin-app .fw-700 { font-weight: 700; }
+.admin-app .fs-11 { font-size: 11px; }
+.admin-app .fs-12 { font-size: 12px; }
+.admin-app .fs-13 { font-size: 13px; }
+
+/* Spacing utilities */
+.admin-app .mb-1 { margin-bottom: var(--sp-1); }
+.admin-app .mb-2 { margin-bottom: var(--sp-2); }
+.admin-app .mb-3 { margin-bottom: var(--sp-3); }
+.admin-app .mb-4 { margin-bottom: var(--sp-4); }
+.admin-app .mt-1 { margin-top: var(--sp-1); }
+.admin-app .mt-2 { margin-top: var(--sp-2); }
+.admin-app .mt-3 { margin-top: var(--sp-3); }
+.admin-app .mt-4 { margin-top: var(--sp-4); }
+.admin-app .p-1 { padding: var(--sp-1); }
+.admin-app .p-2 { padding: var(--sp-2); }
+.admin-app .p-3 { padding: var(--sp-3); }
+.admin-app .p-4 { padding: var(--sp-4); }
+
+/* Border utilities */
+.admin-app .rounded-sm { border-radius: var(--r-sm); }
+.admin-app .rounded { border-radius: var(--r); }
+.admin-app .rounded-lg { border-radius: var(--rl); }
+.admin-app .rounded-xl { border-radius: var(--rx); }
+.admin-app .rounded-full { border-radius: 999px; }
+
+/* Display utilities */
+.admin-app .d-none { display: none; }
+.admin-app .d-block { display: block; }
+.admin-app .d-inline-flex { display: inline-flex; }
+.admin-app .overflow-auto { overflow: auto; }
+.admin-app .overflow-hidden { overflow: hidden; }
+.admin-app .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Focus visible */
+.admin-app *:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; border-radius: 4px; }
+.admin-app[data-dark="1"] *:focus-visible { outline-color: var(--gld); }
+
+/* Button animations */
+.admin-app .btn { transition: all 0.15s var(--ease); }
+.admin-app .btn:hover { transform: translateY(-2px); box-shadow: var(--sh-md); }
+.admin-app .btn:active { transform: translateY(1px); }
+.admin-app .btn:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 4px; }
+.admin-app[data-dark="1"] .btn:focus-visible { outline-color: var(--gld); }
+
+/* Hover ripple effect for primary buttons */
+.admin-app .btn-ripple { position: relative; overflow: hidden; }
+.admin-app .btn-ripple::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle, var(--primary-color) 10%, transparent 1%); opacity: 0; transition: opacity 0.3s; }
+.admin-app .btn-ripple:hover::after { opacity: 0.3; }
+
+/* Card hover animations */
+.admin-app .card-hover { transition: all 0.2s var(--ease); }
+.admin-app .card-hover:hover { transform: translateY(-4px); box-shadow: var(--sh-lg); }
+
+/* Table row hover */
+.admin-app .admin-table tbody tr { transition: background-color 0.15s ease; }
+.admin-app .admin-table tbody tr:hover td { background: var(--primary-10) !important; }
+.admin-app[data-dark="1"] .admin-table tbody tr:hover td { background: var(--gld3) !important; }
+
+/* Status badge hover */
+.admin-app .badge { transition: background-color 0.15s ease, transform 0.15s ease; }
+.admin-app .badge:hover { transform: scale(1.05); }
+
+/* Avatar hover */
+.admin-app .avatar:hover { opacity: 0.9; }
+
+/* Loading spinner */
+.admin-app .spin { transition: transform 0.75s linear infinite; }
+
+/* Modal slide animation */
+.admin-app .modal { transition: opacity 0.2s var(--ease), transform 0.2s var(--ease); }
+.admin-app .modal-ov:focus-within .modal { transform: scale(1); }
+
+/* Progress bar animation */
+.admin-app .progress-bar { height: 4px; background: var(--primary-color); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
+
+/* Scroll reveal animation */
+.admin-app .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s var(--ease), transform 0.6s var(--ease); }
+.admin-app .reveal.active { opacity: 1; transform: translateY(0); }
+
+/* Stagger children animation */
+.admin-app .stagger-children > * { opacity: 0; transform: translateY(10px); transition: opacity 0.3s var(--ease), transform 0.3s var(--ease); }
+.admin-app .stagger-children > *:nth-child(1) { transition-delay: 0.1s; }
+.admin-app .stagger-children > *:nth-child(2) { transition-delay: 0.2s; }
+.admin-app .stagger-children > *:nth-child(3) { transition-delay: 0.3s; }
+.admin-app .stagger-children > *:nth-child(4) { transition-delay: 0.4s; }
+.admin-app .stagger-children > *:nth-child(5) { transition-delay: 0.5s; }
+.admin-app .stagger-children.animated > * { opacity: 1; transform: translateY(0); }
+
+/* Skeleton pulse */
+.admin-app .sk-cell { transition: background-position 1.4s infinite; }
+
+/* WhatsApp button */
+.admin-app .btn-whatsapp { background: var(--whatsapp); border-color: var(--whatsapp); color: var(--light-text); }
+.admin-app .btn-whatsapp:hover { background: #1db954; border-color: #1db954; }
