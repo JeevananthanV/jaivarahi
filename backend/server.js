@@ -59,6 +59,7 @@ import mediaRoutes from "./routes/mediaRoutes.js";
 import { getBlogSitemapXml } from "./controllers/blogController.js";
 import webhookRoutes from "./routes/webhookRoutes.js";
 import kosalaRoutes  from "./routes/kosalaRoutes.js";
+import vidyalayamRoutes from "./routes/vidyalayamRoutes.js";
 import pool               from "./db/pool.js";
 
 // ─── CONSTANTS ────────────────────────────────────────────────
@@ -597,6 +598,7 @@ app.use("/api", mediaRoutes);
 app.get("/sitemap-blogs.xml", getBlogSitemapXml);
 app.use("/api/webhooks", webhookRoutes);
 app.use("/api/kosala", kosalaRoutes);
+app.use("/api/vidyalayam", vidyalayamRoutes);
 
 
 

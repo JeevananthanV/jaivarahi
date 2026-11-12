@@ -15,6 +15,7 @@ const ComingSoon = lazy(() => import('./pages/ComingSoon.jsx'));
 const SriBalaManthiram = lazy(() => import('./pages/SriBalaManthiram.jsx'));
 const VarahiMalai = lazy(() => import('./pages/VarahiMalai.jsx'));
 const Jothidam = lazy(() => import('./pages/Jothidam.jsx'));
+const Vidyalayam = lazy(() => import('./pages/Vidyalayam.jsx'));
 const JothidamBookingPage = lazy(() => import('./pages/JothidamBookingPage.jsx'));
 const WhoIsVarahi = lazy(() => import('./pages/WhoIsVarahi.jsx'));
 const UchchishtaGanapati = lazy(() => import('./pages/UchchishtaGanapati.jsx'));
@@ -58,6 +59,9 @@ function App() {
         <Route path="/sri_bala_manthiram" element={<SriBalaManthiram />} />
         <Route path="/varahimalai" element={<VarahiMalai />} />
         <Route path="/Jothidam" element={<Jothidam />} />
+        <Route path="/vidyalayam" element={<Vidyalayam />} />
+        <Route path="/Vidyalayam" element={<Vidyalayam />} />
+        <Route path="/jothida-vidyalayam" element={<Vidyalayam />} />
         <Route path="/Jothidam/book" element={<JothidamBookingPage />} />
         <Route path="/who_is_varahi" element={<WhoIsVarahi />} />
         <Route path="/Uchchishta_Ganapati" element={<UchchishtaGanapati />} />

@@ -115,11 +115,19 @@ function Footer() {
                   </a>
                 </li>
                 <li className="spiritual-nav-item">
+                  <a href="/vidyalayam" className="spiritual-nav-link">
+                    <span className="spiritual-nav-om" aria-hidden="true">
+                      &#2384;
+                    </span>
+                    Sri Varahi Jothida Vidyalayam
+                  </a>
+                </li>
+                <li className="spiritual-nav-item">
                   <a href="/Jothidam" className="spiritual-nav-link">
                     <span className="spiritual-nav-om" aria-hidden="true">
                       &#2384;
                     </span>
-                    Vidyalayam &amp; Jothidam
+                    Jothidam Consultation
                   </a>
                 </li>
                 <li className="spiritual-nav-item">

@@ -48,6 +48,10 @@ import CowManagement from './kosala/CowManagement';
 import SponsorshipManagement from './kosala/SponsorshipManagement';
 import PaymentReconciliation from './kosala/PaymentReconciliation';
 import KosalaReports from './kosala/KosalaReports';
+import VidyalayamDashboard from './VidyalayamDashboard';
+import VidyalayamAdmissions from './VidyalayamAdmissions';
+import VidyalayamCourses from './VidyalayamCourses';
+import VidyalayamCertificates from './VidyalayamCertificates';
 
 const AdminApp = () => {
   const navigate = useNavigate();
@@ -125,6 +129,13 @@ const AdminApp = () => {
           <Route path="jothidam-astrologers" element={<AstrologerManagement />} />
           <Route path="jothidam-pricing" element={<JothidamPricing />} />
           <Route path="jothidam-reports" element={<JothidamReports />} />
+
+          {/* Sri Varahi Jothida Vidyalayam Routes */}
+          <Route path="vidyalayam" element={<Navigate to="vidyalayam-dashboard" replace />} />
+          <Route path="vidyalayam-dashboard" element={<VidyalayamDashboard />} />
+          <Route path="vidyalayam-admissions" element={<VidyalayamAdmissions />} />
+          <Route path="vidyalayam-courses" element={<VidyalayamCourses />} />
+          <Route path="vidyalayam-certificates" element={<VidyalayamCertificates />} />
 
           
           {/* Kosala Admin Routes */}

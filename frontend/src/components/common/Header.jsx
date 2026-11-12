@@ -41,7 +41,7 @@ const Header = () => {
                 <Link to="#" className="menu-link">Jothidam</Link>
                 <ul className="desktop-dropdown">
                   <li className="menu-item"><Link to="/Jothidam" className="menu-link">Astrology prediction</Link></li>
-                  <li className="menu-item"><Link to="/comingsoon" className="menu-link">Sri Varahi Jothida Vidyalayam</Link></li>
+                  <li className="menu-item"><Link to="/vidyalayam" className="menu-link">Sri Varahi Jothida Vidyalayam</Link></li>
                 </ul>
               </li>
               <li className="menu-item menu-item-has-children">

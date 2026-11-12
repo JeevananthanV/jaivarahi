@@ -24,7 +24,7 @@ export const DEFAULT_NAV_ITEMS = [
     href: '#',
     children: [
       { label: 'Astrology prediction', href: '/Jothidam' },
-      { label: 'Sri Varahi Jothida Vidyalayam', href: '/comingsoon' },
+      { label: 'Sri Varahi Jothida Vidyalayam', href: '/vidyalayam' },
     ],
   },
   {

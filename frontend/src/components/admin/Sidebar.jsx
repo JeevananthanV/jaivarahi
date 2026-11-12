@@ -7,7 +7,7 @@ import {
   Users, ShieldAlert, Sparkles, Image,
   Cake, Gift, ChevronDown, ChevronRight, LogOut,
   X, User, Coins, Compass, CalendarDays, BarChart3,
-  UserCheck, ShieldCheck, CheckCircle
+  UserCheck, ShieldCheck, CheckCircle, GraduationCap, Award
 } from 'lucide-react';
 import { useAdminAuth } from './AdminAuthContext';
 import { isRole } from './roles';
@@ -25,6 +25,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     services: path.startsWith('/admin/services'),
     av2: path.startsWith('/admin/av2-entry') || path.startsWith('/admin/vip') || path.startsWith('/admin/free') || path.startsWith('/admin/stalls') || path.startsWith('/admin/sponsors'),
     jothidam: path.startsWith('/admin/jothidam'),
+    vidyalayam: path.startsWith('/admin/vidyalayam'),
     reminders: path.startsWith('/admin/birthdays') || path.startsWith('/admin/wedding-anniversaries'),
     system: path.startsWith('/admin/users') || path.startsWith('/admin/audit-logs'),
   });
@@ -38,6 +39,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       services: prev.services || path.startsWith('/admin/services'),
       av2: prev.av2 || path.startsWith('/admin/av2-entry') || path.startsWith('/admin/vip') || path.startsWith('/admin/free') || path.startsWith('/admin/stalls') || path.startsWith('/admin/sponsors'),
       jothidam: prev.jothidam || path.startsWith('/admin/jothidam'),
+      vidyalayam: prev.vidyalayam || path.startsWith('/admin/vidyalayam'),
       reminders: prev.reminders || path.startsWith('/admin/birthdays') || path.startsWith('/admin/wedding-anniversaries'),
       system: prev.system || path.startsWith('/admin/users') || path.startsWith('/admin/audit-logs'),
     }));
@@ -393,6 +395,47 @@ const Sidebar = ({ isOpen, onClose }) => {
               <FileText size={14} />
             </div>
             <span>Reports</span>
+          </NavLink>
+        </div>
+
+        {/* Vidyalayam Section */}
+        <button 
+          type="button" 
+          className={`sb-sec-btn ${expanded.vidyalayam ? 'active-group' : ''}`} 
+          onClick={() => toggle('vidyalayam')}
+        >
+          <div className="sb-sec-btn-left">
+            <div className="sb-sec-ic-box">
+              <GraduationCap size={13} />
+            </div>
+            <span>Jothida Vidyalayam</span>
+          </div>
+          {expanded.vidyalayam ? <ChevronDown size={14} className="sb-chevron" /> : <ChevronRight size={14} className="sb-chevron" />}
+        </button>
+        <div className={`sb-sub-menu ${expanded.vidyalayam ? 'open' : ''}`}>
+          <NavLink to="/admin/vidyalayam-dashboard" className={navClass}>
+            <div className="nb-ic-box sub-ic">
+              <LayoutDashboard size={14} />
+            </div>
+            <span>Dashboard</span>
+          </NavLink>
+          <NavLink to="/admin/vidyalayam-admissions" className={navClass}>
+            <div className="nb-ic-box sub-ic">
+              <Users size={14} />
+            </div>
+            <span>Admissions</span>
+          </NavLink>
+          <NavLink to="/admin/vidyalayam-courses" className={navClass}>
+            <div className="nb-ic-box sub-ic">
+              <Layers size={14} />
+            </div>
+            <span>Courses &amp; Batches</span>
+          </NavLink>
+          <NavLink to="/admin/vidyalayam-certificates" className={navClass}>
+            <div className="nb-ic-box sub-ic">
+              <Award size={14} />
+            </div>
+            <span>Certificates</span>
           </NavLink>
         </div>
 
