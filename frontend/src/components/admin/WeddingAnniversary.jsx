@@ -5,8 +5,6 @@ import {
   Phone,
   MessageCircle,
   RefreshCw,
-  Users,
-  Shield,
   Eye,
   X,
   Mail,
@@ -21,7 +19,6 @@ const WeddingAnniversary = () => {
   const [anniversaries, setAnniversaries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState('all'); // all, devotee, admin
   const [selectedPerson, setSelectedPerson] = useState(null);
   const modalRef = useRef(null);
   const previousActiveElement = useRef(null);
@@ -51,36 +48,25 @@ const WeddingAnniversary = () => {
     const sse = adminApi.createAnniversarySSE((message) => {
       const data = JSON.parse(message.data);
       if (data.event === "initial") {
-        // Initial state - could populate from Redis if needed
         console.log("Anniversary SSE initial state received");
       } else if (data.event === "anniversary" && data.data) {
-        // New anniversary received - update state
         const newAnniversary = data.data;
         setAnniversaries(prev => {
-          // Check if already exists
           const exists = prev.some(a => a.id === newAnniversary.id);
           if (exists) return prev;
           
-          // Add new anniversary and keep sorted by days_until
           const updated = [...prev, newAnniversary].sort((a, b) => a.days_until - b.days_until);
-          return updated.slice(0, 100); // Limit to 100 max
+          return updated.slice(0, 100);
         });
       }
     });
 
     sseRef.current = sse;
 
-    // Cleanup on unmount
     return () => {
       if (sse) sse.close();
     };
   }, []);
-
-  const filteredAnniversaries = anniversaries.filter(a => {
-    if (filter === 'devotee') return a.type === 'devotee';
-    if (filter === 'admin') return a.type === 'admin';
-    return true;
-  });
 
   const getBadgeClass = days => {
     if (days <= 0) return 'dash-pill ok';
@@ -118,27 +104,10 @@ const WeddingAnniversary = () => {
               <span>Wedding Anniversaries</span>
               <span className="dash-pill in" style={{ fontSize: 11 }}>{anniversaries.length}</span>
             </div>
-            <div className="dash-card-sub">Devotees & admins in the next 60 days</div>
+            <div className="dash-card-sub">Devotees in the next 60 days</div>
           </div>
 
           <div className="d-flex align-center gap-2">
-            <div className="btn-group gap-1">
-              <button
-                onClick={() => setFilter('all')}
-                className={`btn btn-sm ${filter === 'all' ? 'btn-primary' : 'btn-outline'} fs-11 p-1`}
-                aria-pressed={filter === 'all'}
-              >All</button>
-              <button
-                onClick={() => setFilter('devotee')}
-                className={`btn btn-sm ${filter === 'devotee' ? 'btn-primary' : 'btn-outline'} fs-11 p-1`}
-                aria-pressed={filter === 'devotee'}
-              >Devotees</button>
-              <button
-                onClick={() => setFilter('admin')}
-                className={`btn btn-sm ${filter === 'admin' ? 'btn-primary' : 'btn-outline'} fs-11 p-1`}
-                aria-pressed={filter === 'admin'}
-              >Admins</button>
-            </div>
             <button
               onClick={fetchAnniversaries}
               title="Refresh"
@@ -158,11 +127,11 @@ const WeddingAnniversary = () => {
             </div>
           ) : error ? (
             <div className="alert a-er">{error}</div>
-          ) : filteredAnniversaries.length === 0 ? (
-            <div className="p-4 text-center text-muted">No upcoming anniversaries found for this selection.</div>
+          ) : anniversaries.length === 0 ? (
+            <div className="p-4 text-center text-muted">No upcoming wedding anniversaries found.</div>
           ) : (
             <div className="dash-list">
-              {filteredAnniversaries.map((a, idx) => (
+              {anniversaries.map((a, idx) => (
                 <div
                   className="dash-row"
                   key={a.id || idx}
@@ -171,12 +140,12 @@ const WeddingAnniversary = () => {
                     <div
                       className="avatar"
                       style={{
-                        background: a.type === 'admin' ? 'var(--inb)' : 'var(--special-08)',
-                        color: a.type === 'admin' ? 'var(--in)' : 'var(--special)',
+                        background: 'var(--special-08)',
+                        color: 'var(--special)',
                       }}
                       aria-hidden="true"
                     >
-                      {a.type === 'admin' ? <Shield size={16} /> : <Heart size={16} />}
+                      <Heart size={16} />
                     </div>
 
                     <div>
@@ -190,8 +159,7 @@ const WeddingAnniversary = () => {
                       </div>
                       <div className="tx3 fs-11 mt-1">
                         {a.wedding_date ? new Date(a.wedding_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : ''}
-                        {a.role && a.type === 'admin' && ` • ${a.role}`}
-                        {a.type === 'devotee' && ` • Devotee`}
+                        {` • Devotee`}
                       </div>
                     </div>
                   </div>
@@ -256,8 +224,8 @@ const WeddingAnniversary = () => {
                 <div
                   className="avatar-lg"
                   style={{
-                    background: selectedPerson.type === 'admin' ? 'var(--inb)' : 'var(--special-08)',
-                    color: selectedPerson.type === 'admin' ? 'var(--in)' : 'var(--special)',
+                    background: 'var(--special-08)',
+                    color: 'var(--special)',
                   }}
                   aria-hidden="true"
                 >
@@ -268,7 +236,7 @@ const WeddingAnniversary = () => {
                     {selectedPerson.name}
                   </h4>
                   <span className="dash-pill in fs-11 mt-1">
-                    {selectedPerson.source || selectedPerson.role || 'Devotee'}
+                    Devotee
                   </span>
                 </div>
               </div>

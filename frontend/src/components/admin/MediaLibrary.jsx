@@ -222,7 +222,7 @@ const MediaLibrary = ({ onSelectMedia, selectedMediaIds = [], multiple = false, 
                 {isSelected && (
                   <div style={{
                     position: "absolute", top: "4px", right: "4px",
-                    background: "var(--pr)", color: "#fff", borderRadius: "50%",
+                    background: "var(--pr)", color: "var(--light-text)", borderRadius: "50%",
                     width: "20px", height: "20px", display: "flex",
                     alignItems: "center", justifyContent: "center", fontSize: "12px"
                   }}>
@@ -232,7 +232,7 @@ const MediaLibrary = ({ onSelectMedia, selectedMediaIds = [], multiple = false, 
                 <div style={{
                   position: "absolute", bottom: 0, left: 0, right: 0,
                   background: "linear-gradient(transparent, rgba(0,0,0,0.7))",
-                  padding: "4px 8px", fontSize: "10px", color: "#fff",
+                  padding: "4px 8px", fontSize: "10px", color: "var(--light-text)",
                   whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"
                 }}>
                   {item.original_name}
@@ -241,7 +241,7 @@ const MediaLibrary = ({ onSelectMedia, selectedMediaIds = [], multiple = false, 
                   <button
                     className="btn btn-ol btn-sm"
                     onClick={(e) => { e.stopPropagation(); setPreviewMedia(item); }}
-                    style={{ padding: "2px 6px", fontSize: "10px", background: "rgba(0,0,0,0.5)", color: "#fff", border: "none" }}
+                    style={{ padding: "2px 6px", fontSize: "10px", background: "rgba(0,0,0,0.5)", color: "var(--light-text)", border: "none" }}
                     title="Preview"
                   >
                     <ExternalLink size={10} />
@@ -249,7 +249,7 @@ const MediaLibrary = ({ onSelectMedia, selectedMediaIds = [], multiple = false, 
                   <button
                     className="btn btn-ol btn-sm"
                     onClick={(e) => { e.stopPropagation(); copyUrl(item.optimized_url || item.original_url); }}
-                    style={{ padding: "2px 6px", fontSize: "10px", background: "rgba(0,0,0,0.5)", color: "#fff", border: "none" }}
+                    style={{ padding: "2px 6px", fontSize: "10px", background: "rgba(0,0,0,0.5)", color: "var(--light-text)", border: "none" }}
                     title="Copy URL"
                   >
                     <Copy size={10} />

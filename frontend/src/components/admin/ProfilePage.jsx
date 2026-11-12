@@ -4,8 +4,6 @@ import {
   Shield,
   Key,
   Calendar,
-  Heart,
-  Cake,
   Mail,
   Clock,
   CheckCircle2,
@@ -29,8 +27,6 @@ const ProfilePage = () => {
   // Edit Profile Form state
   const [profileForm, setProfileForm] = useState({
     name: '',
-    date_of_birth: '',
-    date_of_wedding: '',
   });
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSuccess, setProfileSuccess] = useState('');
@@ -54,8 +50,6 @@ const ProfilePage = () => {
       setProfile(data);
       setProfileForm({
         name: data.name || '',
-        date_of_birth: data.date_of_birth ? data.date_of_birth.substring(0, 10) : '',
-        date_of_wedding: data.date_of_wedding ? data.date_of_wedding.substring(0, 10) : '',
       });
     } catch (err) {
       console.error('Failed to fetch profile', err);
@@ -77,10 +71,8 @@ const ProfilePage = () => {
     try {
       await adminApi.updateProfile({
         name: profileForm.name,
-        date_of_birth: profileForm.date_of_birth || null,
-        date_of_wedding: profileForm.date_of_wedding || null,
       });
-      setProfileSuccess('Profile details and reminder dates updated successfully!');
+      setProfileSuccess('Profile details updated successfully!');
       // Update local storage and context user if name changed
       if (setUser) {
         setUser((prev) => ({ ...prev, name: profileForm.name }));
@@ -343,7 +335,7 @@ const ProfilePage = () => {
               fontWeight: 600,
             }}
           >
-            <Cake size={15} style={{ marginRight: 6 }} /> Edit Profile & Dates
+            <User size={15} style={{ marginRight: 6 }} /> Edit Profile
           </button>
 
           <button
@@ -409,71 +401,15 @@ const ProfilePage = () => {
               </div>
             </div>
           </div>
-
-          {/* Sacred Temple Reminder Dates */}
-          <div className="card" style={{ border: '1px solid var(--bd)', borderRadius: 'var(--rx)', padding: 0 }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--bd)', background: 'var(--bg3)', borderRadius: 'var(--rx) var(--rx) 0 0' }}>
-              <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--tx)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Sparkles size={16} color="var(--special)" /> Sacred Reminder Dates
-              </h3>
-            </div>
-            <div style={{ padding: '8px 20px' }}>
-              <div className="detail-row">
-                <span className="detail-key" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Cake size={13} color="var(--accent-color)" /> Date of Birth
-                </span>
-                <span className="detail-val">
-                  {currentProfile?.date_of_birth ? (
-                    <span style={{ fontWeight: 700, color: 'var(--tx)' }}>
-                      {new Date(currentProfile.date_of_birth).toLocaleDateString('en-IN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </span>
-                  ) : (
-                    <span style={{ color: 'var(--tx3)', fontStyle: 'italic', fontWeight: 400 }}>
-                      Not set (Click 'Edit Profile' to add)
-                    </span>
-                  )}
-                </span>
-              </div>
-
-              <div className="detail-row">
-                <span className="detail-key" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Heart size={13} color="#db2777" /> Wedding Date
-                </span>
-                <span className="detail-val">
-                  {currentProfile?.date_of_wedding ? (
-                    <span style={{ fontWeight: 700, color: 'var(--tx)' }}>
-                      {new Date(currentProfile.date_of_wedding).toLocaleDateString('en-IN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </span>
-                  ) : (
-                    <span style={{ color: 'var(--tx3)', fontStyle: 'italic', fontWeight: 400 }}>
-                      Not set (Click 'Edit Profile' to add)
-                    </span>
-                  )}
-                </span>
-              </div>
-
-              <div style={{ marginTop: 'var(--sp-3)', padding: '12px 14px', background: 'var(--special-08)', border: '1px solid var(--bd2)', borderRadius: 'var(--r)', fontSize: 12, color: 'var(--tx2)' }}>
-                💡 <strong>Temple Reminder Engine:</strong> Setting your DOB and Wedding Date automatically enrolls you into the Temple's upcoming celebration reminders in the topbar notification bell.
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
-      {/* ─── TAB 2: EDIT PROFILE & DATES ─────────────────────────────────── */}
+      {/* ─── TAB 2: EDIT PROFILE ───────────────────────────────────────── */}
       {activeTab === 'edit' && (
         <div className="card" style={{ border: '1px solid var(--bd)', borderRadius: 'var(--rx)', padding: 0 }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--bd)', background: 'var(--bg3)', borderRadius: 'var(--rx) var(--rx) 0 0' }}>
             <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--tx)', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Cake size={16} color="var(--accent-color)" /> Edit Personal Information & Dates
+              <User size={16} color="var(--accent-color)" /> Edit Profile Details
             </h3>
           </div>
 
@@ -516,40 +452,6 @@ const ProfilePage = () => {
                     value={currentProfile?.email || ''}
                     disabled
                   />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--sp-4)', marginBottom: 'var(--sp-4)' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--tx3)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                    🎂 Date of Birth (DOB)
-                  </label>
-                  <input
-                    type="date"
-                    className="fi"
-                    style={{ width: '100%', padding: '10px 14px' }}
-                    value={profileForm.date_of_birth}
-                    onChange={(e) => setProfileForm({ ...profileForm, date_of_birth: e.target.value })}
-                  />
-                  <span style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 4, display: 'block' }}>
-                    Used for automatic birthday wishes and notification reminders.
-                  </span>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--tx3)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                    💍 Wedding Anniversary Date
-                  </label>
-                  <input
-                    type="date"
-                    className="fi"
-                    style={{ width: '100%', padding: '10px 14px' }}
-                    value={profileForm.date_of_wedding}
-                    onChange={(e) => setProfileForm({ ...profileForm, date_of_wedding: e.target.value })}
-                  />
-                  <span style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 4, display: 'block' }}>
-                    Leave blank if unmarried. Used for milestone anniversary reminders.
-                  </span>
                 </div>
               </div>
 

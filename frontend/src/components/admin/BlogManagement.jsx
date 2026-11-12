@@ -615,7 +615,7 @@ const BlogManagement = () => {
       case "Published":
         return <span className="badge b-ok" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><CheckCircle2 size={11} /> Published</span>;
       case "Approved":
-        return <span className="badge" style={{ background: "rgba(16, 185, 129, 0.15)", color: "#10b981", border: "1px solid rgba(16, 185, 129, 0.3)", display: "inline-flex", alignItems: "center", gap: "4px" }}><ShieldCheck size={11} /> Approved</span>;
+        return <span className="badge" style={{ background: "rgba(16, 185, 129, 0.15)", color: "var(--valarpirai-ashtami-color)", border: "1px solid rgba(16, 185, 129, 0.3)", display: "inline-flex", alignItems: "center", gap: "4px" }}><ShieldCheck size={11} /> Approved</span>;
       case "Pending":
         return <span className="badge b-in" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><Clock size={11} /> Pending Review</span>;
       case "Rejected":
@@ -704,7 +704,7 @@ const BlogManagement = () => {
               {getStatusBadge(formData.status)}
               {lastSavedTime && (
                 <span style={{ fontSize: "11px", color: "var(--tx3)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                  <Check size={11} color="#10b981" /> Auto-saved {lastSavedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <Check size={11} color="var(--valarpirai-ashtami-color)" /> Auto-saved {lastSavedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               )}
             </div>
@@ -737,7 +737,7 @@ const BlogManagement = () => {
                 className="btn btn-pr btn-sm"
                 disabled={isSaving}
                 onClick={(e) => handleSubmit(e, "publishLive")}
-                style={{ background: "#10b981", borderColor: "#10b981", display: "inline-flex", alignItems: "center", gap: "6px" }}
+                style={{ background: "var(--valarpirai-ashtami-color)", borderColor: "var(--valarpirai-ashtami-color)", display: "inline-flex", alignItems: "center", gap: "6px" }}
               >
                 <Check size={14} /> Publish Live
               </button>
@@ -793,7 +793,7 @@ const BlogManagement = () => {
               <div style={{ fontSize: "12px", color: "var(--tx3)", display: "inline-flex", alignItems: "center", gap: "12px" }}>
                 <span>📊 <strong>{wordCount}</strong> words</span>
                 <span>⏱️ <strong>{readingTime}</strong> min read</span>
-                <span style={{ color: "#10b981", display: "inline-flex", alignItems: "center", gap: "3px" }}>
+                <span style={{ color: "var(--valarpirai-ashtami-color)", display: "inline-flex", alignItems: "center", gap: "3px" }}>
                   <ShieldCheck size={13} /> HTML Sanitized
                 </span>
               </div>
@@ -991,7 +991,7 @@ const BlogManagement = () => {
                       top: "6px",
                       right: "6px",
                       background: "rgba(0,0,0,0.6)",
-                      color: "#fff",
+                      color: "var(--light-text)",
                       border: "none",
                       borderRadius: "50%",
                       width: "22px",
@@ -1097,7 +1097,7 @@ const BlogManagement = () => {
                     style={{
                       border: "none",
                       background: serpViewMode === "desktop" ? "var(--pr)" : "transparent",
-                      color: serpViewMode === "desktop" ? "#fff" : "var(--tx3)",
+                      color: serpViewMode === "desktop" ? "var(--light-text)" : "var(--tx3)",
                       fontSize: "11px",
                       fontWeight: 600,
                       padding: "3px 8px",
@@ -1113,7 +1113,7 @@ const BlogManagement = () => {
                     style={{
                       border: "none",
                       background: serpViewMode === "mobile" ? "var(--pr)" : "transparent",
-                      color: serpViewMode === "mobile" ? "#fff" : "var(--tx3)",
+                      color: serpViewMode === "mobile" ? "var(--light-text)" : "var(--tx3)",
                       fontSize: "11px",
                       fontWeight: 600,
                       padding: "3px 8px",
@@ -1140,35 +1140,35 @@ const BlogManagement = () => {
                   /* Mobile Google Result Layout */
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                      <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "#7a0c0c", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "10px", fontWeight: 700 }}>
+                      <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "var(--primary-color)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--light-text)", fontSize: "10px", fontWeight: 700 }}>
                         🔱
                       </div>
                       <div style={{ lineHeight: "1.2" }}>
-                        <div style={{ fontSize: "12px", color: "#202124", fontWeight: 600 }}>jaivarahi.org</div>
-                        <div style={{ fontSize: "10px", color: "#4d5156" }}>https://www.jaivarahi.org › blog › {generatedSlug}</div>
+                        <div style={{ fontSize: "12px", color: "var(--text-strong)", fontWeight: 600 }}>jaivarahi.org</div>
+                        <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>https://www.jaivarahi.org › blog › {generatedSlug}</div>
                       </div>
                     </div>
-                    <div style={{ fontSize: "15px", fontWeight: 500, color: "#1a0dab", lineHeight: "1.3", marginBottom: "4px" }}>
+                    <div style={{ fontSize: "15px", fontWeight: 500, color: "var(--link-color)", lineHeight: "1.3", marginBottom: "4px" }}>
                       {dynamicPreviewTitle}
                     </div>
-                    <div style={{ fontSize: "12px", color: "#4d5156", lineHeight: "1.45" }}>
+                    <div style={{ fontSize: "12px", color: "var(--text-muted)", lineHeight: "1.45" }}>
                       {dynamicPreviewSnippet}
                     </div>
                   </div>
                 ) : (
                   /* Desktop Google Result Layout */
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "#202124", marginBottom: "4px" }}>
-                      <span style={{ color: "#202124" }}>jaivarahi.org</span>
-                      <span style={{ color: "#70757a" }}>›</span>
-                      <span style={{ color: "#4d5156" }}>blog</span>
-                      <span style={{ color: "#70757a" }}>›</span>
-                      <span style={{ color: "#4d5156" }}>{generatedSlug}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--text-strong)", marginBottom: "4px" }}>
+                      <span style={{ color: "var(--text-strong)" }}>jaivarahi.org</span>
+                      <span style={{ color: "var(--text-muted)" }}>›</span>
+                      <span style={{ color: "var(--text-muted)" }}>blog</span>
+                      <span style={{ color: "var(--text-muted)" }}>›</span>
+                      <span style={{ color: "var(--text-muted)" }}>{generatedSlug}</span>
                     </div>
-                    <div style={{ fontSize: "17px", fontWeight: 400, color: "#1a0dab", lineHeight: "1.3", marginBottom: "4px", textDecoration: "none" }}>
+                    <div style={{ fontSize: "17px", fontWeight: 400, color: "var(--link-color)", lineHeight: "1.3", marginBottom: "4px", textDecoration: "none" }}>
                       {dynamicPreviewTitle}
                     </div>
-                    <div style={{ fontSize: "13px", color: "#4d5156", lineHeight: "1.5" }}>
+                    <div style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: "1.5" }}>
                       {dynamicPreviewSnippet}
                     </div>
                   </div>
@@ -1182,7 +1182,7 @@ const BlogManagement = () => {
                     Focus Keyword
                   </label>
                   {formData.focus_keyword && (
-                    <span style={{ fontSize: "10px", color: (hasKeywordInTitle && hasKeywordInDesc && hasKeywordInSlug) ? "#10b981" : "#f59e0b", fontWeight: 700 }}>
+                    <span style={{ fontSize: "10px", color: (hasKeywordInTitle && hasKeywordInDesc && hasKeywordInSlug) ? "var(--valarpirai-ashtami-color)" : "var(--special-color)", fontWeight: 700 }}>
                       {(hasKeywordInTitle && hasKeywordInDesc && hasKeywordInSlug) ? "✓ Great SEO Match" : "⚠️ Partial Match"}
                     </span>
                   )}
@@ -1245,7 +1245,7 @@ const BlogManagement = () => {
                   <span style={{ 
                     fontSize: "10px", 
                     fontWeight: 600,
-                    color: (formData.meta_title?.length || 0) > 60 ? "#ef4444" : ((formData.meta_title?.length || 0) >= 30 ? "#10b981" : "var(--tx3)")
+                    color: (formData.meta_title?.length || 0) > 60 ? "#ef4444" : ((formData.meta_title?.length || 0) >= 30 ? "var(--valarpirai-ashtami-color)" : "var(--tx3)")
                   }}>
                     {formData.meta_title?.length || 0} / 60
                   </span>
@@ -1276,7 +1276,7 @@ const BlogManagement = () => {
                   <span style={{ 
                     fontSize: "10px", 
                     fontWeight: 600,
-                    color: (formData.meta_description?.length || 0) > 160 ? "#ef4444" : ((formData.meta_description?.length || 0) >= 100 ? "#10b981" : "var(--tx3)")
+                    color: (formData.meta_description?.length || 0) > 160 ? "#ef4444" : ((formData.meta_description?.length || 0) >= 100 ? "var(--valarpirai-ashtami-color)" : "var(--tx3)")
                   }}>
                     {formData.meta_description?.length || 0} / 160
                   </span>
@@ -1318,7 +1318,7 @@ const BlogManagement = () => {
                           top: "2px",
                           right: "2px",
                           background: "rgba(0,0,0,0.6)",
-                          color: "#fff",
+                          color: "var(--light-text)",
                           border: "none",
                           borderRadius: "50%",
                           width: "18px",
@@ -1400,7 +1400,7 @@ const BlogManagement = () => {
               </div>
 
               {/* Devotee Blog Detail Simulation */}
-              <div className="modal-body" style={{ flex: 1, overflowY: "auto", padding: "24px 32px", background: "#fcfbf9" }}>
+              <div className="modal-body" style={{ flex: 1, overflowY: "auto", padding: "24px 32px", background: "var(--background-light)" }}>
                 {formData.thumbnail_url && (
                   <div style={{ width: "100%", maxHeight: "360px", overflow: "hidden", borderRadius: "12px", marginBottom: "20px" }}>
                     <img src={formData.thumbnail_url} alt="Header" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -1409,15 +1409,15 @@ const BlogManagement = () => {
                 <div style={{ fontSize: "12px", color: "var(--pr)", fontWeight: 700, textTransform: "uppercase", marginBottom: "8px" }}>
                   {formData.category} • {readingTime} min read
                 </div>
-                <h1 style={{ fontSize: "28px", fontFamily: "Georgia, serif", color: "#1a1a1a", lineHeight: "1.3", marginBottom: "12px" }}>
+                <h1 style={{ fontSize: "28px", fontFamily: "Georgia, serif", color: "var(--text-strong)", lineHeight: "1.3", marginBottom: "12px" }}>
                   {formData.title_ta || formData.title_en || "Sacred Article Title"}
                 </h1>
-                <div style={{ fontSize: "13px", color: "#666", marginBottom: "20px", display: "flex", gap: "12px", borderBottom: "1px solid #eee", paddingBottom: "12px" }}>
+                <div style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "20px", display: "flex", gap: "12px", borderBottom: "1px solid var(--background-medium)", paddingBottom: "12px" }}>
                   <span>Published: {new Date().toLocaleDateString("en-IN")}</span>
                   <span>Author: Swamy Pallur Varahidhasan (Founder)</span>
                 </div>
                 <div
-                  style={{ fontSize: "16px", lineHeight: "1.8", color: "#222" }}
+                  style={{ fontSize: "16px", lineHeight: "1.8", color: "var(--text-strong)" }}
                   dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formData.content_ta || formData.content_en || "<p>No content written yet.</p>") }}
                 />
               </div>
@@ -1570,7 +1570,7 @@ const BlogManagement = () => {
                             borderRadius: "4px", 
                             background: b.status === "Rejected" ? "rgba(239, 68, 68, 0.08)" : "rgba(59, 130, 246, 0.08)",
                             color: b.status === "Rejected" ? "#ef4444" : "var(--tx2)",
-                            borderLeft: `2px solid ${b.status === "Rejected" ? "#ef4444" : "#3b82f6"}`
+                            borderLeft: `2px solid ${b.status === "Rejected" ? "#ef4444" : "var(--pournami-color)"}`
                           }}>
                             <strong>Review Note:</strong> {b.review_notes}
                           </div>
@@ -1618,7 +1618,7 @@ const BlogManagement = () => {
                                 <button
                                   className="btn btn-pr btn-sm"
                                   onClick={() => handleStatusChange(b.id, "Published")}
-                                  style={{ background: "#10b981", borderColor: "#10b981", color: "#fff" }}
+                                  style={{ background: "var(--valarpirai-ashtami-color)", borderColor: "var(--valarpirai-ashtami-color)", color: "var(--light-text)" }}
                                   title="Publish this approved blog to public site"
                                 >
                                   <Check size={12} /> Publish Post
@@ -1628,7 +1628,7 @@ const BlogManagement = () => {
                                 <button
                                   className="btn btn-ol btn-sm"
                                   onClick={() => handleStatusChange(b.id, "Pending")}
-                                  style={{ color: "#3b82f6", borderColor: "#3b82f6" }}
+                                  style={{ color: "var(--pournami-color)", borderColor: "var(--pournami-color)" }}
                                   title="Submit blog post to Super Admin for verification"
                                 >
                                   <Send size={12} /> Submit Review
@@ -1674,7 +1674,7 @@ const BlogManagement = () => {
                                 <button
                                   className="btn btn-pr btn-sm"
                                   onClick={() => handleStatusChange(b.id, "Published")}
-                                  style={{ background: "#10b981", borderColor: "#10b981" }}
+                                  style={{ background: "var(--valarpirai-ashtami-color)", borderColor: "var(--valarpirai-ashtami-color)" }}
                                   title="Directly publish approved post"
                                 >
                                   <Check size={12} /> Publish Live
@@ -1765,7 +1765,7 @@ const BlogManagement = () => {
               <span className="modal-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 {reviewModal.targetStatus === "Approved" ? (
                   <>
-                    <ShieldCheck size={18} color="#10b981" />
+                    <ShieldCheck size={18} color="var(--valarpirai-ashtami-color)" />
                     Verify & Approve Blog Post
                   </>
                 ) : (
@@ -1814,8 +1814,8 @@ const BlogManagement = () => {
                 className="btn btn-pr" 
                 onClick={confirmReviewModal}
                 style={{ 
-                  background: reviewModal.targetStatus === "Approved" ? "#10b981" : "#ef4444", 
-                  borderColor: reviewModal.targetStatus === "Approved" ? "#10b981" : "#ef4444" 
+                  background: reviewModal.targetStatus === "Approved" ? "var(--valarpirai-ashtami-color)" : "#ef4444", 
+                  borderColor: reviewModal.targetStatus === "Approved" ? "var(--valarpirai-ashtami-color)" : "#ef4444" 
                 }}
               >
                 Confirm {reviewModal.targetStatus === "Approved" ? "Approval" : "Rejection"}

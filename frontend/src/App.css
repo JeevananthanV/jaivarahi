@@ -1,8 +1,37 @@
- /* .page-loader {
-  display: flex;
+/* Global Action Button Utilities */
+.book-pooja-btn {
+  position: relative;
+  background: linear-gradient(135deg, var(--special-color, #f39c12) 0%, var(--primary-color, #9a3b34) 100%);
+  color: var(--light-text, #ffffff) !important;
+  padding: 10px 18px;
+  border-radius: var(--border-radius, 4px);
+  font-weight: 700;
+  text-decoration: none;
+  transition: var(--transition, all 0.3s ease);
+  box-shadow: 0 4px 8px rgba(154, 59, 52, 0.25);
+  border: 2px solid var(--special-color, #f39c12);
+  font-family: var(--font-primary, inherit);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40vh;
-  font-size: 1rem;
-  color: #4a4a4a;
- } */
+  gap: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.book-pooja-btn:hover {
+  background: linear-gradient(135deg, var(--accent-color, #e85a4f) 0%, var(--primary-color, #9a3b34) 100%);
+  border-color: var(--accent-color, #e85a4f);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(154, 59, 52, 0.4);
+  color: var(--light-text, #ffffff) !important;
+}
+
+@media (max-width: 991px) {
+  .book-pooja-btn {
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: var(--border-radius, 4px);
+  }
+}
+

@@ -37,10 +37,10 @@ const Services = () => {
     },
     {
       label: 'Kosala',
-      href: '#',
+      href: '/kosala',
       children: [
-        { label: 'Donation', href: '/payment' },
-        { label: 'Donation Archive', href: '/payment' },
+        { label: 'Donation', href: '/kosala' },
+        { label: 'Donation Archive', href: '/kosala/archive' },
       ],
     },
     {
@@ -339,7 +339,7 @@ const ServiceBookingForm = ({ formData, handleInputChange, handleSubmit, isSubmi
             required
             autoComplete="name"
           />
-          {fieldErrors.name && <div style={{ color: '#ff453b', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.name}</div>}
+          {fieldErrors.name && <div style={{ color: 'var(--accent-color)', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.name}</div>}
         </div>
         <div className="svc-form-group">
           <label htmlFor="svc-phone">Phone Number</label>
@@ -354,7 +354,7 @@ const ServiceBookingForm = ({ formData, handleInputChange, handleSubmit, isSubmi
             autoComplete="tel"
             inputMode="tel"
           />
-          {fieldErrors.phone && <div style={{ color: '#ff453b', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.phone}</div>}
+          {fieldErrors.phone && <div style={{ color: 'var(--accent-color)', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.phone}</div>}
         </div>
         <div className="svc-form-group">
           <label htmlFor="svc-service">Service Type</label>
@@ -372,7 +372,7 @@ const ServiceBookingForm = ({ formData, handleInputChange, handleSubmit, isSubmi
             <option value="Special Pooja">Special Pooja</option>
             <option value="Go Seva">Go Seva</option>
           </select>
-          {fieldErrors.service && <div style={{ color: '#ff453b', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.service}</div>}
+          {fieldErrors.service && <div style={{ color: 'var(--accent-color)', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.service}</div>}
         </div>
         <div className="svc-form-group">
           <label htmlFor="svc-date">Preferred Date</label>

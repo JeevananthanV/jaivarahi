@@ -1141,12 +1141,18 @@ input[type="radio"]:checked+label:after {
 
 .mobile-nav-list .menu-link {
     display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
     padding: 10px 15px;
     color: var(--text-color);
     text-decoration: none;
     border-radius: 4px;
     transition: var(--transition);
     font-family: var(--font-primary);
+    font-size: 1rem;
+    cursor: pointer;
 }
 
 .mobile-nav-list .menu-link:hover {
@@ -16979,6 +16985,2165 @@ textarea:focus {
   }
 }
 
+/* ============================================================
+   KOSALA DONATION (கோசாலை தானம்) SECTION
+   ============================================================ */
+
+.kosala-page {
+  font-family: var(--font-primary);
+  color: var(--text-color);
+  background-color: var(--background-light);
+  overflow-x: hidden;
+}
+
+/* ─── Hero Section ─────────────────────────────────────────── */
+.kosala-hero {
+  position: relative;
+  background: linear-gradient(135deg, rgba(30, 7, 10, 0.88) 0%, rgba(74, 14, 23, 0.82) 50%, rgba(154, 59, 52, 0.88) 100%),
+              url('/assets/img/kosala/kosala_hero_bg.jpg') center/cover no-repeat;
+  color: var(--light-text);
+  padding: 140px 0 90px;
+  overflow: hidden;
+}
+
+.kosala-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(rgba(243, 156, 18, 0.2) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.kosala-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 860px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.kosala-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px;
+  background: rgba(243, 156, 18, 0.2);
+  border: 1px solid rgba(243, 156, 18, 0.45);
+  border-radius: 9999px;
+  color: #fde68a;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(8px);
+}
+
+.kosala-hero-title {
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: var(--light-text);
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.kosala-hero-title span {
+  background: linear-gradient(90deg, var(--special-color), #fde68a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.kosala-hero-desc {
+  font-size: clamp(1rem, 1.8vw, 1.18rem);
+  line-height: 1.7;
+  color: #fde68a;
+  max-width: 720px;
+  margin: 0 auto 32px;
+  opacity: 0.95;
+}
+
+.kosala-hero-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+
+.btn-hero-primary {
+  background: linear-gradient(135deg, var(--special-color) 0%, var(--primary-color) 100%);
+  color: var(--light-text) !important;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 14px 34px;
+  border-radius: 50px;
+  box-shadow: 0 10px 25px rgba(154, 59, 52, 0.4);
+  transition: var(--transition);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-hero-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(154, 59, 52, 0.55);
+}
+
+.btn-hero-secondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--light-text) !important;
+  font-weight: 600;
+  font-size: 1.02rem;
+  padding: 14px 28px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(8px);
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-hero-secondary:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: var(--light-text);
+}
+
+.kosala-hero-features {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 24px;
+}
+
+.feature-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+}
+
+.feature-pill i {
+  color: var(--special-color);
+}
+
+/* ─── Navigation Tabs ──────────────────────────────────────── */
+.kosala-nav-tabs-wrapper {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 70px;
+  z-index: 40;
+  box-shadow: var(--navbar-shadow);
+}
+
+.kosala-nav-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 0;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  border-radius: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition);
+}
+
+.tab-btn:hover {
+  color: var(--primary-color);
+  background: rgba(154, 59, 52, 0.08);
+}
+
+.tab-btn.active {
+  background: var(--primary-color);
+  color: var(--light-text);
+  box-shadow: 0 4px 12px rgba(154, 59, 52, 0.3);
+}
+
+/* ─── Stats Overview ───────────────────────────────────────── */
+.kosala-stats-section {
+  padding: 48px 0;
+  background: var(--background-light);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: #ffffff;
+  border-radius: calc(var(--border-radius) * 2);
+  padding: 24px 20px;
+  border: 1px solid rgba(154, 59, 52, 0.15);
+  box-shadow: 0 4px 16px rgba(154, 59, 52, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: var(--transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(154, 59, 52, 0.12);
+  border-color: var(--primary-color);
+}
+
+.stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: calc(var(--border-radius) * 1.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.stat-icon.orange {
+  background: rgba(243, 156, 18, 0.15);
+  color: var(--special-color);
+}
+
+.stat-icon.green {
+  background: rgba(39, 174, 96, 0.15);
+  color: var(--valarpirai-ashtami-color);
+}
+
+.stat-icon.blue {
+  background: rgba(52, 152, 219, 0.15);
+  color: var(--pournami-color);
+}
+
+.stat-icon.red {
+  background: rgba(154, 59, 52, 0.15);
+  color: var(--primary-color);
+}
+
+.stat-value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--text-strong);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.stat-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* ─── Donation Section ─────────────────────────────────────── */
+.kosala-donation-section {
+  padding: 50px 0 80px;
+}
+
+.section-header-centered {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 40px;
+}
+
+.section-tag {
+  display: inline-block;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.section-heading {
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  font-weight: 800;
+  color: var(--text-strong);
+  margin-bottom: 12px;
+}
+
+.section-desc {
+  font-size: 1.05rem;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.donation-grid-layout {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 991px) {
+  .donation-grid-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Category Pills */
+.category-selector-pills {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.cat-pill-btn {
+  padding: 10px 18px;
+  border-radius: var(--border-radius);
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: var(--text-color);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cat-pill-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.cat-pill-btn.active {
+  background: var(--primary-color);
+  color: var(--light-text);
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(154, 59, 52, 0.25);
+}
+
+/* Category Detail Box */
+.category-details-card {
+  background: #ffffff;
+  border: 1px solid rgba(154, 59, 52, 0.15);
+  border-radius: calc(var(--border-radius) * 2.5);
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(154, 59, 52, 0.06);
+  margin-bottom: 24px;
+}
+
+.cat-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cat-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.cat-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(243, 156, 18, 0.15);
+  color: var(--text-emphasis);
+}
+
+.cat-desc {
+  font-size: 0.96rem;
+  color: var(--text-color);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.tier-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.tier-card {
+  border: 2px solid #e5e7eb;
+  border-radius: calc(var(--border-radius) * 1.5);
+  padding: 16px;
+  cursor: pointer;
+  transition: var(--transition);
+  background: #fafafa;
+  position: relative;
+}
+
+.tier-card:hover {
+  border-color: var(--special-color);
+  background: #fffdf8;
+}
+
+.tier-card.selected {
+  border-color: var(--primary-color);
+  background: rgba(154, 59, 52, 0.05);
+  box-shadow: 0 4px 14px rgba(154, 59, 52, 0.15);
+}
+
+.tier-amount {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.tier-duration {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-top: 4px;
+}
+
+.tier-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Custom amount input */
+.custom-amount-box {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: var(--border-radius);
+  padding: 0 16px;
+}
+
+.custom-amount-symbol {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--text-color);
+}
+
+.custom-amount-input {
+  border: none;
+  background: transparent;
+  padding: 14px 10px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  width: 100%;
+  outline: none;
+}
+
+/* Donor Info Card */
+.donor-form-card {
+  background: #ffffff;
+  border: 1px solid rgba(154, 59, 52, 0.15);
+  border-radius: calc(var(--border-radius) * 2.5);
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(154, 59, 52, 0.08);
+  position: sticky;
+  top: 140px;
+}
+
+.form-header-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-group-item {
+  margin-bottom: 16px;
+}
+
+.form-group-item label {
+  display: block;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-bottom: 6px;
+}
+
+.form-group-item label .label-subtext {
+  font-weight: 500;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.form-group-item input,
+.form-group-item select,
+.form-group-item textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: var(--border-radius);
+  font-size: 0.95rem;
+  color: var(--text-strong);
+  outline: none;
+  transition: var(--transition);
+  background: #ffffff;
+}
+
+.form-group-item input:focus,
+.form-group-item select:focus,
+.form-group-item textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(154, 59, 52, 0.18);
+}
+
+.form-error {
+  font-size: 0.78rem;
+  color: #dc2626;
+  margin-top: 4px;
+}
+
+.anonymous-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
+  padding: 12px;
+  background: rgba(243, 156, 18, 0.1);
+  border: 1px solid rgba(243, 156, 18, 0.25);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+}
+
+.anonymous-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
+.anonymous-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-emphasis);
+}
+
+.donation-summary-pill {
+  background: #f3f4f6;
+  border-radius: var(--border-radius);
+  padding: 14px 18px;
+  margin: 20px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.donation-summary-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.donation-summary-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.btn-donate-submit {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: var(--light-text);
+  padding: 15px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(154, 59, 52, 0.35);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-donate-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(154, 59, 52, 0.45);
+}
+
+.btn-donate-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ─── Public Archive Ledger Section ────────────────────────── */
+.kosala-archive-section {
+  padding: 60px 0 90px;
+  background: var(--background-light);
+}
+
+.archive-card-wrapper {
+  background: #ffffff;
+  border: 1px solid rgba(154, 59, 52, 0.15);
+  border-radius: calc(var(--border-radius) * 2.5);
+  box-shadow: 0 6px 24px rgba(154, 59, 52, 0.06);
+  overflow: hidden;
+}
+
+.archive-toolbar {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f3f4f6;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.archive-search-box {
+  position: relative;
+  min-width: 260px;
+  flex: 1;
+  max-width: 400px;
+}
+
+.archive-search-box input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1px solid #d1d5db;
+  border-radius: var(--border-radius);
+  font-size: 0.92rem;
+  outline: none;
+}
+
+.archive-search-box i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.archive-category-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.filter-chip.active {
+  background: var(--primary-color);
+  color: var(--light-text);
+  border-color: var(--primary-color);
+}
+
+.archive-table-container {
+  overflow-x: auto;
+}
+
+.archive-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.archive-table th {
+  background: rgba(154, 59, 52, 0.08);
+  color: var(--secondary-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.archive-table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.92rem;
+  color: var(--text-color);
+}
+
+.archive-table tr:hover td {
+  background: #fffdf8;
+}
+
+.badge-verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(39, 174, 96, 0.15);
+  color: var(--valarpirai-ashtami-color);
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.badge-category {
+  display: inline-block;
+  padding: 4px 10px;
+  background: rgba(243, 156, 18, 0.15);
+  color: var(--text-emphasis);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.btn-receipt-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(154, 59, 52, 0.08);
+  border: 1px solid rgba(154, 59, 52, 0.2);
+  color: var(--primary-color);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.btn-receipt-download:hover {
+  background: var(--primary-color);
+  color: var(--light-text);
+  border-color: var(--primary-color);
+}
+
+.archive-pagination {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f3f4f6;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.pgn-btn-group {
+  display: flex;
+  gap: 6px;
+}
+
+.pgn-action-btn {
+  padding: 6px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: var(--border-radius);
+  background: #ffffff;
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.pgn-action-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ─── Timeline Routine Section ─────────────────────────────── */
+.kosala-routine-section {
+  padding: 70px 0;
+  background: #ffffff;
+}
+
+.routine-timeline-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 36px;
+}
+
+.routine-step-card {
+  background: var(--background-light);
+  border: 1px solid rgba(154, 59, 52, 0.15);
+  border-radius: calc(var(--border-radius) * 2);
+  padding: 22px;
+  position: relative;
+  transition: var(--transition);
+}
+
+.routine-step-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary-color);
+}
+
+.routine-time {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--primary-color);
+  color: var(--light-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.routine-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin-bottom: 8px;
+}
+
+.routine-desc {
+  font-size: 0.88rem;
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+/* ─── Success Modal ────────────────────────────────────────── */
+.kosala-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+
+.kosala-modal-box {
+  background: #ffffff;
+  border-radius: calc(var(--border-radius) * 3);
+  max-width: 520px;
+  width: 100%;
+  padding: 36px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-icon-success {
+  width: 72px;
+  height: 72px;
+  background: rgba(39, 174, 96, 0.15);
+  color: var(--valarpirai-ashtami-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 18px;
+}
+
+.modal-receipt-box {
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: calc(var(--border-radius) * 1.5);
+  padding: 16px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 0.88rem;
+}
+
+.receipt-row:last-child {
+  margin-bottom: 0;
+}
+
+.receipt-row .label {
+  color: var(--text-muted);
+}
+
+.receipt-row .val {
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+/* ─── FAQ Accordion ────────────────────────────────────────── */
+.kosala-faq-section {
+  padding: 60px 0 90px;
+  background: var(--background-light);
+}
+
+.faq-card-item {
+  background: #ffffff;
+  border: 1px solid rgba(154, 59, 52, 0.15);
+  border-radius: calc(var(--border-radius) * 1.5);
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.faq-question-btn {
+  width: 100%;
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  cursor: pointer;
+}
+
+.faq-answer-content {
+  padding: 0 22px 20px;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* ─── Cow Profile Cards ────────────────────────────────────── */
+.cow-profile-card {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.cow-card-header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.cow-card-info-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cow-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 1.4rem;
+}
+
+.cow-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-strong);
+}
+
+.cow-breed-meta {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.badge-sponsored {
+  background: rgba(39, 174, 96, 0.15);
+  color: var(--valarpirai-ashtami-color);
+}
+
+.badge-needs-sponsor {
+  background: rgba(243, 156, 18, 0.15);
+  color: var(--special-color);
+}
+
+.cow-story {
+  font-size: 0.88rem;
+  color: var(--text-color);
+  line-height: 1.5;
+  margin: 6px 0 16px;
+}
+
+.cow-card-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(154, 59, 52, 0.1);
+  padding-top: 12px;
+}
+
+.cow-health-badge {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.cow-health-icon {
+  color: var(--valarpirai-ashtami-color);
+  margin-right: 4px;
+}
+
+.btn-cow-sponsor {
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  border-radius: 20px;
+}
+
+/* ─── Cow Sponsorship Banner ───────────────────────────────── */
+.cow-sponsorship-banner {
+  background: linear-gradient(135deg, rgba(154, 59, 52, 0.08) 0%, rgba(243, 156, 18, 0.12) 100%);
+  border: 1px solid rgba(154, 59, 52, 0.25);
+  border-radius: calc(var(--border-radius) * 2);
+  padding: 28px;
+  margin: 36px 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.cow-sponsorship-text {
+  max-width: 600px;
+}
+
+.cow-sponsorship-tag {
+  font-size: 0.78rem;
+  background: var(--primary-color);
+  color: var(--light-text);
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+
+.cow-sponsorship-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-strong);
+  margin: 10px 0 8px;
+}
+
+.cow-sponsorship-desc {
+  font-size: 0.94rem;
+  color: var(--text-color);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.cow-sponsorship-btn {
+  white-space: nowrap;
+}
+
+/* ─── Physical Cow Procedure Box ───────────────────────────── */
+.physical-cow-info-box {
+  padding: 20px;
+  background: #fffbeb;
+  border-radius: 14px;
+  border: 1px solid #fde68a;
+}
+
+.physical-cow-info-title {
+  color: var(--primary-color);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.physical-cow-info-text {
+  font-size: 0.92rem;
+  color: var(--secondary-color);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.physical-cow-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn-phone-call {
+  padding: 10px 20px;
+  font-size: 0.92rem;
+}
+
+.physical-cow-address {
+  font-size: 0.86rem;
+  color: var(--text-emphasis);
+}
+
+.plan-selector-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin-bottom: 12px;
+}
+
+.custom-amt-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.custom-amt-toggle.active {
+  color: var(--primary-color);
+}
+
+.custom-amt-radio {
+  accent-color: var(--primary-color);
+}
+
+/* ─── Donation Summary & Security ──────────────────────────── */
+.donation-summary-category {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.donation-security-notice {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.donation-security-icon {
+  color: var(--valarpirai-ashtami-color);
+}
+
+/* ─── Payment Status & Alerts ──────────────────────────────── */
+.payment-error-alert {
+  padding: 12px;
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  margin-bottom: 16px;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
+.btn-physical-submit {
+  background: linear-gradient(135deg, var(--valarpirai-ashtami-color) 0%, #047857 100%) !important;
+}
+
+.physical-success-banner {
+  margin-top: 18px;
+  padding: 14px;
+  background: rgba(39, 174, 96, 0.15);
+  color: var(--valarpirai-ashtami-color);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.physical-success-desc {
+  margin-top: 4px;
+  font-size: 0.84rem;
+}
+
+/* ─── Receipt Modal Styles ─────────────────────────────────── */
+.modal-receipt-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-strong);
+  margin-bottom: 8px;
+}
+
+.modal-receipt-desc {
+  font-size: 0.92rem;
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+.receipt-val-mono {
+  font-family: monospace;
+}
+
+.receipt-val-primary {
+  color: var(--primary-color);
+}
+
+.receipt-val-small {
+  font-size: 0.78rem;
+}
+
+.modal-receipt-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-receipt-modal-primary {
+  padding: 12px 24px;
+  font-size: 0.95rem;
+}
+
+.btn-receipt-modal-close {
+  color: var(--text-strong) !important;
+  border-color: #d1d5db;
+  background: #f3f4f6;
+}
+
+.receipt-email-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 10px 14px;
+  border-radius: var(--border-radius);
+  font-size: 0.86rem;
+  font-weight: 600;
+  margin: 14px 0 16px;
+  text-align: left;
+}
+
+.receipt-email-status-banner i {
+  color: #059669;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.receipt-email-send-section {
+  margin: 16px 0 20px;
+  text-align: left;
+}
+
+.receipt-email-send-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.receipt-email-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.receipt-email-input {
+  flex: 1;
+  padding: 9px 12px;
+  font-size: 0.86rem;
+  border: 1px solid #d1d5db;
+  border-radius: var(--border-radius);
+  background: #ffffff;
+  color: var(--text-strong);
+  outline: none;
+  transition: var(--transition);
+}
+
+.receipt-email-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(154, 59, 52, 0.12);
+}
+
+.receipt-email-send-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--primary-color);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.receipt-email-send-btn:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.receipt-email-send-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.receipt-email-feedback {
+  font-size: 0.82rem;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.receipt-email-feedback.success {
+  color: #059669;
+}
+
+.receipt-email-feedback.error {
+  color: #dc2626;
+}
+
+/* ─── Archive Table Additions ──────────────────────────────── */
+.archive-loading-state {
+  padding: 60px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.archive-loading-icon {
+  font-size: 1.8rem;
+  color: var(--primary-color);
+}
+
+.archive-loading-text {
+  margin-top: 12px;
+}
+
+.archive-empty-cell {
+  text-align: center;
+  padding: 50px;
+  color: var(--text-muted);
+}
+
+.receipt-code-mono {
+  font-family: monospace;
+  color: var(--text-strong);
+}
+
+.archive-amount-cell {
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.archive-processing-badge {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.pgn-page-indicator {
+  padding: 6px 12px;
+  font-weight: 600;
+}
+
+/* ─── Kosala Gallery Section ───────────────────────────────── */
+.kosala-gallery-section {
+  padding: 60px 0;
+  background: #ffffff;
+}
+
+.kosala-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.gallery-card {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+  border-radius: calc(var(--border-radius) * 2);
+}
+
+.gallery-card-img-wrap {
+  height: 180px;
+  overflow: hidden;
+  background: var(--background-light);
+}
+
+.gallery-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition);
+}
+
+.gallery-card-body {
+  padding: 16px;
+}
+
+.gallery-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin-bottom: 4px;
+}
+
+.gallery-card-desc {
+  font-size: 0.84rem;
+  color: var(--text-color);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ─── FAQ & Page Level Utilities ───────────────────────────── */
+.faq-container-narrow {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-chevron-icon {
+  color: var(--primary-color);
+}
+
+.donor-form-icon {
+  color: var(--primary-color);
+}
+
+.kosala-cows-wrapper {
+  margin-top: 50px;
+}
+
+.header-compact {
+  margin-bottom: 24px;
+}
+
+.heading-sub {
+  font-size: 1.8rem;
+}
+
+.cow-profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* ─── Cross Linking Banner for Payment Page ────────────────── */
+.kosala-cross-link {
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  background: rgba(154, 59, 52, 0.08);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(154, 59, 52, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.kosala-cross-text {
+  font-size: 0.92rem;
+  color: var(--text-strong);
+  font-weight: 500;
+}
+
+.kosala-cross-text strong {
+  color: var(--primary-color);
+}
+
+.kosala-cross-icon {
+  color: var(--primary-color);
+  margin-right: 6px;
+}
+
+.kosala-cross-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.payment-pending-alert {
+  padding: 14px;
+  background: rgba(52, 152, 219, 0.12);
+  color: #1d4ed8;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+  border: 1px solid rgba(52, 152, 219, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.payment-error-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.payment-error-text {
+  margin: 6px 0 10px;
+  font-size: 0.86rem;
+}
+
+.btn-retry {
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  color: #b91c1c !important;
+  border-color: #fca5a5;
+  background: #ffffff;
+}
+
+.cow-profile-photo {
+  object-fit: cover;
+  border-radius: calc(var(--border-radius) * 1.5);
+}
+
+.cow-tag-mono {
+  font-family: monospace;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.cow-footer-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* ─── Cow Details Page ─────────────────────────────────────── */
+.cow-details-container {
+  padding: 60px 0 100px;
+  background: var(--background-light);
+}
+
+.cow-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 36px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .cow-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cow-details-img-box {
+  background: #ffffff;
+  border-radius: calc(var(--border-radius) * 2.5);
+  border: 1px solid rgba(154, 59, 52, 0.15);
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(154, 59, 52, 0.08);
+}
+
+.cow-details-img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  display: block;
+}
+
+.cow-details-meta-card {
+  padding: 24px;
+}
+
+.cow-details-info-card {
+  background: #ffffff;
+  border-radius: calc(var(--border-radius) * 2.5);
+  border: 1px solid rgba(154, 59, 52, 0.15);
+  padding: 32px;
+  box-shadow: 0 8px 30px rgba(154, 59, 52, 0.08);
+}
+
+.cow-details-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cow-details-name {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--text-strong);
+}
+
+.cow-details-tag {
+  font-family: monospace;
+  font-size: 0.95rem;
+  background: #f3f4f6;
+  padding: 4px 12px;
+  border-radius: 6px;
+  color: var(--text-muted);
+  border: 1px solid #e5e7eb;
+}
+
+.cow-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin: 24px 0;
+}
+
+.cow-spec-item {
+  background: var(--background-light);
+  padding: 14px;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(154, 59, 52, 0.1);
+}
+
+.cow-spec-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.cow-spec-val {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin-top: 4px;
+}
+
+.cow-details-story {
+  font-size: 1.02rem;
+  color: var(--text-color);
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.cow-medical-log-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: calc(var(--border-radius) * 1.5);
+  padding: 20px;
+  margin-bottom: 28px;
+}
+
+.cow-medical-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cow-medical-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed #e5e7eb;
+  font-size: 0.88rem;
+}
+
+.cow-medical-item:last-child {
+  border-bottom: none;
+}
+
+/* ─── Printable Authorized Receipt Page ─────────────────────── */
+.official-receipt-page {
+  padding: 50px 0 90px;
+  background: #f4f6f8;
+}
+
+.official-receipt-card {
+  max-width: 760px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  padding: 44px;
+  position: relative;
+  overflow: hidden;
+}
+
+.receipt-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 7rem;
+  font-weight: 900;
+  color: rgba(154, 59, 52, 0.04);
+  pointer-events: none;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.receipt-top-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid rgba(154, 59, 52, 0.2);
+  padding-bottom: 24px;
+  margin-bottom: 28px;
+}
+
+.receipt-temple-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  margin-bottom: 4px;
+}
+
+.receipt-temple-sub {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.receipt-meta-block {
+  text-align: right;
+}
+
+.receipt-badge-official {
+  display: inline-block;
+  background: rgba(39, 174, 96, 0.12);
+  color: var(--valarpirai-ashtami-color);
+  border: 1px solid rgba(39, 174, 96, 0.3);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+}
+
+.receipt-number-label {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.receipt-number-code {
+  font-family: monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.receipt-donor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background: var(--background-light);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  margin-bottom: 28px;
+}
+
+.receipt-donor-item .label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.receipt-donor-item .val {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin-top: 3px;
+}
+
+.receipt-table-box {
+  width: 100%;
+  margin-bottom: 28px;
+}
+
+.receipt-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.receipt-summary-table th {
+  background: #f8fafc;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+  color: var(--text-muted);
+}
+
+.receipt-summary-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.95rem;
+}
+
+.receipt-total-row td {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  border-bottom: 2px solid rgba(154, 59, 52, 0.3);
+}
+
+.receipt-tax-note {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 28px;
+  font-size: 0.86rem;
+  color: #166534;
+  line-height: 1.5;
+}
+
+.receipt-sign-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.receipt-sign-box {
+  text-align: center;
+}
+
+.receipt-sign-line {
+  width: 180px;
+  border-top: 1px solid #94a3b8;
+  margin-bottom: 6px;
+}
+
+.receipt-sign-title {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.receipt-toolbar-actions {
+  max-width: 760px;
+  margin: 0 auto 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .official-receipt-card, .official-receipt-card * {
+    visibility: visible;
+  }
+  .official-receipt-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  .receipt-toolbar-actions, header, footer {
+    display: none !important;
+  }
+}
+
+/* ─── Result / Status Pages ────────────────────────────────── */
+.donation-result-page {
+  padding: 90px 0 120px;
+  background: var(--background-light);
+  min-height: 75vh;
+  display: flex;
+  align-items: center;
+}
+
+.donation-result-card {
+  max-width: 620px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: calc(var(--border-radius) * 3);
+  padding: 44px 36px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(154, 59, 52, 0.08);
+  border: 1px solid rgba(154, 59, 52, 0.15);
+}
+
+.result-icon-lg {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  margin: 0 auto 24px;
+}
+
+.result-icon-lg.success {
+  background: rgba(39, 174, 96, 0.15);
+  color: var(--valarpirai-ashtami-color);
+}
+
+.result-icon-lg.failure {
+  background: rgba(220, 38, 38, 0.15);
+  color: #dc2626;
+}
+
+.result-title-lg {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-strong);
+  margin-bottom: 12px;
+}
+
+.result-desc-lg {
+  font-size: 1.02rem;
+  color: var(--text-color);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+/* ─── Admin Kosala Portal Styles ───────────────────────────── */
+.admin-kosala-wrap {
+  padding: 24px;
+}
+
+.admin-kosala-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.admin-kosala-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-strong);
+}
+
+.admin-kosala-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.admin-stat-box {
+  background: #ffffff;
+  border-radius: var(--border-radius);
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.admin-stat-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.admin-stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  margin-top: 6px;
+}
+
+.admin-stat-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.admin-table-card {
+  background: #ffffff;
+  border-radius: var(--border-radius);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.admin-toolbar-row {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-fallback-banner {
+  background: rgba(243, 156, 18, 0.12);
+  border: 1px solid rgba(243, 156, 18, 0.35);
+  border-radius: var(--border-radius);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 22px;
+  font-size: 0.88rem;
+  color: var(--text-strong);
+}
+
+.admin-fallback-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-fallback-icon {
+  color: #d97706;
+  font-size: 1.15rem;
+}
+
+.admin-spinner-wrap {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
 
 
+/* ─── About Kosala Section ─────────────────────────────────── */
+.kosala-about-section {
+  padding: 70px 0 60px;
+  background: #ffffff;
+}
 
+.about-mission-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 36px;
+}
+
+.about-mission-card {
+  background: var(--background-light);
+  border: 1px solid rgba(154, 59, 52, 0.15);
+  border-radius: calc(var(--border-radius) * 2);
+  padding: 28px 24px;
+  transition: var(--transition);
+}
+
+.about-mission-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-color);
+  box-shadow: 0 8px 24px rgba(154, 59, 52, 0.1);
+}
+
+.about-mission-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(154, 59, 52, 0.12);
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 18px;
+}
+
+.about-mission-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin-bottom: 10px;
+}
+
+.about-mission-text {
+  font-size: 0.92rem;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* ─── Contact Temple CTA Section ───────────────────────────── */
+.kosala-contact-section {
+  padding: 70px 0 90px;
+  background: linear-gradient(135deg, rgba(154, 59, 52, 0.05) 0%, rgba(243, 156, 18, 0.08) 100%);
+  border-top: 1px solid rgba(154, 59, 52, 0.15);
+}
+
+.kosala-contact-card {
+  background: #ffffff;
+  border-radius: calc(var(--border-radius) * 3);
+  padding: 44px 36px;
+  border: 1px solid rgba(154, 59, 52, 0.2);
+  box-shadow: 0 10px 30px rgba(154, 59, 52, 0.06);
+}
+
+.contact-channels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.contact-channel-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--background-light);
+  border-radius: calc(var(--border-radius) * 1.5);
+  border: 1px solid rgba(154, 59, 52, 0.1);
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition);
+}
+
+.contact-channel-item:hover {
+  border-color: var(--primary-color);
+  background: #fffdf8;
+  transform: translateY(-2px);
+}
+
+.contact-channel-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(154, 59, 52, 0.12);
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.contact-channel-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.contact-channel-val {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  margin-top: 2px;
+}

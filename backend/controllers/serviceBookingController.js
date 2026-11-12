@@ -1,5 +1,6 @@
 import pool from "../db/pool.js";
 import { normalizePhone } from "../lib/phoneUtils.js";
+import notificationService from "../services/notificationService.js";
 
 const getDb = (req) => req.app.locals.db || pool;
 
@@ -142,6 +143,15 @@ export const createBooking = async (req, res) => {
     }
 
     await connection.commit();
+
+    notificationService.notifyNewBooking({
+      bookingId,
+      serviceName: service_type || 'General Service',
+      devoteeName: String(customer_name).trim(),
+      contact: normalizedPhone,
+      amount: Number(total_amount) || 0,
+      bookingNumber,
+    }).catch(err => console.warn('BOOKING NOTIFICATION ERROR:', err.message));
 
     return res.status(201).json({
       success: true,

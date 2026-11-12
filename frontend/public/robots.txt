@@ -1,17 +1,111 @@
-# Allow all standard search engine crawlers
+# ==============================================================================
+# Robots.txt for Jai Varahi Peedam (https://www.jaivarahi.org)
+# Sri Kottai Varahi Amman Temple & Charitable Trust, Katpadi, Vellore
+# ==============================================================================
+
 User-agent: *
 Allow: /
+Allow: /about
+Allow: /services
+Allow: /book-pooja
+Allow: /devoteesdetails
+Allow: /payment
+Allow: /Jothidam
+Allow: /varahimalai
+Allow: /who_is_varahi
+Allow: /Uchchishta_Ganapati
+Allow: /sri_bala_manthiram
+Allow: /astavarahi
+Allow: /astavarahi2
+Allow: /ashada_navarathiri
+Allow: /calendar
 Allow: /blog
 Allow: /blog/*
+Allow: /terms-condition
+Allow: /privacy-policy
 Allow: /assets/
 Allow: /uploads/
+Allow: /llms.txt
+Allow: /llms-full.txt
 
-# Disallow private admin portals and internal API endpoints
+# Restrict admin dashboards and internal API endpoints
 Disallow: /admin
 Disallow: /admin/*
 Disallow: /api/admin/
 Disallow: /api/admin/*
+Disallow: /api/
 
-# Declare XML Sitemaps
+# AI & LLM Assistants (Full Knowledge Retrieval Allowed)
+User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /api/
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /api/
+
+User-agent: Claude-Web
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /api/
+
+User-agent: Anthropic-AI
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /api/
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /api/
+
+User-agent: Google-Extended
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /api/
+
+User-agent: Applebot-Extended
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /api/
+
+User-agent: CCBot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /api/
+
+User-agent: Bytespider
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /api/
+
+User-agent: Cohere-ai
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /admin
+Disallow: /api/
+
+# XML Sitemaps
 Sitemap: https://www.jaivarahi.org/sitemap.xml
 Sitemap: https://www.jaivarahi.org/sitemap-blogs.xml

@@ -9,11 +9,11 @@ function IndexCta() {
         <h2>Begin Your Varahi Seva Today</h2>
         <p>Book pooja services, follow temple schedules, and support sacred rituals at Jai Varahi Peedam.</p>
         <div className="site-cta__actions">
-          <a href="/devoteesdetails" className="site-cta__btn">
-            Register Devotee Details
+          <a href="/book-pooja" className="site-cta__btn">
+            Book Pooja
           </a>
-          <a href="/calendar" className="site-cta__btn site-cta__btn--alt">
-            View Calendar
+          <a href="/payment" className="site-cta__btn site-cta__btn--alt">
+            Donate Now
           </a>
         </div>
       </div>

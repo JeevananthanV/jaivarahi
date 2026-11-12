@@ -153,6 +153,8 @@ const adminApi = {
   // Donations
   getDonations: wrapGet('/donations'),
   deleteDonation: async (id) => (await api.delete(`/donations/${id}`, withToken())).data,
+  sendDonationReceipt: async (paymentId, email) => (await publicApi.post('/payments/donation/send-receipt-email', { paymentId, email })).data,
+
 
   // Prasadham
   getPrasadham: wrapGet('/prasadham'),
@@ -361,14 +363,69 @@ const adminApi = {
   createAnniversarySSE: (onMessage) => {
     const source = new EventSource(`${BACKEND_URL}/api/realtime/anniversaries`);
     source.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (onMessage) onMessage(data);
+      try {
+        const data = JSON.parse(event.data);
+        if (onMessage) onMessage(data);
+      } catch {}
     };
     source.onerror = (err) => {
       console.warn("Anniversary SSE error:", err);
       source.close();
     };
     return source;
+  },
+
+  // Full-spectrum unified real-time stream (bookings, payments, consultations, celebrations)
+  createRealtimeStream: (onEvent, onError) => {
+    let source = null;
+    let reconnectTimeout = null;
+    let delay = 2000;
+
+    const connect = () => {
+      source = new EventSource(`${BACKEND_URL}/api/realtime/stream`);
+
+      source.onopen = () => {
+        delay = 2000; // Reset backoff on successful connect
+      };
+
+      source.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (onEvent) onEvent(payload);
+        } catch (err) {
+          console.warn("Realtime stream parse warning:", err);
+        }
+      };
+
+      // Custom event listeners
+      const events = ['booking_created', 'payment_confirmed', 'jothidam_requested', 'prasadham_requested', 'birthday', 'anniversary', 'contact_message'];
+      events.forEach(evtName => {
+        source.addEventListener(evtName, (event) => {
+          try {
+            const payload = JSON.parse(event.data);
+            if (onEvent) onEvent({ event: evtName, ...payload });
+          } catch {}
+        });
+      });
+
+      source.onerror = (err) => {
+        if (onError) onError(err);
+        source.close();
+        reconnectTimeout = setTimeout(() => {
+          delay = Math.min(delay * 1.5, 30000);
+          connect();
+        }, delay);
+      };
+    };
+
+    connect();
+
+    return {
+      close: () => {
+        if (reconnectTimeout) clearTimeout(reconnectTimeout);
+        if (source) source.close();
+      }
+    };
   },
 };
 

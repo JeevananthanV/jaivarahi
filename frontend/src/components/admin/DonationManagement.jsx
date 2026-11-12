@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Download, RefreshCcw, Eye, Trash2, Search, CheckCircle, XCircle } from 'lucide-react';
+import { Download, RefreshCcw, Eye, Trash2, Search, CheckCircle, XCircle, FileText, Mail, Send } from 'lucide-react';
 import adminApi from './adminApi';
 import { useAdminAuth } from './AdminAuthContext';
 import { isRole } from './roles';
+import BACKEND_URL from '../../api/config';
 
 const INR = (v) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(v || 0);
 const FMT = (v) => v ? new Date(v).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
@@ -18,6 +19,9 @@ const DonationManagement = () => {
   const limit = 10;
   
   const [selectedRow, setSelectedRow] = useState(null);
+  const [resendEmail, setResendEmail] = useState('');
+  const [isResending, setIsResending] = useState(false);
+  const [resendStatus, setResendStatus] = useState(null);
   const [monthlyTotal, setMonthlyTotal] = useState(0);
   const loadingRef = useRef(false);
 
@@ -177,6 +181,42 @@ const DonationManagement = () => {
     return <span className={`badge ${cls}`}>{status}</span>;
   };
 
+  const handleRowSelect = (row) => {
+    setSelectedRow(row);
+    setResendEmail(row?.donor_email || '');
+    setResendStatus(null);
+  };
+
+  const handleSendReceiptEmail = async (e) => {
+    if (e) e.preventDefault();
+    const email = (resendEmail || '').trim();
+    if (!email || !email.includes('@')) {
+      setResendStatus({ type: 'error', message: 'Please enter a valid devotee email.' });
+      return;
+    }
+    const paymentId = selectedRow?.payment_id || selectedRow?.receipt_number || selectedRow?.id;
+    if (!paymentId) {
+      setResendStatus({ type: 'error', message: 'No payment or receipt ID found for this record.' });
+      return;
+    }
+
+    try {
+      setIsResending(true);
+      setResendStatus(null);
+      const res = await adminApi.sendDonationReceipt(paymentId, email);
+      if (res?.success) {
+        setResendStatus({ type: 'success', message: `Official receipt successfully sent to ${email}` });
+        setSelectedRow(prev => ({ ...prev, donor_email: email }));
+      } else {
+        throw new Error(res?.error || 'Failed to send receipt email');
+      }
+    } catch (err) {
+      setResendStatus({ type: 'error', message: err.response?.data?.error || err.message || 'Error sending receipt' });
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   const pages = Math.max(1, Math.ceil(total / limit));
 
   return (
@@ -277,7 +317,10 @@ const DonationManagement = () => {
                   data.map(r => (
                     <tr key={r.id}>
                       <td>{r.id}</td>
-                      <td><strong>{r.name || '—'}</strong></td>
+                      <td>
+                        <strong>{r.name || '—'}</strong>
+                        {r.donor_email && <div style={{ fontSize: '11px', color: 'var(--tx3)' }}>{r.donor_email}</div>}
+                      </td>
                       <td>{r.phone}</td>
                       <td>{r.city || '—'}</td>
                       <td style={{ fontWeight: 600, color: 'var(--saf)' }}>{INR(r.amount_inr)}</td>
@@ -285,11 +328,11 @@ const DonationManagement = () => {
                       <td style={{ fontFamily: 'monospace', fontSize: '11px' }}>{(r.order_id || '').slice(-10)}</td>
                       <td style={{ color: 'var(--tx3)' }}>{FMT(r.created_at)}</td>
                        <td>
-                         <button className="btn btn-ol btn-sm" onClick={() => setSelectedRow(r)} style={{ marginRight: '5px' }}>
+                         <button className="btn btn-ol btn-sm" onClick={() => handleRowSelect(r)} style={{ marginRight: '5px' }}>
                            <Eye size={12} /> View
                          </button>
                          {r.status === 'created' && isRole(user, 'Super Admin', 'Admin') && (
-                           <button className="btn btn-ol btn-sm" onClick={() => handleUpdateStatus(r.id, 'paid')} style={{ borderColor: '#30d158', color: '#30d158', marginRight: '5px' }}>
+                           <button className="btn btn-ol btn-sm" onClick={() => handleUpdateStatus(r.id, 'paid')} style={{ borderColor: 'var(--valarpirai-ashtami-color)', color: 'var(--valarpirai-ashtami-color)', marginRight: '5px' }}>
                              <CheckCircle size={12} /> Paid
                            </button>
                          )}
@@ -328,12 +371,91 @@ const DonationManagement = () => {
 
       {selectedRow && (
         <div className="modal-ov" onClick={(e) => { if (e.target.className === 'modal-ov') setSelectedRow(null) }}>
-          <div className="modal">
+          <div className="modal" style={{ maxWidth: '580px' }}>
             <div className="modal-hd">
-              <span className="modal-title">Record #{selectedRow.id}</span>
+              <span className="modal-title">Donation Record #{selectedRow.id}</span>
               <button className="modal-x" onClick={() => setSelectedRow(null)}>×</button>
             </div>
             <div className="modal-body">
+              {/* Official Receipt & Email Section */}
+              <div style={{
+                padding: '14px',
+                background: 'var(--bg2, #f9fafb)',
+                border: '1px solid var(--bd)',
+                borderRadius: '8px',
+                marginBottom: '16px'
+              }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <FileText size={15} style={{ color: 'var(--saf, #9a3b34)' }} />
+                  <span>Official 80G Digital PDF Receipt</span>
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                  <a
+                    href={`${BACKEND_URL}/api/payments/donation/receipt/${selectedRow.payment_id || selectedRow.receipt_number || selectedRow.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-ol btn-sm"
+                    style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    <Download size={13} /> Download PDF Receipt
+                  </a>
+                  {selectedRow.payment_id && (
+                    <a
+                      href={`/kosala/receipt/${selectedRow.payment_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-ol btn-sm"
+                      style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <Eye size={13} /> Public Ledger Record
+                    </a>
+                  )}
+                </div>
+
+                {/* Email dispatch section */}
+                <div style={{ borderTop: '1px solid var(--bd)', paddingTop: '10px' }}>
+                  <label htmlFor="admin-resend-email" style={{ fontSize: '12px', fontWeight: 600, color: 'var(--tx2)', display: 'block', marginBottom: '6px' }}>
+                    <Mail size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                    Email PDF Receipt to Devotee:
+                  </label>
+                  <form onSubmit={handleSendReceiptEmail} style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      id="admin-resend-email"
+                      type="email"
+                      className="fi"
+                      style={{ flex: 1, padding: '6px 10px', fontSize: '12px' }}
+                      placeholder="devotee@example.com"
+                      value={resendEmail}
+                      onChange={(e) => {
+                        setResendEmail(e.target.value);
+                        if (resendStatus) setResendStatus(null);
+                      }}
+                      disabled={isResending}
+                    />
+                    <button
+                      type="submit"
+                      className="btn btn-pri btn-sm"
+                      disabled={isResending}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}
+                    >
+                      {isResending ? <RefreshCcw size={12} className="spin" /> : <Send size={12} />}
+                      {isResending ? 'Sending...' : 'Send Mail'}
+                    </button>
+                  </form>
+                  {resendStatus && (
+                    <div style={{
+                      marginTop: '6px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      color: resendStatus.type === 'success' ? 'var(--ok, #16a34a)' : 'var(--er, #dc2626)'
+                    }}>
+                      {resendStatus.message}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {Object.entries(selectedRow).map(([k, v]) => (
                 <div className="detail-row" key={k}>
                   <div className="detail-key">{k.replace(/_/g, ' ')}</div>

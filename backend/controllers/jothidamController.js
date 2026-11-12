@@ -1,6 +1,7 @@
 import pool from "../db/pool.js";
 import { syncSingleContact } from "../lib/contactSync.js";
 import { sendTemplatedSMS } from "../lib/templateService.js";
+import notificationService from "../services/notificationService.js";
 
 const TABLE = "jothidam_bookings";
 const TIMELINE_TABLE = "jothidam_booking_timeline";
@@ -72,7 +73,7 @@ export const createBooking = async (req, res) => {
         address || null,
         alternate_number || null,
         existing_horoscope || null,
-        String(consultation_mode).trim(),
+        consultation_mode ? String(consultation_mode).trim() : 'Online',
         mode_detail_json ? JSON.stringify(mode_detail_json) : null,
         appointment_date || null,
         appointment_time || null,
@@ -105,6 +106,15 @@ export const createBooking = async (req, res) => {
       { name: String(customer_name).trim(), consultation_type: service_type || "Consultation", booking_id: bookingId },
       `Dear ${String(customer_name).trim()}, your jothidam booking has been received. We will contact you shortly.`
     ).catch((err) => console.error("JOTHIDAM SMS ERROR:", err.message));
+
+    notificationService.notifyJothidamBooking({
+      bookingId,
+      devoteeName: String(customer_name).trim(),
+      contact: normalizedPhone,
+      date: appointment_date || alternative_date || null,
+      time: appointment_time || alternative_time || null,
+      birthPlace: birth_place || null,
+    }).catch(err => console.warn("JOTHIDAM REALTIME ERROR:", err.message));
 
     await db.execute(
       `INSERT INTO ${TIMELINE_TABLE} (booking_id, status, actor, note) VALUES (?, 'DRAFT', 'customer', 'Booking created as draft')`,

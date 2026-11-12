@@ -36,12 +36,24 @@ export const verifyPrasadhamPayment = async ({ payload }) => {
   return postJson('/api/payments/prasadham/verify-payment', payload, 'Failed to verify payment');
 };
 
-export const createDonationOrder = async ({ amount, name, phone, city }) => {
-  return postJson('/api/payments/donation/create-order', { amount, name, contact: phone, city }, 'Failed to create donation order');
+export const createDonationOrder = async ({ amount, name, phone, email, city }) => {
+  return postJson(
+    '/api/payments/donation/create-order',
+    { amount, name, contact: phone, donor_email: email, city },
+    'Failed to create donation order'
+  );
 };
 
 export const verifyDonationPayment = async ({ payload }) => {
   return postJson('/api/payments/donation/verify-payment', payload, 'Failed to verify donation payment');
+};
+
+export const sendDonationReceiptToEmail = async ({ paymentId, email }) => {
+  return postJson(
+    '/api/payments/donation/send-receipt-email',
+    { paymentId, email },
+    'Failed to send receipt to email'
+  );
 };
 
 export const createJothidamOrder = async (bookingId, amount) => {
@@ -51,3 +63,10 @@ export const createJothidamOrder = async (bookingId, amount) => {
 export const verifyJothidamPayment = async (bookingId, payload) => {
   return postJson(`/api/jothidam/verify-payment/${bookingId}`, payload, 'Failed to verify jothidam payment');
 };
+
+export const getPublicDonationArchive = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const response = await fetch(`${BACKEND_URL}/api/payments/donation/public-archive?${query}`);
+  return readJsonResponse(response, 'Failed to fetch public donation archive');
+};
+

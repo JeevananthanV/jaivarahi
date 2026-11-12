@@ -154,7 +154,7 @@ const JothidamBookingWizard = ({ onComplete }) => {
           ))}
         </div>
         <div className="jothidam-form__panel" style={{ textAlign: 'center', padding: '40px 20px' }}>
-          <div style={{ fontSize: '48px', color: '#28a745', marginBottom: '16px' }}>✓</div>
+          <div style={{ fontSize: '48px', color: 'var(--valarpirai-ashtami-color)', marginBottom: '16px' }}>✓</div>
           <h3 className="jothidam-form__section-title">Booking Confirmed!</h3>
           <p>Your astrology consultation has been booked successfully. We will contact you shortly to confirm the details.</p>
           {message.text && (

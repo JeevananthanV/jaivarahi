@@ -100,11 +100,11 @@ const EntryManagement = () => {
                   {scanLoading ? 'Checking...' : 'Submit'}
                 </button>
               </div>
-              {scanError && <div style={{ color: '#ff453b', fontSize: '12px', marginTop: '6px', textAlign: 'left' }}>{scanError}</div>}
+              {scanError && <div style={{ color: 'var(--accent-color)', fontSize: '12px', marginTop: '6px', textAlign: 'left' }}>{scanError}</div>}
             </form>
             
             {scanResult && (
-              <div style={{ marginTop: 15, padding: 15, borderRadius: 8, background: scanResult.success ? '#d4edda' : '#f8d7da', color: scanResult.success ? '#155724' : '#721c24', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+              <div style={{ marginTop: 15, padding: 15, borderRadius: 8, background: scanResult.success ? 'var(--hover-bg)' : 'rgba(232, 90, 79, 0.1)', color: scanResult.success ? 'var(--valarpirai-ashtami-color)' : 'var(--accent-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                 {scanResult.success ? <CheckCircle size={20} /> : <XCircle size={20} />}
                 <strong>{scanResult.message}</strong>
               </div>

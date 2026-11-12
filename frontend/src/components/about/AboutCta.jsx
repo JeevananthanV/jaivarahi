@@ -8,11 +8,11 @@ const AboutCta = ({ ctaData }) => {
         <h2>{ctaData.title}</h2>
         <p>{ctaData.description}</p>
         <div className="about-cta__actions">
-          <Link to={ctaData.primaryButton.link} className="about-cta__btn">
-            {ctaData.primaryButton.text}
+          <Link to="/book-pooja" className="about-cta__btn">
+            Book Pooja
           </Link>
-          <Link to={ctaData.secondaryButton.link} className="about-cta__btn about-cta__btn--alt">
-            {ctaData.secondaryButton.text}
+          <Link to="/payment" className="about-cta__btn about-cta__btn--alt">
+            Donate Now
           </Link>
         </div>
       </div>

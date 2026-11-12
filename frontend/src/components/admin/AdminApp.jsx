@@ -41,6 +41,13 @@ import BlogManagement from './BlogManagement';
 import MediaLibrary from './MediaLibrary';
 import BirthdayReminder from './BirthdayReminder';
 import WeddingAnniversary from './WeddingAnniversary';
+import KosalaDashboard from './kosala/KosalaDashboard';
+import DonationsList from './kosala/DonationsList';
+import DonationArchive from './kosala/DonationArchive';
+import CowManagement from './kosala/CowManagement';
+import SponsorshipManagement from './kosala/SponsorshipManagement';
+import PaymentReconciliation from './kosala/PaymentReconciliation';
+import KosalaReports from './kosala/KosalaReports';
 
 const AdminApp = () => {
   const navigate = useNavigate();
@@ -118,6 +125,17 @@ const AdminApp = () => {
           <Route path="jothidam-astrologers" element={<AstrologerManagement />} />
           <Route path="jothidam-pricing" element={<JothidamPricing />} />
           <Route path="jothidam-reports" element={<JothidamReports />} />
+
+          
+          {/* Kosala Admin Routes */}
+          <Route path="kosala" element={<Navigate to="dashboard" replace />} />
+          <Route path="kosala/dashboard" element={<KosalaDashboard />} />
+          <Route path="kosala/donations" element={<DonationsList />} />
+          <Route path="kosala/archive" element={<DonationArchive />} />
+          <Route path="kosala/cows" element={<CowManagement />} />
+          <Route path="kosala/sponsorships" element={<SponsorshipManagement />} />
+          <Route path="kosala/reconciliation" element={<PaymentReconciliation />} />
+          <Route path="kosala/reports" element={<KosalaReports />} />
 
         </Route>
       </Routes>

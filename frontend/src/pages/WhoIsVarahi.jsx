@@ -28,10 +28,10 @@ const WhoIsVarahi = () => {
     },
     {
       label: 'Kosala',
-      href: '#',
+      href: '/kosala',
       children: [
-        { label: 'Donation', href: '/payment' },
-        { label: 'Donation Archive', href: '/payment' },
+        { label: 'Donation', href: '/kosala' },
+        { label: 'Donation Archive', href: '/kosala/archive' },
       ],
     },
     {
@@ -197,8 +197,8 @@ const WhoIsVarahi = () => {
                 <h2>Start Authentic Varahi Worship</h2>
                 <p>Learn the path, follow sacred discipline, and receive practical devotional guidance.</p>
                 <div className="site-cta__actions">
-                <a href="/varahimalai" className="site-cta__btn">Explore Mantras</a>
-                <a href="/payment" className="site-cta__btn site-cta__btn--alt">Support Peedam</a>
+                <a href="/book-pooja" className="site-cta__btn">Book Pooja</a>
+                <a href="/payment" className="site-cta__btn site-cta__btn--alt">Donate to Temple</a>
                 </div>
             </div>
         </section>

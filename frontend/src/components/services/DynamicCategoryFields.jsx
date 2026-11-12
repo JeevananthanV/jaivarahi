@@ -36,7 +36,7 @@ const DynamicCategoryFields = ({ category, formData, onChange, errors = {} }) =>
   const fields = FIELD_CONFIG[category] || [];
 
   if (fields.length === 0) {
-    return <p style={{ color: '#64748b', fontSize: 14, fontStyle: 'italic' }}>No additional fields required for this service.</p>;
+    return <p style={{ color: 'var(--text-muted)', fontSize: 14, fontStyle: 'italic' }}>No additional fields required for this service.</p>;
   }
 
   const handleChange = (name, value) => {
@@ -52,14 +52,14 @@ const DynamicCategoryFields = ({ category, formData, onChange, errors = {} }) =>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {fields.map((field) => (
         <div key={field.name}>
-          <label style={{ color: '#94a3b8', fontSize: 13, display: 'block', marginBottom: 6, fontWeight: 500 }}>
+          <label style={{ color: 'var(--text-muted)', fontSize: 13, display: 'block', marginBottom: 6, fontWeight: 500 }}>
             {field.label}
           </label>
           {field.type === 'select' ? (
             <select
               value={formData[field.name] || ''}
               onChange={(e) => handleChange(field.name, e.target.value)}
-              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: '#f1f5f9' }}
+              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: 'var(--light-text)' }}
             >
               <option value="">Select...</option>
               {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -72,14 +72,14 @@ const DynamicCategoryFields = ({ category, formData, onChange, errors = {} }) =>
               value={formData[field.name] || ''}
               onChange={(e) => handleChange(field.name, e.target.value)}
               placeholder={field.placeholder || ''}
-              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: '#f1f5f9' }}
+              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: 'var(--light-text)' }}
             />
           ) : field.type === 'date' ? (
             <input
               type="date"
               value={formData[field.name] || ''}
               onChange={(e) => handleChange(field.name, e.target.value)}
-              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: '#f1f5f9' }}
+              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: 'var(--light-text)' }}
             />
           ) : (
             <input
@@ -87,10 +87,10 @@ const DynamicCategoryFields = ({ category, formData, onChange, errors = {} }) =>
               value={formData[field.name] || ''}
               onChange={(e) => handleChange(field.name, e.target.value)}
               placeholder={field.placeholder || ''}
-              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: '#f1f5f9' }}
+              style={{ width: '100%', padding: 10, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: 'var(--light-text)' }}
             />
           )}
-          {errors[field.name] && <span style={{ color: '#ef4444', fontSize: 12, marginTop: 4, display: 'block' }}>{errors[field.name]}</span>}
+          {errors[field.name] && <span style={{ color: 'var(--accent-color)', fontSize: 12, marginTop: 4, display: 'block' }}>{errors[field.name]}</span>}
         </div>
       ))}
     </div>

@@ -6,7 +6,6 @@ import {
   MessageCircle,
   RefreshCw,
   Users,
-  Shield,
   Eye,
   X,
   Mail,
@@ -22,7 +21,7 @@ const BirthdayReminder = () => {
   const [birthdays, setBirthdays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState('all'); // all, devotee, admin
+  const [filter, setFilter] = useState('all'); // all, devotee, family
   const [selectedPerson, setSelectedPerson] = useState(null);
   const modalRef = useRef(null);
   const previousActiveElement = useRef(null);
@@ -52,34 +51,29 @@ const BirthdayReminder = () => {
     const sse = adminApi.createBirthdaySSE((message) => {
       const data = JSON.parse(message.data);
       if (data.event === "initial") {
-        // Initial state - could populate from Redis if needed
         console.log("Birthday SSE initial state received");
       } else if (data.event === "birthday" && data.data) {
-        // New birthday received - update state
         const newBirthday = data.data;
         setBirthdays(prev => {
-          // Check if already exists
           const exists = prev.some(b => b.id === newBirthday.id);
           if (exists) return prev;
           
-          // Add new birthday and keep sorted by days_until
           const updated = [...prev, newBirthday].sort((a, b) => a.days_until - b.days_until);
-          return updated.slice(0, 100); // Limit to 100 max
+          return updated.slice(0, 100);
         });
       }
     });
 
     sseRef.current = sse;
 
-    // Cleanup on unmount
     return () => {
       if (sse) sse.close();
     };
   }, []);
 
   const filteredBirthdays = birthdays.filter(b => {
-    if (filter === 'devotee') return b.type === 'devotee_family' || b.type === 'devotee';
-    if (filter === 'admin') return b.type === 'admin';
+    if (filter === 'devotee') return !b.relationship || b.relationship === 'Self' || b.relationship === 'Devotee';
+    if (filter === 'family') return b.relationship && b.relationship !== 'Self' && b.relationship !== 'Devotee';
     return true;
   });
 
@@ -119,7 +113,7 @@ const BirthdayReminder = () => {
               <span>Upcoming Birthdays</span>
               <span className="dash-pill in fs-11">{birthdays.length}</span>
             </div>
-            <div className="dash-card-sub">Devotees, family members & admins in the next 60 days</div>
+            <div className="dash-card-sub">Devotees & family members in the next 60 days</div>
           </div>
 
           <div className="d-flex align-center gap-2">
@@ -135,10 +129,10 @@ const BirthdayReminder = () => {
                 aria-pressed={filter === 'devotee'}
               >Devotees</button>
               <button
-                onClick={() => setFilter('admin')}
-                className={`btn btn-sm ${filter === 'admin' ? 'btn-primary' : 'btn-outline'} fs-11 p-1`}
-                aria-pressed={filter === 'admin'}
-              >Admins</button>
+                onClick={() => setFilter('family')}
+                className={`btn btn-sm ${filter === 'family' ? 'btn-primary' : 'btn-outline'} fs-11 p-1`}
+                aria-pressed={filter === 'family'}
+              >Family</button>
             </div>
             <button
               onClick={fetchBirthdays}
@@ -172,18 +166,18 @@ const BirthdayReminder = () => {
                     <div
                       className="avatar"
                       style={{
-                        background: b.type === 'admin' ? 'var(--inb)' : 'var(--special-08)',
-                        color: b.type === 'admin' ? 'var(--in)' : 'var(--special)',
+                        background: 'var(--special-08)',
+                        color: 'var(--special)',
                       }}
                       aria-hidden="true"
                     >
-                      {b.type === 'admin' ? <Shield size={16} /> : <Users size={16} />}
+                      <Users size={16} />
                     </div>
 
                     <div>
                       <div className="fw-600 tx fs-13">
                         {b.name}
-                        {b.relationship && b.relationship !== 'Devotee' && (
+                        {b.relationship && b.relationship !== 'Devotee' && b.relationship !== 'Self' && (
                           <span className="tx3 fs-11 ml-2 fw-400">
                             ({b.relationship} of {b.devotee_name})
                           </span>
@@ -193,7 +187,6 @@ const BirthdayReminder = () => {
                         {b.birthday ? new Date(b.birthday).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : ''}
                         {b.star && ` • Star: ${b.star}`}
                         {b.rasi && ` • Rasi: ${b.rasi}`}
-                        {b.role && b.type === 'admin' && ` • ${b.role}`}
                       </div>
                     </div>
                   </div>
@@ -258,8 +251,8 @@ const BirthdayReminder = () => {
                 <div
                   className="avatar-lg"
                   style={{
-                    background: selectedPerson.type === 'admin' ? 'var(--inb)' : 'var(--special-08)',
-                    color: selectedPerson.type === 'admin' ? 'var(--in)' : 'var(--special)',
+                    background: 'var(--special-08)',
+                    color: 'var(--special)',
                   }}
                   aria-hidden="true"
                 >
@@ -270,7 +263,7 @@ const BirthdayReminder = () => {
                     {selectedPerson.name}
                   </h4>
                   <span className="dash-pill in fs-11 mt-1">
-                    {selectedPerson.source || selectedPerson.role || 'Devotee'}
+                    {selectedPerson.relationship || 'Devotee'}
                   </span>
                 </div>
               </div>

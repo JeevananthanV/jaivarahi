@@ -35,10 +35,10 @@ const Payment = () => {
     },
     {
       label: 'Kosala',
-      href: '#',
+      href: '/kosala',
       children: [
-        { label: 'Donation', href: '/payment' },
-        { label: 'Donation Archive', href: '/payment' },
+        { label: 'Donation', href: '/kosala' },
+        { label: 'Donation Archive', href: '/kosala/archive' },
       ],
     },
     {
@@ -176,7 +176,7 @@ const Payment = () => {
   };
 
   return (
-    <div style={{ backgroundColor: "#f5f1e8", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "var(--background-light)", minHeight: "100vh" }}>
       <SeoEnhanced
         title="Varahi Temple - Donation Page | Jai Varahi Peedam"
         description="Support Sri Kottai Varahi Temple through your generous donations. Make secure online contributions via Razorpay for temple maintenance, community service, and spiritual programs."
@@ -238,7 +238,7 @@ const Payment = () => {
                 onChange={(e) => { setName(e.target.value); setFieldErrors(p => ({ ...p, name: '' })); }}
                 required
               />
-              {fieldErrors.name && <div style={{ color: '#ff453b', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.name}</div>}
+              {fieldErrors.name && <div style={{ color: 'var(--accent-color)', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.name}</div>}
             </div>
             <div className="donation-field">
               <label className="donation-label" htmlFor="city">City</label>
@@ -252,7 +252,7 @@ const Payment = () => {
                 onChange={(e) => { setCity(e.target.value); setFieldErrors(p => ({ ...p, city: '' })); }}
                 required
               />
-              {fieldErrors.city && <div style={{ color: '#ff453b', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.city}</div>}
+              {fieldErrors.city && <div style={{ color: 'var(--accent-color)', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.city}</div>}
             </div>
             <div className="donation-field">
               <label className="donation-label" htmlFor="phone">Phone Number</label>
@@ -270,7 +270,7 @@ const Payment = () => {
                 onChange={(e) => { setPhone(e.target.value); setFieldErrors(p => ({ ...p, phone: '' })); }}
                 required
               />
-              {fieldErrors.phone && <div style={{ color: '#ff453b', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.phone}</div>}
+              {fieldErrors.phone && <div style={{ color: 'var(--accent-color)', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.phone}</div>}
             </div>
             <div className="donation-field">
               <label className="donation-label" htmlFor="amount">Donation Amount (₹)</label>
@@ -285,7 +285,7 @@ const Payment = () => {
                 onChange={(e) => { setAmount(e.target.value); setFieldErrors(p => ({ ...p, amount: '' })); }}
                 required
               />
-              {fieldErrors.amount && <div style={{ color: '#ff453b', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.amount}</div>}
+              {fieldErrors.amount && <div style={{ color: 'var(--accent-color)', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.amount}</div>}
             </div>
 
             <button

@@ -1,6 +1,6 @@
 import Preloader from './Preloader.jsx'
 import MainNav from './mainnav.jsx'
-import MobileNav from './mobilenav.jsx'
+import MobileNav from './MobileNav.jsx'
 import FloatAction from './floataction.jsx'
 import Footer from './footer.jsx'
 

@@ -45,6 +45,22 @@ function Footer() {
                   </a>
                 </li>
                 <li className="spiritual-nav-item">
+                  <a href="/book-pooja" className="spiritual-nav-link">
+                    <span className="spiritual-nav-om" aria-hidden="true">
+                      &#2384;
+                    </span>
+                    Book Pooja
+                  </a>
+                </li>
+                <li className="spiritual-nav-item">
+                  <a href="/payment" className="spiritual-nav-link">
+                    <span className="spiritual-nav-om" aria-hidden="true">
+                      &#2384;
+                    </span>
+                    Donate to Temple
+                  </a>
+                </li>
+                <li className="spiritual-nav-item">
                   <a href="/astavarahi" className="spiritual-nav-link">
                     <span className="spiritual-nav-om" aria-hidden="true">
                       &#2384;
@@ -53,7 +69,7 @@ function Footer() {
                   </a>
                 </li>
                 <li className="spiritual-nav-item">
-                  <a href="/varahimalai" className="spiritual-nav-link">
+                  <a href="/blog" className="spiritual-nav-link">
                     <span className="spiritual-nav-om" aria-hidden="true">
                       &#2384;
                     </span>
@@ -69,11 +85,11 @@ function Footer() {
                   </a>
                 </li>
                 <li className="spiritual-nav-item">
-                  <a href="/comingsoon" className="spiritual-nav-link">
+                  <a href="/calendar" className="spiritual-nav-link">
                     <span className="spiritual-nav-om" aria-hidden="true">
                       &#2384;
                     </span>
-                    Latest Updates
+                    Temple Calendar
                   </a>
                 </li>
               </ul>
@@ -83,11 +99,19 @@ function Footer() {
               <h3 className="spiritual-column-header">Information</h3>
               <ul className="spiritual-nav-list">
                 <li className="spiritual-nav-item">
-                  <a href="/comingsoon" className="spiritual-nav-link">
+                  <a href="/payment" className="spiritual-nav-link">
                     <span className="spiritual-nav-om" aria-hidden="true">
                       &#2384;
                     </span>
-                    Kosala
+                    Kosala &amp; Annadhanam
+                  </a>
+                </li>
+                <li className="spiritual-nav-item">
+                  <a href="/book-pooja" className="spiritual-nav-link">
+                    <span className="spiritual-nav-om" aria-hidden="true">
+                      &#2384;
+                    </span>
+                    Pooja &amp; Prasadham
                   </a>
                 </li>
                 <li className="spiritual-nav-item">
@@ -95,15 +119,7 @@ function Footer() {
                     <span className="spiritual-nav-om" aria-hidden="true">
                       &#2384;
                     </span>
-                    Vidyalayam
-                  </a>
-                </li>
-                <li className="spiritual-nav-item">
-                  <a href="/comingsoon" className="spiritual-nav-link">
-                    <span className="spiritual-nav-om" aria-hidden="true">
-                      &#2384;
-                    </span>
-                    Pooja
+                    Vidyalayam &amp; Jothidam
                   </a>
                 </li>
                 <li className="spiritual-nav-item">
@@ -186,7 +202,22 @@ function Footer() {
           </div>
         </div>
         <div className="spiritual-footer-bottom">
-          <p className="spiritual-copyright">&copy; 2026 Jai Varahi Peedam. All Rights Reserved.</p>
+          <p className="spiritual-copyright" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '8px', margin: 0, fontSize: '13px', lineHeight: 1.6 }}>
+            <span>&copy; 2026 Jai Varahi Peedam. All Rights Reserved.</span>
+            <span style={{ opacity: 0.4 }}>|</span>
+            <span>
+              Developed &amp; Managed by{' '}
+              <a
+                href="https://ethiroli.net"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--special-color)', textDecoration: 'none', fontWeight: 600 }}
+              >
+                Ethiroli Pvt Ltd
+              </a>{' '}
+
+            </span>
+          </p>
         </div>
       </footer>
     </div>

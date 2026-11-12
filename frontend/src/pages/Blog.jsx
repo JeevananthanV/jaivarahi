@@ -136,10 +136,10 @@ const Blog = () => {
       },
       {
         label: "Kosala",
-        href: "#",
+        href: '/kosala',
         children: [
-          { label: "Donation", href: "/payment" },
-          { label: "Donation Archive", href: "/payment" }
+          { label: 'Donation', href: '/kosala' },
+          { label: 'Donation Archive', href: '/kosala/archive' }
         ]
       },
       {
@@ -172,7 +172,7 @@ const Blog = () => {
 
   const t = {
     en: {
-      title: "Varahi Vani",
+      title: "Varahi Blog",
       subtitle: "Spiritual Wisdom, Divine Insights & Temple Chronicles",
       searchPlaceholder: "Search blogs by title, keywords or content...",
       filterYear: "Filter by Year",
@@ -349,7 +349,7 @@ const Blog = () => {
         description={activeLang === "ta" ? "ஸ்ரீ கோட்டை வாராஹி அம்மன் ஆன்மீக பதிவுகள், பூஜைகள், விரத முறைகள், பரிகாரங்கள் மற்றும் பக்தி செய்திகள். பல்லூர் வாராஹி தாசன் ஆசிகள்." : "Official spiritual articles, pooja procedures, vratam rules, homam benefits, and temple insights from Sri Kottai Varahi Amman Temple, Jai Varahi Peedam."}
         keywords="Varahi Amman, Sri Kottai Varahi, Jai Varahi Peedam, Varahi Pooja Benefits, Panchami Pooja, Varahi Homam, Spiritual Wisdom, Tamil Hindu Rituals, வாராஹி அம்மன், பஞ்சமி விரதம், வாராஹி மாலை, பல்லூர் வாராஹி தாசன், ஆன்மீக தகவல்கள்"
         canonical="https://www.jaivarahi.org/blog"
-        ogTitle="Varahi Vani - Spiritual Blog | Jai Varahi Peedam"
+        ogTitle="VarahiBlog- Spiritual Blog | Jai Varahi Peedam"
         ogDescription="Spiritual articles, pooja procedures, vratam rules, and divine insights from Sri Kottai Varahi Amman Temple."
         ogImage="https://www.jaivarahi.org/assets/img/images_new/VARAHI%20LOGO.svg"
         ogUrl="https://www.jaivarahi.org/blog"
@@ -538,13 +538,13 @@ const Blog = () => {
                     disabled={currentPage === 1}
                     style={{
                       padding: "8px 16px",
-                      borderRadius: "8px",
+                      borderRadius: "var(--border-radius)",
                       border: "1px solid var(--background-medium)",
-                      background: "#fff",
+                      background: "var(--light-text)",
                       color: currentPage === 1 ? "var(--text-muted)" : "var(--primary-color)",
                       cursor: currentPage === 1 ? "not-allowed" : "pointer",
                       fontWeight: "600",
-                      transition: "all 0.2s"
+                      transition: "var(--transition)"
                     }}
                   >
                     {activeLang === "ta" ? "முந்தைய" : "Previous"}
@@ -557,13 +557,13 @@ const Blog = () => {
                       style={{
                         width: "38px",
                         height: "38px",
-                        borderRadius: "8px",
+                        borderRadius: "var(--border-radius)",
                         border: currentPage === pg ? "1px solid var(--primary-color)" : "1px solid var(--background-medium)",
-                        background: currentPage === pg ? "var(--primary-color)" : "#fff",
-                        color: currentPage === pg ? "#fff" : "var(--text-color)",
+                        background: currentPage === pg ? "var(--primary-color)" : "var(--light-text)",
+                        color: currentPage === pg ? "var(--light-text)" : "var(--text-color)",
                         cursor: "pointer",
                         fontWeight: "600",
-                        transition: "all 0.2s"
+                        transition: "var(--transition)"
                       }}
                     >
                       {pg}
@@ -575,13 +575,13 @@ const Blog = () => {
                     disabled={currentPage === totalPages}
                     style={{
                       padding: "8px 16px",
-                      borderRadius: "8px",
+                      borderRadius: "var(--border-radius)",
                       border: "1px solid var(--background-medium)",
-                      background: "#fff",
+                      background: "var(--light-text)",
                       color: currentPage === totalPages ? "var(--text-muted)" : "var(--primary-color)",
                       cursor: currentPage === totalPages ? "not-allowed" : "pointer",
                       fontWeight: "600",
-                      transition: "all 0.2s"
+                      transition: "var(--transition)"
                     }}
                   >
                     {activeLang === "ta" ? "அடுத்தது" : "Next"}
@@ -589,61 +589,61 @@ const Blog = () => {
                 </div>
               )}
               {/* ─── TEMPLE ENGAGEMENT & SEVA CTAS ─── */}
-              <div style={{ margin: "60px 0 20px", padding: "32px 24px", background: "linear-gradient(135deg, #fdfaf4 0%, #f7f1e6 100%)", borderRadius: "16px", border: "1px solid #ebdcc5", boxShadow: "0 4px 20px rgba(100,50,20,0.06)" }}>
+              <div style={{ margin: "60px 0 20px", padding: "32px 24px", background: "var(--background-light)", borderRadius: "16px", border: "1px solid var(--background-medium)", boxShadow: "0 4px 20px rgba(100,50,20,0.06)" }}>
                 <div style={{ textAlign: "center", marginBottom: "24px" }}>
-                  <span style={{ fontSize: "12px", textTransform: "uppercase", fontWeight: "700", letterSpacing: "1px", color: "var(--primary-color, #7a0c0c)", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ fontSize: "12px", textTransform: "uppercase", fontWeight: "700", letterSpacing: "1px", color: "var(--primary-color)", display: "inline-flex", alignItems: "center", gap: "6px" }}>
                     🔱 {activeLang === "ta" ? "ஆன்மீக சேவைகள் & திருப்பணிகள்" : "Divine Seva & Temple Services"}
                   </span>
-                  <h3 style={{ fontFamily: "'Georgia', serif", fontSize: "1.45rem", color: "#361c10", margin: "6px 0 0" }}>
+                  <h3 style={{ fontFamily: "'Georgia', serif", fontSize: "1.45rem", color: "var(--text-strong)", margin: "6px 0 0" }}>
                     {activeLang === "ta" ? "வாராஹி அம்மனின் பரிபூரண அருளைப் பெறுங்கள்" : "Connect with Goddess Varahi's Divine Grace"}
                   </h3>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
                   {/* 1. Services & Homam CTA */}
-                  <div style={{ background: "#ffffff", padding: "22px 20px", borderRadius: "12px", border: "1px solid #e3d5c1", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
+                  <div style={{ background: "var(--light-text)", padding: "22px 20px", borderRadius: "12px", border: "1px solid var(--background-medium)", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
                     <div>
                       <div style={{ fontSize: "30px", marginBottom: "10px" }}>🪔</div>
-                      <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "16px", margin: "0 0 6px", color: "#7a0c0c", fontWeight: "700" }}>
+                      <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "16px", margin: "0 0 6px", color: "var(--primary-color)", fontWeight: "700" }}>
                         {activeLang === "ta" ? "பூஜை & ஹோமங்கள்" : "Temple Services"}
                       </h4>
-                      <p style={{ fontSize: "13px", color: "#6e5d53", lineHeight: "1.5", margin: "0 0 16px" }}>
+                      <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: "1.5", margin: "0 0 16px" }}>
                         {activeLang === "ta" ? "உங்கள் தோஷ நிவர்த்தி மற்றும் காரிய சித்திக்காக விசேஷ ஹோமங்கள் முன்பதிவு செய்யுங்கள்." : "Book special Homams, Abishekam, and Parihara rituals at the sanctum."}
                       </p>
                     </div>
-                    <Link to="/services" style={{ display: "inline-block", background: "#7a0c0c", color: "#ffffff", padding: "10px 18px", borderRadius: "20px", fontSize: "13px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(122,12,12,0.2)" }}>
+                    <Link to="/services" style={{ display: "inline-block", background: "var(--primary-color)", color: "var(--light-text)", padding: "10px 18px", borderRadius: "20px", fontSize: "13px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(122,12,12,0.2)" }}>
                       {activeLang === "ta" ? "சேவைகள் காண்க →" : "Book Services →"}
                     </Link>
                   </div>
 
                   {/* 2. Donations CTA */}
-                  <div style={{ background: "#ffffff", padding: "22px 20px", borderRadius: "12px", border: "1px solid #e3d5c1", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
+                  <div style={{ background: "var(--light-text)", padding: "22px 20px", borderRadius: "12px", border: "1px solid var(--background-medium)", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
                     <div>
                       <div style={{ fontSize: "30px", marginBottom: "10px" }}>🙏</div>
-                      <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "16px", margin: "0 0 6px", color: "#7a0c0c", fontWeight: "700" }}>
+                      <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "16px", margin: "0 0 6px", color: "var(--primary-color)", fontWeight: "700" }}>
                         {activeLang === "ta" ? "அன்னதானம் & நன்கொடை" : "Temple Donation"}
                       </h4>
-                      <p style={{ fontSize: "13px", color: "#6e5d53", lineHeight: "1.5", margin: "0 0 16px" }}>
+                      <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: "1.5", margin: "0 0 16px" }}>
                         {activeLang === "ta" ? "நித்ய அன்னதானம் மற்றும் கோசாலை திருப்பணிக்கு உங்கள் காணிக்கையை செலுத்துங்கள் (80G)." : "Contribute to daily Annadhanam and Kosala maintenance with 80G tax benefits."}
                       </p>
                     </div>
-                    <Link to="/payment" style={{ display: "inline-block", background: "linear-gradient(135deg, #b8860b 0%, #d4af37 100%)", color: "#ffffff", padding: "10px 18px", borderRadius: "20px", fontSize: "13px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(184,134,11,0.2)" }}>
+                    <Link to="/payment" style={{ display: "inline-block", background: "linear-gradient(135deg, var(--special-color) 0%, var(--accent-color) 100%)", color: "var(--light-text)", padding: "10px 18px", borderRadius: "20px", fontSize: "13px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(184,134,11,0.2)" }}>
                       {activeLang === "ta" ? "நன்கொடை அளிக்க →" : "Donate Online →"}
                     </Link>
                   </div>
 
                   {/* 3. Devotee Registration CTA */}
-                  <div style={{ background: "#ffffff", padding: "22px 20px", borderRadius: "12px", border: "1px solid #e3d5c1", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
+                  <div style={{ background: "var(--light-text)", padding: "22px 20px", borderRadius: "12px", border: "1px solid var(--background-medium)", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
                     <div>
                       <div style={{ fontSize: "30px", marginBottom: "10px" }}>✍️</div>
-                      <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "16px", margin: "0 0 6px", color: "#7a0c0c", fontWeight: "700" }}>
+                      <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "16px", margin: "0 0 6px", color: "var(--primary-color)", fontWeight: "700" }}>
                         {activeLang === "ta" ? "பக்தர் சங்கல்ப பதிவு" : "Devotee Registration"}
                       </h4>
-                      <p style={{ fontSize: "13px", color: "#6e5d53", lineHeight: "1.5", margin: "0 0 16px" }}>
+                      <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: "1.5", margin: "0 0 16px" }}>
                         {activeLang === "ta" ? "உங்கள் குடும்ப நட்சத்திரம், ராசி விவரங்களை நித்ய பூஜை சங்கல்பத்தில் இணைக்கவும்." : "Register your family Nakshatram and Rasi details for nithya pooja sankalpam."}
                       </p>
                     </div>
-                    <Link to="/devoteesdetails" style={{ display: "inline-block", background: "#361c10", color: "#ffffff", padding: "10px 18px", borderRadius: "20px", fontSize: "13px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(54,28,16,0.2)" }}>
+                    <Link to="/devoteesdetails" style={{ display: "inline-block", background: "var(--secondary-color)", color: "var(--light-text)", padding: "10px 18px", borderRadius: "20px", fontSize: "13px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(54,28,16,0.2)" }}>
                       {activeLang === "ta" ? "இலவச பதிவு →" : "Register Free →"}
                     </Link>
                   </div>

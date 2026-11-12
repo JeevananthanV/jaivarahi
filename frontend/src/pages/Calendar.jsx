@@ -13,7 +13,8 @@ import FloatActions from '../components/common/FloatActions.jsx'
 const Calendar = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeMobileDropdown, setActiveMobileDropdown] = useState(null);
-  ;
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   // Calendar State
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -41,10 +42,10 @@ const Calendar = () => {
     },
     {
       label: 'Kosala',
-      href: '#',
+      href: '/kosala',
       children: [
-        { label: 'Donation', href: '/payment' },
-        { label: 'Donation Archive', href: '/payment' },
+        { label: 'Donation', href: '/kosala' },
+        { label: 'Donation Archive', href: '/kosala/archive' },
       ],
     },
     {
@@ -167,8 +168,43 @@ const Calendar = () => {
         <meta name="keywords" content="Varahi, Amavasai, Pournami, Panchami, Ashtami, Homam, Nakshatra, Pooja, Pallur, Temple, Calendar" />
         <meta property="og:title" content="Jai Varahi Peedam Calendar" />
         <meta property="og:description" content="Amavasai, Pournami, Panchami, Ashtami, Nakshatra & Homam, and special pooja dates" />
-      </Helmet>
+      <meta property="og:image" content="https://jaivarahi.org/assets/img/og-calendar.jpg" />
+        <meta property="og:url" content="https://www.jaivarahi.org/calendar" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Jai Varahi Peedam - Spiritual Calendar" />
+        <meta name="twitter:description" content="Amavasai, Pournami and special pooja dates at Sri Kottai Varahi Temple" />
+        <meta name="twitter:image" content="https://jaivarahi.org/assets/img/og-calendar.jpg" />
+        <meta name="twitter:creator" content="@jaivarahipeedam" />
+        <link rel="canonical" href="https://www.jaivarahi.org/calendar" />
+</Helmet>
 
+      {/* Schema.org EventSeries structured data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "EventSeries",
+            name: "Jai Varahi Peedam Spiritual Calendar",
+            description: "Important Hindu calendar dates including Amavasai, Pournami, and special pooja days at Sri Kottai Varahi Temple, Jai Varahi Peedam",
+            location: "Sri Kottai Varahi Temple, Jai Varahi Peedam, Katpadi, Vellore",
+            offers: {
+              "@type": "Offer",
+              name: "Pooja Participation",
+              price: "Free",
+              priceCurrency: "INR"
+            },
+            author: {
+              "@type": "Organization",
+              name: "Jai Varahi Peedam",
+              url: "https://www.jaivarahi.org",
+              logo: "https://jaivarahi.org/assets/img/logo.png"
+            }
+          })
+        }}
+      />
+      
       <Preloader autoHide />
       <Navbar items={navItems} onOpenMobile={() => setIsMobileOpen(true)} isMobileOpen={isMobileOpen} />
       <MobileNav
@@ -220,8 +256,8 @@ const Calendar = () => {
             <h2>Plan Your Temple Visits</h2>
             <p>Track pooja and homam dates, then book participation and offerings in advance.</p>
             <div className="site-cta__actions">
-              <Link to="/payment" className="site-cta__btn">Book Offering</Link>
-              <Link to="/about" className="site-cta__btn site-cta__btn--alt">Learn More</Link>
+              <Link to="/book-pooja" className="site-cta__btn">Book Pooja &amp; Prasadham</Link>
+              <Link to="/payment" className="site-cta__btn site-cta__btn--alt">Donate to Temple</Link>
             </div>
           </div>
         </section>

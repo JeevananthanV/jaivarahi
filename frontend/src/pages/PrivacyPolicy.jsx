@@ -27,19 +27,18 @@ function PrivacyPolicy() {
       },
       {
         label: 'Kosala',
-        href: '#',
+        href: '/kosala',
         children: [
-          { label: 'Donation', href: '/payment' },
-          { label: 'Devotee Registration', href: '/devoteesdetails' },
+          { label: 'Donation', href: '/kosala' },
+          { label: 'Donation Archive', href: '/kosala/archive' },
         ],
       },
       {
-        label: 'Services',
+        label: 'Jothidam',
         href: '#',
         children: [
-          { label: 'Temple Services & Homam', href: '/services' },
-          { label: 'Book Pooja', href: '/book-pooja' },
           { label: 'Astrology prediction', href: '/Jothidam' },
+          { label: 'Sri Varahi Jothida Vidyalayam', href: '/comingsoon' },
         ],
       },
       {
@@ -52,9 +51,17 @@ function PrivacyPolicy() {
         ],
       },
       { label: 'Blog', href: '/blog' },
+      { label: 'Latest Updates', href: '/comingsoon' },
     ],
     [],
   )
+
+  useEffect(() => {
+    document.body.style.overflow = isMobileOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isMobileOpen])
 
   const closeMobileMenu = () => {
     setIsMobileOpen(false)
@@ -219,7 +226,7 @@ function PrivacyPolicy() {
               
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px", marginTop: "16px" }}>
                 <div>
-                  <strong style={{ color: "#7a0c0c" }}>📍 Temple Address:</strong>
+                  <strong style={{ color: "var(--primary-color)" }}>📍 Temple Address:</strong>
                   <p style={{ margin: "4px 0 0", fontSize: "14px" }}>
                     Jai Varahi Peedam,<br />
                     Sri Kottai Varahi Amman Temple Street,<br />
@@ -228,10 +235,10 @@ function PrivacyPolicy() {
                   </p>
                 </div>
                 <div>
-                  <strong style={{ color: "#7a0c0c" }}>📞 Contact Channels:</strong>
+                  <strong style={{ color: "var(--primary-color)" }}>📞 Contact Channels:</strong>
                   <p style={{ margin: "4px 0 0", fontSize: "14px" }}>
                     Phone: +91 90928 78389<br />
-                    Email: <a href="mailto:varahikottai@gmail.com" style={{ color: "#7a0c0c", fontWeight: "600" }}>varahikottai@gmail.com</a><br />
+                    Email: <a href="mailto:varahikottai@gmail.com" style={{ color: "var(--primary-color)", fontWeight: "600" }}>varahikottai@gmail.com</a><br />
                     Hours: Monday – Sunday, 8:00 AM – 8:00 PM IST
                   </p>
                 </div>
@@ -245,7 +252,7 @@ function PrivacyPolicy() {
                 <Link to="/payment" className="cta-btn-secondary">
                   <span>🙏</span> Contribute Online Donation
                 </Link>
-                <Link to="/terms-condition" style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#5c3514", fontWeight: "700", textDecoration: "underline", fontSize: "14px", padding: "10px 14px" }}>
+                <Link to="/terms-condition" style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "var(--secondary-color)", fontWeight: "700", textDecoration: "underline", fontSize: "14px", padding: "10px 14px" }}>
                   📜 View Terms & Conditions →
                 </Link>
               </div>

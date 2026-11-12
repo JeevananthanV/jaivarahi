@@ -224,9 +224,9 @@ const BookingManagement = ({ type }) => {
           <title>Booking Confirmation - #${escapeHtml(booking.id)}</title>
           <style>
             body { font-family: Arial, sans-serif; padding: 30px; color: #333; line-height: 1.6; }
-            .header { text-align: center; border-bottom: 2px solid #ff8c00; padding-bottom: 15px; margin-bottom: 20px; }
+            .header { text-align: center; border-bottom: 2px solid var(--special-color); padding-bottom: 15px; margin-bottom: 20px; }
             .section { margin-bottom: 20px; }
-            .section-title { font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #ff8c00; }
+            .section-title { font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: var(--special-color); }
             .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
             .row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f9f9f9; }
             .label { color: #666; font-weight: 500; }
@@ -354,20 +354,20 @@ const BookingManagement = ({ type }) => {
 
       {type === 'services' && stats && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', marginBottom: '20px' }}>
-          <div style={{ background: '#1c1c1e', padding: '15px', borderRadius: '10px', borderLeft: '4px solid #ff9500' }}>
-            <span style={{ fontSize: '12px', color: '#8e8e93', textTransform: 'uppercase' }}>Today's Bookings</span>
+          <div style={{ background: 'var(--sidebar-bg)', padding: '15px', borderRadius: '10px', borderLeft: '4px solid var(--special-color)' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Today's Bookings</span>
             <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '5px' }}>{stats.today}</div>
           </div>
-          <div style={{ background: '#1c1c1e', padding: '15px', borderRadius: '10px', borderLeft: '4px solid #30d158' }}>
-            <span style={{ fontSize: '12px', color: '#8e8e93', textTransform: 'uppercase' }}>Completed / Confirmed</span>
+          <div style={{ background: 'var(--sidebar-bg)', padding: '15px', borderRadius: '10px', borderLeft: '4px solid var(--valarpirai-ashtami-color)' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Completed / Confirmed</span>
             <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '5px' }}>{stats.confirmed}</div>
           </div>
-          <div style={{ background: '#1c1c1e', padding: '15px', borderRadius: '10px', borderLeft: '4px solid #ff453a' }}>
-            <span style={{ fontSize: '12px', color: '#8e8e93', textTransform: 'uppercase' }}>Pending Confirmation</span>
+          <div style={{ background: 'var(--sidebar-bg)', padding: '15px', borderRadius: '10px', borderLeft: '4px solid var(--accent-color)' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Pending Confirmation</span>
             <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '5px' }}>{stats.pending}</div>
           </div>
-          <div style={{ background: '#1c1c1e', padding: '15px', borderRadius: '10px', borderLeft: '4px solid #8e8e93' }}>
-            <span style={{ fontSize: '12px', color: '#8e8e93', textTransform: 'uppercase' }}>Cancelled</span>
+          <div style={{ background: 'var(--sidebar-bg)', padding: '15px', borderRadius: '10px', borderLeft: '4px solid var(--text-muted)' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Cancelled</span>
             <div style={{ fontSize: '24px', fontWeight: 'bold', marginTop: '5px' }}>{stats.cancelled}</div>
           </div>
         </div>
@@ -375,8 +375,8 @@ const BookingManagement = ({ type }) => {
 
       {type === 'services' && data.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px', marginBottom: '20px' }} className="form-cols-mobile">
-          <div style={{ background: '#1c1c1e', padding: '20px', borderRadius: '10px' }}>
-            <h3 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '15px', color: '#ff8c00' }}>Popular Services Distribution</h3>
+          <div style={{ background: 'var(--sidebar-bg)', padding: '20px', borderRadius: '10px' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '15px', color: 'var(--special-color)' }}>Popular Services Distribution</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {Array.from(new Set(data.map(d => d.service_type))).slice(0, 4).map(srv => {
                 const count = data.filter(d => d.service_type === srv).length;
@@ -387,8 +387,8 @@ const BookingManagement = ({ type }) => {
                       <span>{srv || 'General Service'}</span>
                       <strong>{count} bookings ({percentage}%)</strong>
                     </div>
-                    <div style={{ width: '100%', height: '8px', background: '#2c2c2e', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{ width: `${percentage}%`, height: '100%', background: '#ff8c00', borderRadius: '4px' }}></div>
+                    <div style={{ width: '100%', height: '8px', background: 'var(--background-medium)', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ width: `${percentage}%`, height: '100%', background: 'var(--special-color)', borderRadius: '4px' }}></div>
                     </div>
                   </div>
                 );
@@ -396,8 +396,8 @@ const BookingManagement = ({ type }) => {
             </div>
           </div>
 
-          <div style={{ background: '#1c1c1e', padding: '20px', borderRadius: '10px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <h3 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '15px', color: '#ff8c00' }}>Monthly Trend</h3>
+          <div style={{ background: 'var(--sidebar-bg)', padding: '20px', borderRadius: '10px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '15px', color: 'var(--special-color)' }}>Monthly Trend</h3>
             <div style={{ display: 'flex', alignItems: 'flex-end', height: '100px', gap: '12px', justifyContent: 'space-around', paddingTop: '10px' }}>
               {[
                 { month: 'May', count: 12 },
@@ -405,9 +405,9 @@ const BookingManagement = ({ type }) => {
                 { month: 'Jul', count: data.length },
               ].map(item => (
                 <div key={item.month} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-                  <span style={{ fontSize: '11px', color: '#ff8c00', fontWeight: 'bold', marginBottom: '4px' }}>{item.count}</span>
-                  <div style={{ width: '100%', height: `${Math.min(item.count * 3, 80)}px`, background: 'linear-gradient(to top, #ff8c00, #ff4500)', borderRadius: '4px 4px 0 0' }}></div>
-                  <span style={{ fontSize: '11px', color: '#8e8e93', marginTop: '4px' }}>{item.month}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--special-color)', fontWeight: 'bold', marginBottom: '4px' }}>{item.count}</span>
+                  <div style={{ width: '100%', height: `${Math.min(item.count * 3, 80)}px`, background: 'linear-gradient(to top, var(--special-color), var(--accent-color))', borderRadius: '4px 4px 0 0' }}></div>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>{item.month}</span>
                 </div>
               ))}
             </div>
@@ -538,7 +538,7 @@ const BookingManagement = ({ type }) => {
                                fontSize: '11px', 
                                fontWeight: 600,
                                background: r.status === 'CONFIRMED' ? 'rgba(48,209,88,0.15)' : r.status === 'CANCELLED' ? 'rgba(255,69,58,0.15)' : 'rgba(255,149,0,0.15)',
-                               color: r.status === 'CONFIRMED' ? '#30d158' : r.status === 'CANCELLED' ? '#ff453b' : '#ff9500'
+                               color: r.status === 'CONFIRMED' ? 'var(--valarpirai-ashtami-color)' : r.status === 'CANCELLED' ? 'var(--accent-color)' : 'var(--special-color)'
                              }}>
                                {r.status || 'PENDING'}
                              </span>
@@ -557,7 +557,7 @@ const BookingManagement = ({ type }) => {
                                 fontSize: '11px', 
                                 fontWeight: 600,
                                 background: r.booking_status === 'CONFIRMED' ? 'rgba(48,209,88,0.15)' : r.booking_status === 'CANCELLED' ? 'rgba(255,69,58,0.15)' : 'rgba(255,149,0,0.15)',
-                                color: r.booking_status === 'CONFIRMED' ? '#30d158' : r.booking_status === 'CANCELLED' ? '#ff453b' : '#ff9500'
+                                color: r.booking_status === 'CONFIRMED' ? 'var(--valarpirai-ashtami-color)' : r.booking_status === 'CANCELLED' ? 'var(--accent-color)' : 'var(--special-color)'
                               }}>
                                 {r.booking_status || 'PENDING'}
                               </span>
@@ -583,14 +583,14 @@ const BookingManagement = ({ type }) => {
                                 <button
                                   className="btn btn-ol btn-sm"
                                   onClick={() => handleUpdateStatus(r.id, 'CONFIRMED')}
-                                  style={{ borderColor: '#30d158', color: '#30d158' }}
+                                  style={{ borderColor: 'var(--valarpirai-ashtami-color)', color: 'var(--valarpirai-ashtami-color)' }}
                                 >
                                   <CheckCircle size={12} />
                                 </button>
                                 <button
                                   className="btn btn-ol btn-sm"
                                   onClick={() => handleUpdateStatus(r.id, 'CANCELLED')}
-                                  style={{ borderColor: '#ff453b', color: '#ff453b' }}
+                                  style={{ borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}
                                 >
                                   <XCircle size={12} />
                                 </button>
@@ -645,11 +645,11 @@ const BookingManagement = ({ type }) => {
              <div className="modal-body" style={{ maxHeight: '75vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                
                {(type === 'services' || type === 'prasadham' || type === 'royal' || type === 'packages') && (
-                <div style={{ background: '#2c2c2e', padding: '12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ background: 'var(--background-medium)', padding: '12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <span style={{ fontSize: '11px', color: '#8e8e93', display: 'block' }}>Current Status</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block' }}>Current Status</span>
                     <strong style={{
-                      color: (type === 'services' ? selectedRow.status : selectedRow.booking_status) === 'CONFIRMED' ? '#30d158' : (type === 'services' ? selectedRow.status : selectedRow.booking_status) === 'CANCELLED' ? '#ff453b' : '#ff9500'
+                      color: (type === 'services' ? selectedRow.status : selectedRow.booking_status) === 'CONFIRMED' ? 'var(--valarpirai-ashtami-color)' : (type === 'services' ? selectedRow.status : selectedRow.booking_status) === 'CANCELLED' ? 'var(--accent-color)' : 'var(--special-color)'
                     }}>
                       {(type === 'services' ? selectedRow.status : selectedRow.booking_status) || 'PENDING'}
                     </strong>
@@ -659,14 +659,14 @@ const BookingManagement = ({ type }) => {
                       <button
                         className="btn btn-ol btn-sm"
                         onClick={() => handleUpdateStatus(selectedRow.id, 'CONFIRMED')}
-                        style={{ background: '#30d158', color: '#000', border: 'none', fontWeight: 'bold' }}
+                        style={{ background: 'var(--valarpirai-ashtami-color)', color: 'var(--text-strong)', border: 'none', fontWeight: 'bold' }}
                       >
                         Approve Booking
                       </button>
                       <button
                         className="btn btn-ol btn-sm"
                         onClick={() => handleUpdateStatus(selectedRow.id, 'CANCELLED')}
-                        style={{ borderColor: '#ff453b', color: '#ff453b' }}
+                        style={{ borderColor: 'var(--accent-color)', color: 'var(--accent-color)' }}
                       >
                         Cancel
                       </button>
@@ -676,7 +676,7 @@ const BookingManagement = ({ type }) => {
               )}
 
               <div style={{ borderBottom: '1px solid var(--bd)', paddingBottom: '10px' }}>
-                <h4 style={{ fontSize: '13px', color: '#ff8c00', margin: '0 0 10px 0', textTransform: 'uppercase' }}>Devotee Contact</h4>
+                <h4 style={{ fontSize: '13px', color: 'var(--special-color)', margin: '0 0 10px 0', textTransform: 'uppercase' }}>Devotee Contact</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <div>
                     <span style={{ fontSize: '11px', color: 'var(--tx3)', display: 'block' }}>Full Name</span>
@@ -702,7 +702,7 @@ const BookingManagement = ({ type }) => {
               </div>
 
                <div style={{ borderBottom: '1px solid var(--bd)', paddingBottom: '10px' }}>
-                <h4 style={{ fontSize: '13px', color: '#ff8c00', margin: '0 0 10px 0', textTransform: 'uppercase' }}>Service & Schedule</h4>
+                <h4 style={{ fontSize: '13px', color: 'var(--special-color)', margin: '0 0 10px 0', textTransform: 'uppercase' }}>Service & Schedule</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <div>
                     <span style={{ fontSize: '11px', color: 'var(--tx3)', display: 'block' }}>Selected Pooja</span>
@@ -723,7 +723,7 @@ const BookingManagement = ({ type }) => {
 
               {(type === 'services' || type === 'prasadham' || type === 'royal' || type === 'packages') && (
                 <div style={{ borderBottom: '1px solid var(--bd)', paddingBottom: '10px' }}>
-                  <h4 style={{ fontSize: '13px', color: '#ff8c00', margin: '0 0 10px 0', textTransform: 'uppercase' }}>Temple Details</h4>
+                  <h4 style={{ fontSize: '13px', color: 'var(--special-color)', margin: '0 0 10px 0', textTransform: 'uppercase' }}>Temple Details</h4>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                     <div>
                       <span style={{ fontSize: '11px', color: 'var(--tx3)', display: 'block' }}>Gothram</span>
@@ -777,7 +777,7 @@ const BookingManagement = ({ type }) => {
               )}
 
               <div style={{ borderBottom: '1px solid var(--bd)', paddingBottom: '10px' }}>
-                <h4 style={{ fontSize: '13px', color: '#ff8c00', margin: '0 0 10px 0', textTransform: 'uppercase' }}>Audit Timeline</h4>
+                <h4 style={{ fontSize: '13px', color: 'var(--special-color)', margin: '0 0 10px 0', textTransform: 'uppercase' }}>Audit Timeline</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '11px', color: 'var(--tx3)' }}>
                   <div>
                     <span>Registered At</span>
@@ -792,8 +792,8 @@ const BookingManagement = ({ type }) => {
 
               {selectedRow.additional_details && (
                 <div>
-                  <h4 style={{ fontSize: '13px', color: '#ff8c00', margin: '0 0 5px 0', textTransform: 'uppercase' }}>Special Request Details</h4>
-                  <p style={{ background: '#1c1c1e', padding: '10px', borderRadius: '6px', fontSize: '12px', color: 'var(--tx2)', margin: 0 }}>
+                  <h4 style={{ fontSize: '13px', color: 'var(--special-color)', margin: '0 0 5px 0', textTransform: 'uppercase' }}>Special Request Details</h4>
+                  <p style={{ background: 'var(--sidebar-bg)', padding: '10px', borderRadius: '6px', fontSize: '12px', color: 'var(--tx2)', margin: 0 }}>
                     {selectedRow.additional_details}
                   </p>
                 </div>

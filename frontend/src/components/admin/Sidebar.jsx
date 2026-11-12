@@ -1,24 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Heart, Utensils, Crown, Wallet,
   Layers, ListOrdered, Calendar, FileText,
   Star, Ticket, Store, Handshake,
   Users, ShieldAlert, Sparkles, Image,
-  Cake, Gift,
-  ChevronDown, ChevronRight, LogOut
+  Cake, Gift, ChevronDown, ChevronRight, LogOut,
+  X, User, Coins, Compass, CalendarDays, BarChart3,
+  UserCheck, ShieldCheck, CheckCircle
 } from 'lucide-react';
 import { useAdminAuth } from './AdminAuthContext';
 import { isRole } from './roles';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAdminAuth();
   const location = useLocation();
   const path = location.pathname;
 
-  // Automatically expand sections if any of their child routes are active
+  // Track accordion expand state with smart auto-expansion on active route
   const [expanded, setExpanded] = useState({
     revenue: path.startsWith('/admin/donations') || path.startsWith('/admin/prasadham'),
+    kosala: path.startsWith('/admin/kosala'),
     ashada: path.startsWith('/admin/ashada-navarathiri') || path.startsWith('/admin/royal') || path.startsWith('/admin/packages'),
     services: path.startsWith('/admin/services'),
     av2: path.startsWith('/admin/av2-entry') || path.startsWith('/admin/vip') || path.startsWith('/admin/free') || path.startsWith('/admin/stalls') || path.startsWith('/admin/sponsors'),
@@ -27,10 +29,11 @@ const Sidebar = () => {
     system: path.startsWith('/admin/users') || path.startsWith('/admin/audit-logs'),
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     setExpanded(prev => ({
       ...prev,
       revenue: prev.revenue || path.startsWith('/admin/donations') || path.startsWith('/admin/prasadham'),
+      kosala: prev.kosala || path.startsWith('/admin/kosala'),
       ashada: prev.ashada || path.startsWith('/admin/ashada-navarathiri') || path.startsWith('/admin/royal') || path.startsWith('/admin/packages'),
       services: prev.services || path.startsWith('/admin/services'),
       av2: prev.av2 || path.startsWith('/admin/av2-entry') || path.startsWith('/admin/vip') || path.startsWith('/admin/free') || path.startsWith('/admin/stalls') || path.startsWith('/admin/sponsors'),
@@ -47,242 +50,443 @@ const Sidebar = () => {
   const navClass = ({ isActive }) => isActive ? "nb active" : "nb";
 
   return (
-    <aside className="sb">
+    <aside className={`sb ${isOpen ? 'sb-open' : ''}`}>
+      {/* Brand Header */}
       <div className="sb-brand">
-        <img
-          src="/assets/img/images_new/VARAHI%20LOGO.svg"
-          alt="Jai Varahi Peedam"
-          className="site-logo"
-          style={{ margin: '0 auto', padding: 0 }}
-        />
-        <div className="sb-sub" style={{ textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '3px 12px', background: 'rgba(180, 83, 9, 0.12)', borderRadius: 20, border: '1px solid rgba(180, 83, 9, 0.25)' }}>
-          <Sparkles size={11} color="var(--special-color-light)" />
+        <div className="sb-brand-top">
+          <img
+            src="/assets/img/images_new/VARAHI%20LOGO.svg"
+            alt="Jai Varahi Peedam"
+            className="site-logo"
+          />
+          {onClose && (
+            <button 
+              type="button" 
+              className="sb-close-btn" 
+              onClick={onClose} 
+              aria-label="Close Sidebar"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+        <div className="sb-sub">
+          <Sparkles size={11} className="sb-sub-icon" />
           <span>Admin Portal</span>
         </div>
       </div>
       
+      {/* Navigation List */}
       <nav className="sb-nav">
-        {/* Dashboard */}
-        <NavLink to="/admin/dashboard" className={navClass} end style={{ marginBottom: 6 }}>
-          <LayoutDashboard className="nb-ic" size={16} />
-          Dashboard
+        {/* ── CORE / MAIN ── */}
+        <div className="sb-group-title">Overview</div>
+        <NavLink to="/admin/dashboard" className={navClass} end>
+          <div className="nb-ic-box">
+            <LayoutDashboard size={15} />
+          </div>
+          <span>Dashboard</span>
         </NavLink>
 
-        <NavLink to="/admin/devotees" className={navClass} style={{ marginBottom: 12 }}>
-          <Users className="nb-ic" size={16} />
-          Devotees Details
+        <NavLink to="/admin/devotees" className={navClass}>
+          <div className="nb-ic-box">
+            <Users size={15} />
+          </div>
+          <span>Devotees Details</span>
         </NavLink>
 
-        <NavLink to="/admin/blogs" className={navClass} style={{ marginBottom: 12 }}>
-          <FileText className="nb-ic" size={16} />
-          Blog Management
+        <NavLink to="/admin/blogs" className={navClass}>
+          <div className="nb-ic-box">
+            <FileText size={15} />
+          </div>
+          <span>Blog Management</span>
         </NavLink>
 
-        <NavLink to="/admin/media" className={navClass} style={{ marginBottom: 12 }}>
-          <Image className="nb-ic" size={16} />
-          Media Library
+        <NavLink to="/admin/media" className={navClass}>
+          <div className="nb-ic-box">
+            <Image size={15} />
+          </div>
+          <span>Media Library</span>
         </NavLink>
 
-        {/* Revenue Section */}
-        <button className="sb-sec-btn" onClick={() => toggle('revenue')}>
-          <span>Revenue</span>
-          {expanded.revenue ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        {/* ── OFFERINGS & SEVAS ── */}
+        <div className="sb-group-title">Offerings &amp; Sevas</div>
+
+        {/* Revenue / Donations */}
+        <button 
+          type="button" 
+          className={`sb-sec-btn ${expanded.revenue ? 'active-group' : ''}`} 
+          onClick={() => toggle('revenue')}
+        >
+          <div className="sb-sec-btn-left">
+            <div className="sb-sec-ic-box">
+              <Coins size={13} />
+            </div>
+            <span>Revenue</span>
+          </div>
+          {expanded.revenue ? <ChevronDown size={14} className="sb-chevron" /> : <ChevronRight size={14} className="sb-chevron" />}
         </button>
         <div className={`sb-sub-menu ${expanded.revenue ? 'open' : ''}`}>
           <NavLink to="/admin/donations" className={navClass}>
-            <Heart className="nb-ic" size={16} />
-            Donations
+            <div className="nb-ic-box sub-ic">
+              <Heart size={14} />
+            </div>
+            <span>Donations</span>
           </NavLink>
           <NavLink to="/admin/prasadham" className={navClass}>
-            <Utensils className="nb-ic" size={16} />
-            Calendar Bookings
+            <div className="nb-ic-box sub-ic">
+              <Utensils size={14} />
+            </div>
+            <span>Calendar Bookings</span>
           </NavLink>
         </div>
 
-        {/* Ashada Navarathiri Section */}
-        <button className="sb-sec-btn" onClick={() => toggle('ashada')}>
-          <span>Ashada Navarathiri</span>
-          {expanded.ashada ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        {/* ── KOSALA GOSHALA ── */}
+        <button 
+          type="button" 
+          className={`sb-sec-btn ${expanded.kosala ? 'active-group' : ''}`} 
+          onClick={() => toggle('kosala')}
+        >
+          <div className="sb-sec-btn-left">
+            <div className="sb-sec-ic-box">
+              <Heart size={13} />
+            </div>
+            <span>Kosala Goshala</span>
+          </div>
+          {expanded.kosala ? <ChevronDown size={14} className="sb-chevron" /> : <ChevronRight size={14} className="sb-chevron" />}
+        </button>
+        <div className={`sb-sub-menu ${expanded.kosala ? 'open' : ''}`}>
+          <NavLink to="/admin/kosala/dashboard" className={navClass}>
+            <div className="nb-ic-box sub-ic">
+              <LayoutDashboard size={14} />
+            </div>
+            <span>Dashboard</span>
+          </NavLink>
+          <NavLink to="/admin/kosala/donations" className={navClass}>
+            <div className="nb-ic-box sub-ic">
+              <Coins size={14} />
+            </div>
+            <span>Donations List</span>
+          </NavLink>
+          <NavLink to="/admin/kosala/cows" className={navClass}>
+            <div className="nb-ic-box sub-ic">
+              <Star size={14} />
+            </div>
+            <span>Cow Registry</span>
+          </NavLink>
+          <NavLink to="/admin/kosala/sponsorships" className={navClass}>
+            <div className="nb-ic-box sub-ic">
+              <Heart size={14} />
+            </div>
+            <span>Sponsorships</span>
+          </NavLink>
+          <NavLink to="/admin/kosala/reconciliation" className={navClass}>
+            <div className="nb-ic-box sub-ic">
+              <CheckCircle size={14} />
+            </div>
+            <span>Reconciliation</span>
+          </NavLink>
+          <NavLink to="/admin/kosala/reports" className={navClass}>
+            <div className="nb-ic-box sub-ic">
+              <BarChart3 size={14} />
+            </div>
+            <span>Reports &amp; Expenses</span>
+          </NavLink>
+          <NavLink to="/admin/kosala/archive" className={navClass}>
+            <div className="nb-ic-box sub-ic">
+              <FileText size={14} />
+            </div>
+            <span>Historical Archive</span>
+          </NavLink>
+        </div>
+
+        {/* Ashada Navarathiri */}
+        <button 
+          type="button" 
+          className={`sb-sec-btn ${expanded.ashada ? 'active-group' : ''}`} 
+          onClick={() => toggle('ashada')}
+        >
+          <div className="sb-sec-btn-left">
+            <div className="sb-sec-ic-box">
+              <Crown size={13} />
+            </div>
+            <span>Ashada Navarathiri</span>
+          </div>
+          {expanded.ashada ? <ChevronDown size={14} className="sb-chevron" /> : <ChevronRight size={14} className="sb-chevron" />}
         </button>
         <div className={`sb-sub-menu ${expanded.ashada ? 'open' : ''}`}>
           <NavLink to="/admin/ashada-navarathiri/dashboard" className={navClass}>
-            <LayoutDashboard className="nb-ic" size={16} />
-            Dashboard
+            <div className="nb-ic-box sub-ic">
+              <LayoutDashboard size={14} />
+            </div>
+            <span>Dashboard</span>
           </NavLink>
           <NavLink to="/admin/royal" className={navClass}>
-            <Crown className="nb-ic" size={16} />
-            Royal Bookings
+            <div className="nb-ic-box sub-ic">
+              <Crown size={14} />
+            </div>
+            <span>Royal Bookings</span>
           </NavLink>
           <NavLink to="/admin/packages/bookings" className={navClass}>
-            <Wallet className="nb-ic" size={16} />
-            Package Bookings
+            <div className="nb-ic-box sub-ic">
+              <Wallet size={14} />
+            </div>
+            <span>Package Bookings</span>
           </NavLink>
           <NavLink to="/admin/packages/categories" className={navClass}>
-            <Layers className="nb-ic" size={16} />
-            Categories
+            <div className="nb-ic-box sub-ic">
+              <Layers size={14} />
+            </div>
+            <span>Categories</span>
           </NavLink>
         </div>
 
-        {/* Temple Services Section */}
-        <button className="sb-sec-btn" onClick={() => toggle('services')}>
-          <span>Temple Services</span>
-          {expanded.services ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        {/* Temple Services */}
+        <button 
+          type="button" 
+          className={`sb-sec-btn ${expanded.services ? 'active-group' : ''}`} 
+          onClick={() => toggle('services')}
+        >
+          <div className="sb-sec-btn-left">
+            <div className="sb-sec-ic-box">
+              <Sparkles size={13} />
+            </div>
+            <span>Temple Services</span>
+          </div>
+          {expanded.services ? <ChevronDown size={14} className="sb-chevron" /> : <ChevronRight size={14} className="sb-chevron" />}
         </button>
         <div className={`sb-sub-menu ${expanded.services ? 'open' : ''}`}>
           <NavLink to="/admin/services/dashboard" className={navClass}>
-            <LayoutDashboard className="nb-ic" size={16} />
-            Dashboard
+            <div className="nb-ic-box sub-ic">
+              <LayoutDashboard size={14} />
+            </div>
+            <span>Dashboard</span>
           </NavLink>
           <NavLink to="/admin/services/categories" className={navClass}>
-            <Layers className="nb-ic" size={16} />
-            Categories
+            <div className="nb-ic-box sub-ic">
+              <Layers size={14} />
+            </div>
+            <span>Categories</span>
           </NavLink>
           <NavLink to="/admin/services/list" className={navClass}>
-            <ListOrdered className="nb-ic" size={16} />
-            Services
+            <div className="nb-ic-box sub-ic">
+              <ListOrdered size={14} />
+            </div>
+            <span>Services List</span>
           </NavLink>
           <NavLink to="/admin/services/bookings" className={navClass}>
-            <Calendar className="nb-ic" size={16} />
-            Bookings
+            <div className="nb-ic-box sub-ic">
+              <Calendar size={14} />
+            </div>
+            <span>Bookings</span>
           </NavLink>
           <NavLink to="/admin/services/reports" className={navClass}>
-            <FileText className="nb-ic" size={16} />
-            Reports
+            <div className="nb-ic-box sub-ic">
+              <FileText size={14} />
+            </div>
+            <span>Reports</span>
           </NavLink>
         </div>
 
-        {/* AV2 Entry Section */}
-        <button className="sb-sec-btn" onClick={() => toggle('av2')}>
-          <span>AV2 Entry</span>
-          {expanded.av2 ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        {/* AV2 Entry */}
+        <button 
+          type="button" 
+          className={`sb-sec-btn ${expanded.av2 ? 'active-group' : ''}`} 
+          onClick={() => toggle('av2')}
+        >
+          <div className="sb-sec-btn-left">
+            <div className="sb-sec-ic-box">
+              <Ticket size={13} />
+            </div>
+            <span>AV2 Entry</span>
+          </div>
+          {expanded.av2 ? <ChevronDown size={14} className="sb-chevron" /> : <ChevronRight size={14} className="sb-chevron" />}
         </button>
         <div className={`sb-sub-menu ${expanded.av2 ? 'open' : ''}`}>
           <NavLink to="/admin/av2-entry/dashboard" className={navClass}>
-            <LayoutDashboard className="nb-ic" size={16} />
-            Dashboard
+            <div className="nb-ic-box sub-ic">
+              <LayoutDashboard size={14} />
+            </div>
+            <span>Dashboard</span>
           </NavLink>
           <NavLink to="/admin/vip" className={navClass}>
-            <Star className="nb-ic" size={16} />
-            VIP Access
+            <div className="nb-ic-box sub-ic">
+              <Star size={14} />
+            </div>
+            <span>VIP Access</span>
           </NavLink>
           <NavLink to="/admin/free" className={navClass}>
-            <Ticket className="nb-ic" size={16} />
-            Free Entries
+            <div className="nb-ic-box sub-ic">
+              <Ticket size={14} />
+            </div>
+            <span>Free Entries</span>
           </NavLink>
           <NavLink to="/admin/stalls" className={navClass}>
-            <Store className="nb-ic" size={16} />
-            Stall Bookings
+            <div className="nb-ic-box sub-ic">
+              <Store size={14} />
+            </div>
+            <span>Stall Bookings</span>
           </NavLink>
           <NavLink to="/admin/sponsors" className={navClass}>
-            <Handshake className="nb-ic" size={16} />
-            Sponsorships
+            <div className="nb-ic-box sub-ic">
+              <Handshake size={14} />
+            </div>
+            <span>Sponsorships</span>
           </NavLink>
           <NavLink to="/admin/av2-entry/vip-checkin" className={navClass}>
-            <Star className="nb-ic" size={16} />
-            VIP Check-In/Out
+            <div className="nb-ic-box sub-ic">
+              <Star size={14} />
+            </div>
+            <span>VIP Check-In/Out</span>
           </NavLink>
           <NavLink to="/admin/av2-entry/free-checkin" className={navClass}>
-            <Ticket className="nb-ic" size={16} />
-            Free Check-In/Out
+            <div className="nb-ic-box sub-ic">
+              <Ticket size={14} />
+            </div>
+            <span>Free Check-In/Out</span>
           </NavLink>
         </div>
 
+        {/* ── ASTROLOGY & DEVOTEES ── */}
+        <div className="sb-group-title">Astrology &amp; Devotees</div>
+
         {/* Jothidam Section */}
-        <button className="sb-sec-btn" onClick={() => toggle('jothidam')}>
-          <span>Jothidam</span>
-          {expanded.jothidam ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        <button 
+          type="button" 
+          className={`sb-sec-btn ${expanded.jothidam ? 'active-group' : ''}`} 
+          onClick={() => toggle('jothidam')}
+        >
+          <div className="sb-sec-btn-left">
+            <div className="sb-sec-ic-box">
+              <Compass size={13} />
+            </div>
+            <span>Jothidam Astrology</span>
+          </div>
+          {expanded.jothidam ? <ChevronDown size={14} className="sb-chevron" /> : <ChevronRight size={14} className="sb-chevron" />}
         </button>
         <div className={`sb-sub-menu ${expanded.jothidam ? 'open' : ''}`}>
           <NavLink to="/admin/jothidam-dashboard" className={navClass}>
-            <Sparkles className="nb-ic" size={16} />
-            Dashboard
+            <div className="nb-ic-box sub-ic">
+              <Sparkles size={14} />
+            </div>
+            <span>Dashboard</span>
           </NavLink>
           <NavLink to="/admin/jothidam-bookings" className={navClass}>
-            <ListOrdered className="nb-ic" size={16} />
-            Bookings
+            <div className="nb-ic-box sub-ic">
+              <ListOrdered size={14} />
+            </div>
+            <span>Bookings</span>
           </NavLink>
           <NavLink to="/admin/jothidam-astrologers" className={navClass}>
-            <Users className="nb-ic" size={16} />
-            Astrologers
+            <div className="nb-ic-box sub-ic">
+              <Users size={14} />
+            </div>
+            <span>Astrologers</span>
           </NavLink>
           <NavLink to="/admin/jothidam-pricing" className={navClass}>
-            <Wallet className="nb-ic" size={16} />
-            Pricing
+            <div className="nb-ic-box sub-ic">
+              <Wallet size={14} />
+            </div>
+            <span>Pricing</span>
           </NavLink>
           <NavLink to="/admin/jothidam-reports" className={navClass}>
-            <FileText className="nb-ic" size={16} />
-            Reports
+            <div className="nb-ic-box sub-ic">
+              <FileText size={14} />
+            </div>
+            <span>Reports</span>
           </NavLink>
         </div>
 
-        {/* Reminders & Celebrations Section */}
+        {/* Devotee Reminders */}
         {isRole(user, 'Super Admin', 'Admin') && (
           <>
-            <button className="sb-sec-btn" onClick={() => toggle('reminders')}>
-              <span>Reminders</span>
-              {expanded.reminders ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+            <button 
+              type="button" 
+              className={`sb-sec-btn ${expanded.reminders ? 'active-group' : ''}`} 
+              onClick={() => toggle('reminders')}
+            >
+              <div className="sb-sec-btn-left">
+                <div className="sb-sec-ic-box">
+                  <Cake size={13} />
+                </div>
+                <span>Devotee Reminders</span>
+              </div>
+              {expanded.reminders ? <ChevronDown size={14} className="sb-chevron" /> : <ChevronRight size={14} className="sb-chevron" />}
             </button>
             <div className={`sb-sub-menu ${expanded.reminders ? 'open' : ''}`}>
               <NavLink to="/admin/birthdays" className={navClass}>
-                <Cake className="nb-ic" size={16} />
-                Birthday Reminders
+                <div className="nb-ic-box sub-ic">
+                  <Cake size={14} />
+                </div>
+                <span>Birthdays</span>
               </NavLink>
               <NavLink to="/admin/wedding-anniversaries" className={navClass}>
-                <Heart className="nb-ic" size={16} />
-                Anniversaries
+                <div className="nb-ic-box sub-ic">
+                  <Heart size={14} />
+                </div>
+                <span>Anniversaries</span>
               </NavLink>
             </div>
           </>
         )}
 
-        {/* System Section */}
+        {/* ── SYSTEM & SECURITY ── */}
         {isRole(user, 'Super Admin') && (
           <>
-            <button className="sb-sec-btn" onClick={() => toggle('system')}>
-              <span>System</span>
-              {expanded.system ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+            <div className="sb-group-title">Administration</div>
+            <button 
+              type="button" 
+              className={`sb-sec-btn ${expanded.system ? 'active-group' : ''}`} 
+              onClick={() => toggle('system')}
+            >
+              <div className="sb-sec-btn-left">
+                <div className="sb-sec-ic-box">
+                  <ShieldCheck size={13} />
+                </div>
+                <span>Security &amp; System</span>
+              </div>
+              {expanded.system ? <ChevronDown size={14} className="sb-chevron" /> : <ChevronRight size={14} className="sb-chevron" />}
             </button>
             <div className={`sb-sub-menu ${expanded.system ? 'open' : ''}`}>
               <NavLink to="/admin/users" className={navClass}>
-                <Users className="nb-ic" size={16} />
-                Admin Users
+                <div className="nb-ic-box sub-ic">
+                  <Users size={14} />
+                </div>
+                <span>Admin Users</span>
               </NavLink>
               <NavLink to="/admin/audit-logs" className={navClass}>
-                <ShieldAlert className="nb-ic" size={16} />
-                Audit Logs
+                <div className="nb-ic-box sub-ic">
+                  <ShieldAlert size={14} />
+                </div>
+                <span>Audit Logs</span>
               </NavLink>
             </div>
           </>
         )}
-
-        {/* Logout Button */}
-        <button 
-          onClick={logout} 
-          className="nb" 
-          style={{ 
-            marginTop: 28, 
-            border: 'none', 
-            background: 'none', 
-            width: '100%', 
-            cursor: 'pointer',
-            color: 'var(--er)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            padding: '12px 18px',
-            borderRadius: 'var(--r)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'var(--erb)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'none';
-          }}
-        >
-          <LogOut className="nb-ic" size={16} />
-          Sign Out
-        </button>
       </nav>
+
+      {/* Sticky Bottom User Profile Strip */}
+      <div className="sb-footer">
+        <div className="sb-user-card">
+          <div className="sb-user-avatar">
+            {user?.name ? user.name.charAt(0).toUpperCase() : <User size={14} />}
+          </div>
+          <div className="sb-user-meta">
+            <span className="sb-user-meta-name">{user?.name || 'Administrator'}</span>
+            <span className="sb-user-meta-role">{user?.role || 'Admin'}</span>
+          </div>
+          <button 
+            type="button" 
+            className="sb-user-logout-btn" 
+            onClick={logout} 
+            title="Sign Out"
+          >
+            <LogOut size={14} />
+          </button>
+        </div>
+        <div style={{ padding: '6px 14px 2px', textAlign: 'center', fontSize: '11px', color: 'var(--tx3)', opacity: 0.8 }}>
+          Handled by <a href="https://ethiroli.net" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 600 }}>Ethiroli Pvt Ltd</a>
+        </div>
+      </div>
     </aside>
   );
 };

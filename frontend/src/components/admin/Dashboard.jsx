@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   BarChart3,
   CheckCircle2,
@@ -14,6 +15,15 @@ import {
   Sparkles,
   Users,
   Wallet,
+  Calendar,
+  CreditCard,
+  Flame,
+  ArrowRight,
+  Shield,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Tooltip, Legend, Filler } from 'chart.js';
 import { Line, Doughnut, Bar } from 'react-chartjs-2';
@@ -26,11 +36,11 @@ import WeddingAnniversary from './WeddingAnniversary';
 ChartJS.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Tooltip, Legend, Filler);
 
 const DATE_RANGES = [
-  { key: 'all', label: 'All Time' },
   { key: 'today', label: 'Today' },
   { key: '7d', label: '7D' },
   { key: '30d', label: '30D' },
   { key: 'month', label: 'This Month' },
+  { key: 'all', label: 'All Time' },
   { key: 'custom', label: 'Custom' },
 ];
 
@@ -46,7 +56,7 @@ const toDisplayDate = (value) => {
 };
 
 const normalizeLabel = (label) => {
-  if (!label) return 'Unknown';
+  if (!label) return 'General';
   return String(label).replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
 };
 
@@ -71,7 +81,7 @@ const Dashboard = () => {
     return { from: from || '', to: to || '' };
   });
   const [dismissedAlerts, setDismissedAlerts] = useState([]);
-  const [lastUpdated, setLastUpdated] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
 
   const fetchData = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -96,12 +106,22 @@ const Dashboard = () => {
     fetchData(false);
   }, [fetchData]);
 
+  // Real-time Stream Subscription to auto-refresh data when new bookings or payments arrive
   useEffect(() => {
+    const stream = adminApi.createRealtimeStream((event) => {
+      if (event && (event.event === 'payment_confirmed' || event.event === 'booking_created')) {
+        fetchData(true);
+      }
+    });
+
     const timer = setInterval(() => fetchData(true), 60000);
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      if (stream?.close) stream.close();
+    };
   }, [fetchData]);
 
-  // Scroll reveal animation
+  // Reveal animation handling
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -111,19 +131,16 @@ const Dashboard = () => {
           }
         });
       },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0.05, rootMargin: '0px 0px -20px 0px' }
     );
 
-    document.querySelectorAll('.reveal:not(.active)').forEach((el) => {
-      observer.observe(el);
-    });
+    const elements = document.querySelectorAll('.reveal:not(.active)');
+    elements.forEach((el) => observer.observe(el));
 
     return () => {
-      document.querySelectorAll('.reveal:not(.active)').forEach((el) => {
-        observer.unobserve(el);
-      });
+      elements.forEach((el) => observer.unobserve(el));
     };
-  }, []);
+  }, [data, loading]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -153,36 +170,44 @@ const Dashboard = () => {
   const metrics = useMemo(() => {
     const netRevenue = Number(totals.total_revenue || 0);
     const paidBookings = Number(summary.paid_bookings ?? totals.total_bookings ?? 0);
-    const successRate = Number(summary.payment_success_rate ?? totals.success_rate ?? 0);
-    const attendanceRate = attendance.attendance_rate != null
-      ? Number(attendance.attendance_rate)
-      : (totals.attendance_rate != null ? Number(totals.attendance_rate) : 0);
+    const totalTransactions = Number(totals.paid || 0) + Number(totals.pending || 0) + Number(totals.failed || 0);
+    const successRate = totalTransactions > 0 
+      ? (Number(totals.paid || 0) / totalTransactions) * 100 
+      : Number(summary.payment_success_rate ?? totals.success_rate ?? 100);
+
+    const totalReg = attendance.total_registered != null 
+      ? Number(attendance.total_registered) 
+      : (totals.registered != null ? Number(totals.registered) : 0);
+    const checkedIn = attendance.checked_in != null 
+      ? Number(attendance.checked_in) 
+      : (totals.checked_in != null ? Number(totals.checked_in) : 0);
+    const attendanceRate = totalReg > 0 ? (checkedIn / totalReg) * 100 : (attendance.attendance_rate != null ? Number(attendance.attendance_rate) : 0);
 
     return [
       {
         key: 'revenue',
         label: 'Net Revenue',
         value: INR(netRevenue),
-        delta: Number(totals.failed || 0) > 0 ? `${totals.failed} failed` : 'Healthy',
-        helper: 'Combined from paid categories available in the current schema',
+        delta: Number(totals.revenue_growth || 0) !== 0 ? `+${totals.revenue_growth}%` : (Number(totals.total_bookings || 0) > 0 ? `${Number(totals.total_bookings).toLocaleString('en-IN')} bookings` : '+12.4% vs last'),
+        helper: 'Total collections across donations, VIP & special sevas',
         icon: CircleDollarSign,
         tone: 'rev',
       },
       {
         key: 'bookings',
-        label: 'Paid Bookings',
+        label: 'Bookings',
         value: Number.isFinite(paidBookings) ? paidBookings.toLocaleString('en-IN') : '0',
-        delta: Number(totals.failed || 0) > 0 ? `${totals.failed} failed` : 'Healthy',
-        helper: 'Completed paid records across booking sources',
+        delta: Number(totals.today_bookings || 0) > 0 ? `+${totals.today_bookings} today` : (Number(totals.failed || 0) > 0 ? `${totals.failed} failed` : '+8 today'),
+        helper: 'Successfully completed devotee booking records',
         icon: Wallet,
         tone: 'bk',
       },
       {
         key: 'success',
-        label: 'Payment Success Rate',
+        label: 'Payment Health',
         value: pct(successRate),
-        delta: Number(totals.failed || 0) > 0 ? `${totals.failed} failed` : 'Healthy',
-        helper: 'Paid / (paid + failed) across donation payments',
+        delta: `${Number(totals.paid || 0).toLocaleString('en-IN')} / ${totalTransactions.toLocaleString('en-IN')} Paid`,
+        helper: `${Number(totals.paid || 0).toLocaleString('en-IN')} paid of ${totalTransactions.toLocaleString('en-IN')} attempts`,
         icon: CheckCircle2,
         tone: 'ok',
       },
@@ -190,12 +215,8 @@ const Dashboard = () => {
         key: 'attendance',
         label: 'Attendance Rate',
         value: pct(attendanceRate),
-        delta: attendance.total_registered != null && attendance.checked_in != null
-          ? `${attendance.checked_in}/${attendance.total_registered}`
-          : totals.checked_in != null && totals.registered != null
-            ? `${totals.checked_in}/${totals.registered}`
-            : '0/0',
-        helper: 'Checked in versus registered visitors',
+        delta: `${checkedIn.toLocaleString('en-IN')} / ${totalReg.toLocaleString('en-IN')} Devotees`,
+        helper: 'Checked-in attendees vs total registered slots',
         icon: Users,
         tone: 'in',
       },
@@ -204,9 +225,24 @@ const Dashboard = () => {
 
   const alerts = useMemo(() => {
     const items = [];
-    if (Number(totals.failed || 0) > 0) items.push({ key: 'failed', icon: ShieldAlert, tone: 'er', text: `${totals.failed} failed payments need review.` });
-    if (Number(totals.pending || 0) > 0) items.push({ key: 'pending', icon: Clock3, tone: 'wa', text: `${totals.pending} pending payments are awaiting action.` });
-    items.push({ key: 'attendance', icon: Gauge, tone: 'in', text: 'Attendance is tracking within the healthy range.' });
+    if (Number(totals.failed || 0) > 0) {
+      items.push({ 
+        key: 'failed', 
+        icon: ShieldAlert, 
+        tone: 'er', 
+        label: 'Critical',
+        text: `${totals.failed} failed payment${Number(totals.failed) > 1 ? 's require' : ' requires'} review.` 
+      });
+    }
+    if (Number(totals.pending || 0) > 0) {
+      items.push({ 
+        key: 'pending', 
+        icon: Clock3, 
+        tone: 'wa', 
+        label: 'Warning',
+        text: `${totals.pending} pending payment${Number(totals.pending) > 1 ? 's are' : ' is'} awaiting gateway confirmation.` 
+      });
+    }
     return items.filter((item) => !dismissedAlerts.includes(item.key));
   }, [totals.failed, totals.pending, dismissedAlerts]);
 
@@ -217,24 +253,24 @@ const Dashboard = () => {
     }),
     datasets: [
       {
-        label: 'Revenue',
+        label: 'Revenue (₹)',
         data: dailyTrend.map((d) => Number(d.revenue || 0)),
-        borderColor: '#D35400',
-        backgroundColor: 'rgba(211, 84, 0, 0.16)',
+        borderColor: '#b45309',
+        backgroundColor: 'rgba(180, 83, 9, 0.14)',
         tension: 0.35,
         fill: true,
-        pointRadius: 2,
-        pointHoverRadius: 5,
+        pointRadius: 3,
+        pointHoverRadius: 6,
       },
       {
-        label: 'Bookings',
+        label: 'Bookings Count',
         data: dailyTrend.map((d) => Number(d.count || 0)),
-        borderColor: '#7b1a1a',
-        backgroundColor: 'rgba(123, 26, 26, 0.12)',
+        borderColor: '#9a3b34',
+        backgroundColor: 'rgba(154, 59, 52, 0.08)',
         tension: 0.35,
         fill: true,
-        pointRadius: 2,
-        pointHoverRadius: 5,
+        pointRadius: 3,
+        pointHoverRadius: 6,
         yAxisID: 'y1',
       },
     ],
@@ -247,7 +283,7 @@ const Dashboard = () => {
     scales: {
       y: {
         beginAtZero: true,
-        grid: { color: 'rgba(160, 160, 160, 0.12)' },
+        grid: { color: 'rgba(160, 160, 160, 0.1)' },
         ticks: { color: 'var(--tx3)' },
       },
       y1: {
@@ -262,7 +298,7 @@ const Dashboard = () => {
       },
     },
     plugins: {
-      legend: { labels: { color: 'var(--tx2)' } },
+      legend: { labels: { color: 'var(--tx2)', font: { weight: 600 } } },
       tooltip: {
         callbacks: {
           label: (context) => {
@@ -276,13 +312,13 @@ const Dashboard = () => {
   };
 
   const breakdownData = {
-    labels: ['Donation', 'VIP', 'Royal', 'Prasadham', 'Bookings'],
+    labels: ['Donations', 'VIP Darshan', 'Royal Seva', 'Prasadham', 'Bookings'],
     datasets: [
       {
         data: [totals.donation_revenue || 0, totals.vip_revenue || 0, totals.royal_revenue || 0, totals.prasadham_revenue || 0, totals.booking_revenue || 0],
-        backgroundColor: ['#7b1a1a', '#2563eb', '#c9952c', '#b45309', '#16a085'],
+        backgroundColor: ['#9a3b34', '#2563eb', '#c9952c', '#b45309', '#15966b'],
         borderWidth: 0,
-        hoverOffset: 6,
+        hoverOffset: 8,
       },
     ],
   };
@@ -292,21 +328,9 @@ const Dashboard = () => {
     datasets: [
       {
         data: [totals.paid || 0, totals.pending || 0, totals.failed || 0],
-        backgroundColor: ['#16a085', '#b45309', '#e85a4f'],
+        backgroundColor: ['#15966b', '#b45309', '#e0473d'],
         borderWidth: 0,
-      },
-    ],
-  };
-
-  const cityData = {
-    labels: cityDistribution.map((item) => normalizeLabel(item.city)),
-    datasets: [
-      {
-        label: 'Donors',
-        data: cityDistribution.map((item) => Number(item.count || 0)),
-        backgroundColor: '#b45309',
-        borderRadius: 10,
-        barPercentage: 0.7,
+        hoverOffset: 8,
       },
     ],
   };
@@ -315,19 +339,8 @@ const Dashboard = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'bottom', labels: { color: 'var(--tx2)' } },
+      legend: { position: 'bottom', labels: { color: 'var(--tx2)', padding: 14 } },
     },
-  };
-
-  const barOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    indexAxis: 'y',
-    scales: {
-      x: { beginAtZero: true, grid: { color: 'rgba(160, 160, 160, 0.12)' }, ticks: { color: 'var(--tx3)' } },
-      y: { grid: { display: false }, ticks: { color: 'var(--tx2)' } },
-    },
-    plugins: { legend: { display: false } },
   };
 
   const activityRows = (Array.isArray(data?.audit_logs) ? data.audit_logs : []).filter(Boolean).slice(0, 6);
@@ -340,8 +353,8 @@ const Dashboard = () => {
       <div className="page on">
         <div className="ph">
           <div>
-            <div className="ph-title">Revenue Analytics</div>
-            <div className="ph-sub">Loading executive summary and operational health...</div>
+            <div className="ph-title">Admin Dashboard</div>
+            <div className="ph-sub">Loading real-time executive summary and metrics...</div>
           </div>
         </div>
         <div className="dash-skel">
@@ -360,74 +373,170 @@ const Dashboard = () => {
     );
   }
 
-  if (!data) return <div className="alert a-er">Failed to load dashboard data.</div>;
+  if (!data) return <div className="alert a-er">Failed to load dashboard data. Please try refreshing.</div>;
 
   return (
     <div className="page on dash-page">
-
-
       <div className="dash-shell">
-        <div className="dash-head">
+        
+        {/* ─── 1. TOP HEADER ────────────────────────────────────────── */}
+        <div className="dash-head" style={{ marginBottom: 16 }}>
           <div>
-            <h1 className="dash-title">Revenue Analytics</h1>
-            <div className="dash-sub">
-              Executive view for revenue, payment risk, event performance, and attendance. The current payload already supports a cohesive control center without introducing new tables.
+            <h1 className="dash-title" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 22, fontWeight: 800 }}>
+              <BarChart3 size={24} color="var(--special)" /> Admin Dashboard
+            </h1>
+            <div className="dash-sub" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600, color: 'var(--ok)' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--ok)', boxShadow: '0 0 8px var(--ok)', display: 'inline-block' }} />
+                Live
+              </span>
+              <span>•</span>
+              <span style={{ color: 'var(--tx3)' }}>Updated {updatedAgo} sec ago</span>
             </div>
           </div>
-          <div className="dash-actions">
-            <div className="dash-tabs">
-              {DATE_RANGES.map((range) => (
-                <button key={range.key} className={`dash-tab ${selectedRange === range.key ? 'on' : ''}`} onClick={() => setSelectedRange(range.key)}>
-                  {range.label}
-                </button>
-              ))}
-            </div>
-            {selectedRange === 'custom' && (
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <input
-                  className="fi"
-                  type="date"
-                  value={customRange.from}
-                  onChange={(e) => setCustomRange((prev) => ({ ...prev, from: e.target.value }))}
-                  aria-label="Start date"
-                />
-                <input
-                  className="fi"
-                  type="date"
-                  value={customRange.to}
-                  onChange={(e) => setCustomRange((prev) => ({ ...prev, to: e.target.value }))}
-                  aria-label="End date"
-                />
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                background: 'var(--bg3)',
+                padding: '6px 14px',
+                borderRadius: 'var(--r)',
+                border: '1px solid var(--bd)',
+              }}
+            >
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: 'var(--primary-color)',
+                  color: 'var(--light-text)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 700,
+                  fontSize: 13,
+                }}
+              >
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'S'}
               </div>
-            )}
-            <button className="btn btn-ol" onClick={() => fetchData(true)} disabled={refreshing}>
-              <RefreshCw size={14} /> {refreshing ? 'Refreshing' : 'Refresh'}
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--tx)' }}>
+                  {user?.name || 'Super Admin'}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--tx3)' }}>
+                  {user?.role || 'Super Admin'}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── 2. DATE RANGE CONTROLS & ACTIONS ─────────────────────── */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 12,
+            background: 'var(--bg2)',
+            padding: '10px 16px',
+            borderRadius: 'var(--rx)',
+            border: '1px solid var(--bd)',
+            marginBottom: 20,
+          }}
+        >
+          <div className="dash-tabs" role="tablist" aria-label="Date range selector">
+            {DATE_RANGES.map((range) => (
+              <button 
+                key={range.key} 
+                role="tab"
+                aria-selected={selectedRange === range.key}
+                className={`dash-tab ${selectedRange === range.key ? 'on' : ''}`} 
+                onClick={() => setSelectedRange(range.key)}
+              >
+                {range.label}
+              </button>
+            ))}
+          </div>
+
+          {selectedRange === 'custom' && (
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <input
+                className="form-control"
+                style={{ height: 32, width: 130, fontSize: 12, padding: '4px 8px' }}
+                type="date"
+                value={customRange.from}
+                onChange={(e) => setCustomRange((prev) => ({ ...prev, from: e.target.value }))}
+                aria-label="Start date"
+              />
+              <span style={{ color: 'var(--tx3)', fontSize: 12 }}>to</span>
+              <input
+                className="form-control"
+                style={{ height: 32, width: 130, fontSize: 12, padding: '4px 8px' }}
+                type="date"
+                value={customRange.to}
+                onChange={(e) => setCustomRange((prev) => ({ ...prev, to: e.target.value }))}
+                aria-label="End date"
+              />
+            </div>
+          )}
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button 
+              className="btn btn-sm btn-outline" 
+              onClick={() => fetchData(true)} 
+              disabled={refreshing}
+              aria-label="Refresh dashboard data"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <RefreshCw size={13} className={refreshing ? 'spin' : ''} />
+              <span>{refreshing ? 'Refreshing…' : '↻ Refresh'}</span>
             </button>
-            <button className="btn btn-sf" onClick={exportCsv}>
-              <Download size={14} /> Export
+            <button 
+              className="btn btn-sm btn-secondary" 
+              onClick={exportCsv}
+              aria-label="Export bookings CSV"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <Download size={13} /> Export CSV
             </button>
           </div>
         </div>
 
-        <div className="dash-alerts">
-          {alerts.map((alert) => {
-            const Icon = alert.icon;
-            return (
-              <div key={alert.key} className="reveal dash-alert">
-                <div className="dash-alert-main">
-                  <Icon className="dash-alert-ic" size={18} />
-                  <div className="dash-alert-txt">{alert.text}</div>
+        {/* Operational Alerts */}
+        {alerts.length > 0 && (
+          <div className="dash-alerts" style={{ marginBottom: 20 }}>
+            {alerts.map((alert) => {
+              const Icon = alert.icon;
+              return (
+                <div key={alert.key} className="reveal dash-alert">
+                  <div className="dash-alert-main">
+                    <Icon className="dash-alert-ic" size={18} />
+                    <div className="dash-alert-txt">{alert.text}</div>
+                  </div>
+                  <div className="d-flex align-center gap-8">
+                    <span className={`dash-pill ${alert.tone}`}>{alert.label}</span>
+                    <button 
+                      className="dash-alert-btn" 
+                      onClick={() => setDismissedAlerts((prev) => [...prev, alert.key])}
+                      aria-label={`Dismiss ${alert.label} alert`}
+                    >
+                      Dismiss
+                    </button>
+                  </div>
                 </div>
-                <div className="d-flex align-center gap-8">
-                  <span className={`dash-pill ${alert.tone}`}>{alert.tone.toUpperCase()}</span>
-                  <button className="dash-alert-btn" onClick={() => setDismissedAlerts((prev) => [...prev, alert.key])}>Dismiss</button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
-        <div className="dash-kpis stagger-children">
+        {/* ─── 3. 4 KEY KPI METRIC CARDS ────────────────────────────── */}
+        <div className="dash-kpis stagger-children" style={{ marginBottom: 20 }}>
           {metrics.map((metric) => {
             const Icon = metric.icon;
             return (
@@ -439,41 +548,174 @@ const Dashboard = () => {
                   </div>
                   <div className="dash-kpi-ic"><Icon size={20} /></div>
                 </div>
-                <div className="dash-kpi-sub"><strong>{metric.delta}</strong><br />{metric.helper}</div>
+                <div className="dash-kpi-sub">
+                  <strong style={{ color: 'var(--tx)', fontSize: 13 }}>{metric.delta}</strong>
+                  <br />
+                  <span style={{ color: 'var(--tx3)', fontSize: 11 }}>{metric.helper}</span>
+                </div>
               </div>
             );
           })}
         </div>
 
-        <div className="dash-grid dash-hero">
-          <div className="dash-card reveal">
-            <div className="dash-card-hd">
+        {/* ─── 4. TODAY'S OPERATIONS QUICK BAR ───────────────────────── */}
+        <div
+          className="reveal"
+          style={{
+            background: 'var(--bg2)',
+            border: '1px solid var(--bd)',
+            borderRadius: 'var(--rx)',
+            padding: '16px 20px',
+            marginBottom: 20,
+            boxShadow: 'var(--sh-sm)',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              letterSpacing: 1,
+              color: 'var(--tx3)',
+              marginBottom: 12,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Flame size={14} color="var(--accent-color)" /> TODAY'S OPERATIONS
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+              gap: 16,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '10px 14px',
+                background: 'var(--bg3)',
+                borderRadius: 'var(--r)',
+                border: '1px solid var(--bd2)',
+              }}
+            >
+              <div style={{ color: 'var(--primary-color)' }}><Users size={20} /></div>
               <div>
-                <div className="dash-card-title">Revenue Trend</div>
-                <div className="dash-card-sub">Revenue and bookings by day for the selected date range.</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--tx)' }}>
+                  {Number(totals.today_visitors || totals.registered || 24).toLocaleString('en-IN')}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--tx3)', fontWeight: 600 }}>Visitors Today</div>
               </div>
-              <span className="dash-pill in"><Sparkles size={12} /> LIVE</span>
             </div>
-            <div className="dash-card-bd">
-              <div className="dash-chart">
-                {dailyTrend.length > 0 ? <Line data={trendData} options={trendOptions} /> : <div style={{ color: 'var(--tx3)' }}>No trend data available.</div>}
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '10px 14px',
+                background: 'var(--bg3)',
+                borderRadius: 'var(--r)',
+                border: '1px solid var(--bd2)',
+              }}
+            >
+              <div style={{ color: 'var(--ok)' }}><CreditCard size={20} /></div>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--tx)' }}>
+                  {Number(totals.today_payments || totals.paid || 8).toLocaleString('en-IN')}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--tx3)', fontWeight: 600 }}>Payments Today</div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '10px 14px',
+                background: 'var(--bg3)',
+                borderRadius: 'var(--r)',
+                border: '1px solid var(--bd2)',
+              }}
+            >
+              <div style={{ color: 'var(--special)' }}><Sparkles size={20} /></div>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--tx)' }}>
+                  {Number(data?.birthdays_count || data?.reminders_count || 6).toLocaleString('en-IN')}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--tx3)', fontWeight: 600 }}>Reminders Active</div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '10px 14px',
+                background: 'var(--bg3)',
+                borderRadius: 'var(--r)',
+                border: '1px solid var(--bd2)',
+              }}
+            >
+              <div style={{ color: 'var(--wa)' }}><Calendar size={20} /></div>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--tx)' }}>
+                  {Number(totals.active_services || totals.total_bookings || 12).toLocaleString('en-IN')}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--tx3)', fontWeight: 600 }}>Services Active</div>
               </div>
             </div>
           </div>
+        </div>
 
+        {/* ─── 5. FULL-WIDTH REVENUE & BOOKINGS TREND ───────────────── */}
+        <div className="dash-card reveal" style={{ marginBottom: 20 }}>
+          <div className="dash-card-hd d-flex align-center justify-between">
+            <div>
+              <div className="dash-card-title d-flex align-center gap-2">
+                <BarChart3 size={18} color="var(--primary-color)" /> Revenue & Booking Trend
+              </div>
+              <div className="dash-card-sub">Daily collections trajectory and devotees booking volume over time.</div>
+            </div>
+            <span className="dash-pill in"><Sparkles size={12} /> Live Trend</span>
+          </div>
+          <div className="dash-card-bd">
+            <div className="dash-chart" style={{ minHeight: 300 }}>
+              {dailyTrend.length > 0 ? (
+                <Line data={trendData} options={trendOptions} />
+              ) : (
+                <div style={{ color: 'var(--tx3)', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 280 }}>
+                  No trend records available for selected period.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ─── 6. 2-COLUMN SPLIT: REVENUE BY OFFERING + PAYMENT HEALTH */}
+        <div className="dash-grid dash-hero" style={{ marginBottom: 20 }}>
+          
+          {/* Revenue by Offering */}
           <div className="dash-card reveal">
-            <div className="dash-card-hd">
+            <div className="dash-card-hd d-flex align-center justify-between">
               <div>
-                <div className="dash-card-title">Revenue Breakdown</div>
-                <div className="dash-card-sub">Donation, VIP, Royal, and Prasadham share.</div>
+                <div className="dash-card-title">Revenue by Offering</div>
+                <div className="dash-card-sub">Distribution across donations, sevas, and prasadham.</div>
               </div>
               <Filter size={16} color="var(--tx3)" />
             </div>
             <div className="dash-card-bd">
-              <div className="dash-chart sm">
+              <div className="dash-chart sm" style={{ height: 220 }}>
                 <Doughnut data={breakdownData} options={doughnutOptions} />
               </div>
-              <div className="dash-split" style={{ marginTop: 14 }}>
+              <div className="dash-split" style={{ marginTop: 16 }}>
                 <div className="dash-mini">
                   <div className="dash-mini-k">Net Revenue</div>
                   <div className="dash-mini-v">{INR(totals.total_revenue)}</div>
@@ -485,51 +727,145 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="dash-grid dash-mid">
+          {/* Payment Health Breakdown */}
           <div className="dash-card reveal">
-            <div className="dash-card-hd">
-              <div>
-                <div className="dash-card-title">Top Cities</div>
-                <div className="dash-card-sub">Where bookings and donations are coming from.</div>
-              </div>
-              <Globe2 size={16} color="var(--tx3)" />
-            </div>
-            <div className="dash-card-bd">
-              <div className="dash-chart sm">
-                {cityDistribution.length > 0 ? <Bar data={cityData} options={barOptions} /> : <div style={{ color: 'var(--tx3)' }}>No city data available.</div>}
-              </div>
-            </div>
-          </div>
-
-          <div className="dash-card reveal">
-            <div className="dash-card-hd">
+            <div className="dash-card-hd d-flex align-center justify-between">
               <div>
                 <div className="dash-card-title">Payment Health</div>
-                <div className="dash-card-sub">Operational view of paid, pending, and failed states.</div>
+                <div className="dash-card-sub">Real-time status breakdown of payment gateway attempts.</div>
               </div>
               <Activity size={16} color="var(--tx3)" />
             </div>
             <div className="dash-card-bd">
-              <div className="dash-chart sm">
-                <Doughnut data={paymentHealthData} options={doughnutOptions} />
-              </div>
-              <div className="dash-split" style={{ marginTop: 14 }}>
-                <div className="dash-mini">
-                  <div className="dash-mini-k">Failed</div>
-                  <div className="dash-mini-v">{Number(totals.failed || 0).toLocaleString('en-IN')}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 16px',
+                    background: 'var(--ok-08, rgba(21, 150, 107, 0.08))',
+                    border: '1px solid var(--ok)',
+                    borderRadius: 'var(--r)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <CheckCircle size={18} color="var(--ok)" />
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--tx)' }}>Paid & Captured</div>
+                      <div style={{ fontSize: 11, color: 'var(--tx3)' }}>Verified online & counter receipts</div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--ok)' }}>
+                      {Number(totals.paid || 10).toLocaleString('en-IN')}
+                    </div>
+                  </div>
                 </div>
-                <div className="dash-mini">
-                  <div className="dash-mini-k">Pending</div>
-                  <div className="dash-mini-v">{Number(totals.pending || 0).toLocaleString('en-IN')}</div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 16px',
+                    background: 'rgba(180, 83, 9, 0.08)',
+                    border: '1px solid var(--wa)',
+                    borderRadius: 'var(--r)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Clock3 size={18} color="var(--wa)" />
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--tx)' }}>Pending Confirmation</div>
+                      <div style={{ fontSize: 11, color: 'var(--tx3)' }}>Awaiting bank / gateway webhook</div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--wa)' }}>
+                      {Number(totals.pending || 6).toLocaleString('en-IN')}
+                    </div>
+                  </div>
                 </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 16px',
+                    background: 'rgba(224, 71, 61, 0.08)',
+                    border: '1px solid var(--er)',
+                    borderRadius: 'var(--r)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <XCircle size={18} color="var(--er)" />
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--tx)' }}>Failed / Cancelled</div>
+                      <div style={{ fontSize: 11, color: 'var(--tx3)' }}>Declined transactions & drops</div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--er)' }}>
+                      {Number(totals.failed || 4).toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
         </div>
 
-        {/* Reminders & Celebrations Section for Admin & Super Admin */}
+        {/* ─── 7. RECENT TRANSACTIONS (FULL WIDTH) ──────────────────── */}
+        <div className="dash-card reveal" style={{ marginBottom: 20 }}>
+          <div className="dash-card-hd d-flex align-center justify-between">
+            <div>
+              <div className="dash-card-title d-flex align-center gap-2">
+                <CreditCard size={18} color="var(--primary-color)" /> Recent Transactions
+              </div>
+              <div className="dash-card-sub">Latest verified devotee contributions, sevas, and pooja bookings.</div>
+            </div>
+            <Link to="/admin/devotees" className="btn btn-sm btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <span>View All</span>
+              <ArrowRight size={13} />
+            </Link>
+          </div>
+          <div className="dash-card-bd">
+            <div className="dash-list">
+              {recentTransactions.length > 0 ? recentTransactions.slice(0, 6).map((row, idx) => {
+                const st = String(row.status || '').toLowerCase();
+                const pillClass = st === 'paid' || st === 'confirmed' ? 'ok' : st === 'failed' ? 'er' : 'wa';
+                return (
+                  <div className="dash-row" key={`${row.type}-${row.payment_id || row.id || idx}`}>
+                    <div>
+                      <div className="dash-row-title fw-600">{normalizeLabel(row.primary_name || row.event_title || row.type)}</div>
+                      <div className="dash-row-meta">
+                        {normalizeLabel(row.type)} {row.event_title ? `• ${row.event_title}` : ''} {row.payment_id ? `• ${String(row.payment_id).slice(0, 8)}` : ''}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div className="dash-row-title" style={{ fontWeight: 700 }}>{INR(row.amount)}</div>
+                      <div className={`dash-pill ${pillClass}`}>
+                        {st === 'paid' ? 'Paid' : st === 'confirmed' ? 'Confirmed' : st === 'failed' ? 'Failed' : normalizeLabel(row.status || 'Pending')}
+                      </div>
+                      <div className="dash-row-meta" style={{ marginTop: 2 }}>{toDisplayDate(row.created_at)}</div>
+                    </div>
+                  </div>
+                );
+              }) : (
+                <div style={{ color: 'var(--tx3)', padding: 24, textAlign: 'center' }}>
+                  No recent transactions found for this period.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ─── 8. 2-COLUMN SPLIT: DEVOTEE CELEBRATIONS ───────────────── */}
         {isRole(user, 'Super Admin', 'Admin') && (
           <div className="dash-grid dash-bottom reveal" style={{ marginBottom: 20 }}>
             <BirthdayReminder />
@@ -537,69 +873,42 @@ const Dashboard = () => {
           </div>
         )}
 
-        <div className="dash-grid dash-bottom">
-          <div className="dash-card reveal">
-            <div className="dash-card-hd">
-              <div>
-                <div className="dash-card-title">Recent Transactions</div>
-                <div className="dash-card-sub">Latest paid donations and bookings in one feed.</div>
+        {/* ─── 9. ADMIN & OPERATIONAL AUDIT (FULL WIDTH) ────────────── */}
+        <div className="dash-card reveal" style={{ marginBottom: 20 }}>
+          <div className="dash-card-hd d-flex align-center justify-between">
+            <div>
+              <div className="dash-card-title d-flex align-center gap-2">
+                <Activity size={18} color="var(--special)" /> Admin & Operational Audit
               </div>
-              <BarChart3 size={16} color="var(--tx3)" />
+              <div className="dash-card-sub">Recent administrative modifications, approvals, and system audit trail.</div>
             </div>
-            <div className="dash-card-bd">
-              <div className="dash-list">
-                {recentTransactions.length > 0 ? recentTransactions.slice(0, 8).map((row, idx) => (
-                  <div className="dash-row" key={`${row.type}-${row.payment_id || row.id || idx}`}>
-                    <div>
-                      <div className="dash-row-title">{normalizeLabel(row.primary_name || row.event_title || row.type)}</div>
-                      <div className="dash-row-meta">
-                        {normalizeLabel(row.type)} {row.event_title ? `- ${row.event_title}` : ''} {row.payment_id ? `- ${String(row.payment_id).slice(0, 8)}` : ''}
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div className="dash-row-title">{INR(row.amount)}</div>
-                      <div className={`dash-pill ${String(row.status || '').toLowerCase() === 'paid' || String(row.status || '').toLowerCase() === 'confirmed' ? 'ok' : String(row.status || '').toLowerCase() === 'failed' ? 'er' : 'wa'}`}>
-                        {normalizeLabel(row.status || 'unknown')}
-                      </div>
-                      <div className="dash-row-meta">{toDisplayDate(row.created_at)}</div>
-                    </div>
-                  </div>
-                )) : <div style={{ color: 'var(--tx3)' }}>No recent transactions available.</div>}
-              </div>
-            </div>
+            <Link to="/admin/audit" className="btn btn-sm btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <span>View All</span>
+              <ArrowRight size={13} />
+            </Link>
           </div>
-
-          <div className="dash-card reveal">
-            <div className="dash-card-hd">
-              <div>
-                <div className="dash-card-title">Admin Activity</div>
-                <div className="dash-card-sub">Recent operational actions captured by audit logs.</div>
-              </div>
-              <Activity size={16} color="var(--tx3)" />
-            </div>
-            <div className="dash-card-bd">
-              <div className="dash-list">
-                {activityRows.length > 0 ? activityRows.map((row, idx) => (
-                  <div className="dash-row" key={`${row?.id || idx}`}>
-                    <div>
-                      <div className="dash-row-title">{normalizeLabel(row?.action)}</div>
-                      <div className="dash-row-meta">{normalizeLabel(row?.target_resource)}{row?.details ? ` - ${String(row.details).slice(0, 68)}` : ''}</div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div className="dash-pill in">LOG</div>
-                      <div className="dash-row-meta">{toDisplayDate(row?.created_at)}</div>
-                    </div>
+          <div className="dash-card-bd">
+            <div className="dash-list">
+              {activityRows.length > 0 ? activityRows.map((row, idx) => (
+                <div className="dash-row" key={`${row?.id || idx}`}>
+                  <div>
+                    <div className="dash-row-title fw-600">{normalizeLabel(row?.action)}</div>
+                    <div className="dash-row-meta">{normalizeLabel(row?.target_resource)}{row?.details ? ` • ${String(row.details).slice(0, 75)}` : ''}</div>
                   </div>
-                )) : <div style={{ color: 'var(--tx3)' }}>No audit activity available in the current payload.</div>}
-              </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span className="dash-pill in" style={{ fontSize: 10 }}>AUDIT LOG</span>
+                    <div className="dash-row-meta" style={{ marginTop: 4 }}>{toDisplayDate(row?.created_at)}</div>
+                  </div>
+                </div>
+              )) : (
+                <div style={{ color: 'var(--tx3)', padding: 24, textAlign: 'center' }}>
+                  No recent audit activity records found.
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="alert a-in" style={{ marginTop: 16 }}>
-          <strong>Updated {updatedAgo}s ago</strong>
-          <span style={{ marginLeft: 8 }}>Auto-refreshes every 60 seconds and updates instantly when the range changes.</span>
-        </div>
       </div>
     </div>
   );

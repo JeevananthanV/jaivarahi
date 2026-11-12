@@ -10,6 +10,8 @@ import FloatActions from '../components/common/FloatActions.jsx';
 const Jothidam = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeMobileDropdown, setActiveMobileDropdown] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
 
   const navItems = [
     { label: 'Home', href: '/' },
@@ -26,10 +28,10 @@ const Jothidam = () => {
     },
     {
       label: 'Kosala',
-      href: '#',
+      href: '/kosala',
       children: [
-        { label: 'Donation', href: '/payment' },
-        { label: 'Donation Archive', href: '/payment' },
+        { label: 'Donation', href: '/kosala' },
+        { label: 'Donation Archive', href: '/kosala/archive' },
       ],
     },
     {
@@ -73,7 +75,9 @@ const Jothidam = () => {
         'Sunrise, Sunset, Rahu Kaalam, Emaganda Kaalam, Kuligai',
         'Auspicious Time – Muhurtham timings based on Horai & Gowri',
         'Horai – 24-hour planetary timings'
-      ]
+      ],
+      category: 'panchangam',
+      purpose: 'planning, muhurtham, auspicious times'
     },
     {
       id: 2,
@@ -85,7 +89,9 @@ const Jothidam = () => {
         'Zodiac phases, Dasa varka chakram',
         'Saturn\'s Kocharam (Kandaga, Ezharai & Ashtama Sani)',
         'Full Desa periods (up to 120 years)'
-      ]
+      ],
+      category: 'horoscope',
+      purpose: 'career, health, relationships, life predictions'
     },
     {
       id: 3,
@@ -97,7 +103,9 @@ const Jothidam = () => {
         'Kochara Kattam – Zodiac phase features',
         'Nakshatra Paadha Saaram – Nakshatra-specific predictions',
         'Sub-Planetary Influences – Uranus, Neptune, Pluto effects'
-      ]
+      ],
+      category: 'kochara',
+      purpose: 'daily influences, planetary effects'
     },
     {
       id: 4,
@@ -110,7 +118,9 @@ const Jothidam = () => {
         'Star match analysis',
         'Papasamyam assessment',
         'Desasanthi compatibility'
-      ]
+      ],
+      category: 'match-making',
+      purpose: 'marriage, compatibility, papasamyam'
     },
     {
       id: 5,
@@ -122,7 +132,9 @@ const Jothidam = () => {
         'Housewarming (Vastu Pooja / Gruhapravesam)',
         'Naming ceremony',
         'Business openings'
-      ]
+      ],
+      category: 'muhurtham',
+      purpose: 'auspicious times, events, ceremonies'
     }
   ];
 
@@ -194,27 +206,82 @@ const Jothidam = () => {
                     <h2 className="section-title">Our Astrology Services</h2>
                     <p>We offer comprehensive astrological services to guide you through life's journey with clarity and confidence.</p>
                 </div>
-                <div className="services-grid">
-                    {services.map((service) => (
-                      <article key={service.id} className="service-card" itemScope itemType="https://schema.org/Service">
-                          <div className="service-icon">
-                              <i className={`fas ${service.icon}`}></i>
-                          </div>
-                          <div className="service-content">
-                              <h3 className="service-title" itemProp="name">{service.title}</h3>
-                              <p className="service-description" itemProp="description">{service.desc}</p>
-                              <div className="service-details">
-                                  <h4>Complete Details:</h4>
-                                  <ul>
-                                      {service?.details?.map((detail, idx) => (
-                                          <li key={idx}>{detail}</li>
-                                      ))}
-                                  </ul>
-                              </div>
-                              <a href="/Jothidam/book" className="primary-button booking-button">Book Now</a>
-                          </div>
-                      </article>
-                    ))}
+                {/* Search and Filter Bar */}
+                <div className="services-search-bar">
+                    <form 
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          // Handle search submission
+                        }}
+                    >
+                      <div className="search-row">
+                        <input
+                          type="text"
+                          placeholder="Search services (name, description, purpose)..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              // Trigger search on Enter key
+                            }
+                          }}
+                          className="service-search-input"
+                        />
+                        <button type="submit" className="service-search-btn">
+                          <i className="fas fa-search" />
+                        </button>
+                        <select
+                          value={selectedCategory}
+                          onChange={(e) => setSelectedCategory(e.target.value)}
+                          className="service-filter-select"
+                        >
+                          <option value="">All Categories</option>
+                          <option value="panchangam">Panchangam</option>
+                          <option value="horoscope">Horoscope</option>
+                          <option value="kochara">Kochara</option>
+                          <option value="match-making">Match Making</option>
+                          <option value="muhurtham">Muhurtham</option>
+                        </select>
+                      </div>
+                    </form>
+                  </div>
+                  <div className="services-grid">
+                    {services
+                      .filter((service) => {
+                        const matchesSearch =
+                          service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          service.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          service.purpose.toLowerCase().includes(searchQuery.toLowerCase());
+                        const matchesCategory =
+                          !selectedCategory || service.category === selectedCategory;
+                        return matchesSearch && matchesCategory;
+                      })
+                      .map((service) => (
+                        <article key={service.id} className="service-card" itemScope itemType="https://schema.org/Service">
+                            <div className="service-icon">
+                                <i className={`fas ${service.icon}`}></i>
+                            </div>
+                            <div className="service-content">
+                                <h3 className="service-title" itemProp="name">{service.title}</h3>
+                                <p className="service-description" itemProp="description">{service.desc}</p>
+                                <div className="service-category">
+                                    <span>{service.category.replace('-', ' ')}</span>
+                                </div>
+                                <div className="service-details">
+                                    <h4>Complete Details:</h4>
+                                    <ul>
+                                        {service.details?.map((detail, idx) => (
+                                            <li key={idx}>{detail}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div className="service-purpose">
+                                    <span>Best for: {service.purpose}</span>
+                                </div>
+                                <a href="/Jothidam/book" className="primary-button booking-button">Book Now</a>
+                            </div>
+                        </article>
+                      ))}
                 </div>
             </div>
         </section>

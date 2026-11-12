@@ -1,21 +1,49 @@
-# Jai Varahi Peedam
+# Jai Varahi Peedam (Sri Kottai Varahi Amman Temple)
 
-Jai Varahi Peedam is a Hindu Temple and spiritual center dedicated to Goddess Varahi Amman, located in Katpadi, Vellore, Tamil Nadu, India. Led by Swamy Pallur Varahidhasan, the center offers traditional Poojas, Homas, Astrology (Jothidam) guidance, and carries out extensive community and social welfare projects.
+> Sri Kottai Varahi Amman Devasthanam & Charitable Trust — Authentic Vedic Temple, Shakta Upasana Peedam, Astrology Guidance, and Social Seva Trust located in Katpadi, Vellore, Tamil Nadu, India.
+> Official Website: https://www.jaivarahi.org
 
-## Location & Coordinates
-- **Address**: Sri Kottai Varahi Amman Temple Street, Arumparuthi, Katpadi, Vellore, Tamil Nadu, India - 632106
-- **Coordinates**: Latitude 12.6167, Longitude 78.8428
+## Overview & Spiritual Founder
+Jai Varahi Peedam is an ordained Hindu Shakta shrine and spiritual institution founded by **Swamy Pallur Varahidhasan**. Dedicated primarily to **Goddess Sri Maha Varahi Amman** (the commander-in-chief of Goddess Lalitha Tripurasundari's divine forces) along with **Ashtamukha Varahi**, **Uchchishta Ganapati**, and **Sri Bala Tripurasundari**. The institution conducts traditional Agamic rituals, Vedic Homams, astrological consultations, nithya annadhanam, gosala cow protection, and rural education initiatives.
 
-## Core Navigation & Pages
-- **Home (`/`)**: Main hub presenting the temple's mission, current activities, and local updates.
-- **Who Is Goddess Varahi (`/who-is-varahi`)**: Spiritual information about the power and significance of Goddess Varahi Amman worship.
-- **Temple Services (`/services`)**: Booking and details for regular temple rituals including Abishekam, special prayers, and planetary remedies.
-- **Astrology / Jothidam (`/jothidam`)**: Astrology services run by Sri Varahi Jothida Vidyalayam, offering authentic destiny guidance.
-- **Secure Payment & Donation (`/payment`)**: Online gateway to safely book Jothidam consults, sponsor Poojas, and support temple construction.
-- **About (`/about`)**: Background on Swamy Pallur Varahidhasan's history, the temple's community trust, and future projects.
+## Geographic Location & Contact Details
+- **Temple Address**: Sri Kottai Varahi Amman Temple Street, Arumparuthi, Katpadi, Vellore, Tamil Nadu, India — PIN 632106
+- **Geo Coordinates**: 12.6167° N, 78.8428° E (Latitude: 12.6167, Longitude: 78.8428)
+- **Primary Contact**: +91 90928 78389
+- **Official Email**: varahikottai@gmail.com
+- **Operating Hours**: Monday – Sunday, 06:30 AM – 12:30 PM & 04:30 PM – 08:30 PM IST
+- **80G Tax Exemption**: Voluntary contributions are eligible for income tax exemption under Section 80G of the Indian Income Tax Act.
 
-## Community Initiatives
-- **Annadhanam**: Providing daily free meals to devotees and the underprivileged.
-- **Kosala (Goshala)**: Protection and care for cows.
-- **Tree Plantation**: Environment restoration drives.
-- **Educational Support**: Scholarships and school kits for children in rural communities.
+## Primary Canonical Pages & URLs
+- [Home Page](https://www.jaivarahi.org/): Temple overview, daily darshan timings, upcoming thithi festivals, and news.
+- [About Temple & Founder](https://www.jaivarahi.org/about): History of Sri Kottai Varahi Amman Temple, Swamy Pallur Varahidhasan's spiritual vision, and charitable trust activities.
+- [Temple Services & Homams](https://www.jaivarahi.org/services): Comprehensive list of Vedic homams, abhishekam sevas, parihara rituals, and remote sankalpam details.
+- [Book Pooja Online](https://www.jaivarahi.org/book-pooja): 5-step interactive pooja and homam booking wizard with Prasadham courier dispatch.
+- [Devotee Sankalpam Registration](https://www.jaivarahi.org/devoteesdetails): Free devotee family database registration for inclusion in daily nithya prayers and festival sankalpams.
+- [Temple Donations & Sevas](https://www.jaivarahi.org/payment): Secure online donation gateway for Annadhanam, Kosala (Cow Sanctuary), and Temple Renovation with instant receipts.
+- [VarahiBlogSpiritual Blog](https://www.jaivarahi.org/blog): In-depth articles, mantras, stotrams, and spiritual literature in Tamil and English.
+- [Sri Varahi Jothidam](https://www.jaivarahi.org/Jothidam): Authentic Vedic astrology horoscope analysis, planetary dosha remedies, and consultation bookings.
+- [Temple Calendar & Panchangam](https://www.jaivarahi.org/calendar): Auspicious thithi timings, Panchami, Ashtami, Amavasya, Pournami, and Rahu Kaala Pooja schedule.
+- [Varahi Malai Stotram](https://www.jaivarahi.org/varahimalai): Sacred 32-verse hymn dedicated to Goddess Varahi with Tamil text and spiritual significance.
+- [Who Is Goddess Varahi](https://www.jaivarahi.org/who_is_varahi): Theological history, Shakta iconography, and significance of Varahi worship.
+- [Uchchishta Ganapati Shrine](https://www.jaivarahi.org/Uchchishta_Ganapati): Mantras, rituals, and obstacle-clearing poojas at the Uchchishta Ganapati sanctum.
+- [Sri Bala Manthiram](https://www.jaivarahi.org/sri_bala_manthiram): Sacred child goddess Upasana, Bala Tripurasundari mantras, and yantra initiation.
+- [Ashada Navarathiri](https://www.jaivarahi.org/ashada_navarathiri): Annual 9-day grand Varahi Navarathiri festival, Chandi Homam, and special alankarams.
+- [Asta Varahi Dharshanam](https://www.jaivarahi.org/astavarahi): The 8 divine forms of Goddess Varahi (Swapna, Tiraskaranika, Dhumra, etc.).
+- [Asta Varahi 2.0 Conclave](https://www.jaivarahi.org/astavarahi2): Spiritual convention, community expansion, and Vedic education programs.
+- [Terms & Conditions](https://www.jaivarahi.org/terms-condition): Statutory terms, ritual dispatch policy, 80G governance, and refund policy.
+- [Privacy Policy](https://www.jaivarahi.org/privacy-policy): DPDP Act 2023 compliance, data protection, and secure PCI-DSS Level 1 Razorpay payment handling.
+
+## Key Rituals & Auspicious Days
+- **Nithya Pooja**: Morning and evening abhishekam and archana performed every single day.
+- **Rahu Kaala Pooja**: Tuesday (3:00 PM – 4:30 PM), Friday (10:30 AM – 12:00 PM), and Sunday (4:30 PM – 6:00 PM) specifically for overcoming court disputes, business hurdles, and negative energies.
+- **Theipirai Panchami Homam**: The 5th waning lunar day, highly potent for victory over adversaries and debt clearance.
+- **Valarpirai Ashtami**: The 8th waxing lunar day, propitious for health, vitality, and spiritual protection.
+- **Pournami (Full Moon) & Amavasya (New Moon)**: Maha Abishekam and Sri Chakra Archana.
+
+## Charitable Projects
+1. **Nithya Annadhanam Seva**: Daily distribution of sanctified vegetarian meals to visiting devotees and underprivileged rural communities.
+2. **Sri Varahi Kosala**: Humane sheltering, medical care, and continuous green fodder feeding for sacred native cows.
+3. **Vedic Education Support**: Distribution of educational materials and assistance to rural students.
+4. **Sacred Prasadham Postal Delivery**: Devotees across India and globally receive consecrated Vibhuti, Kumkum, and Raksha threads via tracked courier.
+

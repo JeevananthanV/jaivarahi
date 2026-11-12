@@ -1,44 +1,14 @@
 # ─── cPanel Passenger Configuration ───────────────────────────────────
-# Place in: /home/jaivarahi/domains/jaivarahi.org/backend/.htaccess
+# For cPanel "Setup Node.js App", Passenger directives are managed by cPanel.
+# Safe options for .htaccess:
 
 <IfModule mod_passenger.c>
-    PassengerUser jaivarahi
-    PassengerGroup jaivarahi
     PassengerAppRoot /home/jaivarahi/domains/jaivarahi.org/backend
     PassengerStartupFile server.js
     PassengerAppType node
     PassengerNodejs /usr/local/bin/node
-
-    # ─── Multi-Process Configuration (Load Balancing within Single cPanel) ───
-    PassengerMinInstances 3          # Always keep 3 processes warm
-    PassengerMaxPoolSize 10          # Max 10 processes total
-    PassengerMaxRequestQueueSize 250 # Queue excess requests
-    PassengerStatThrottleRate 60     # Check for restarts every 60s
-
-    # ─── Concurrency & Performance ──────────────────────────────────────────
-    PassengerConcurrencyModel process
-    PassengerMaxRequests 10000       # Restart process after 10k requests (memory leak protection)
-
-    # ─── SSE / Long-Polling Support ─────────────────────────────────────────
-    PassengerForceMaxConcurrentRequestsPerProcess 0  # Unlimited for SSE
-
-    # ─── Memory Management ──────────────────────────────────────────────────
-    # PassengerMaxMemoryLimit 800      # Uncomment if you have memory limits
-
-    # ─── Response Buffering (Critical for SSE) ──────────────────────────────
-    PassengerBufferResponse off       # Disable buffering for SSE streaming
-
-    # ─── Security ───────────────────────────────────────────────────────────
-    PassengerFriendlyErrorPages off   # Don't expose stack traces in production
-
-    # ─── Load Balancing Across Processes ────────────────────────────────────
-    PassengerLoadBalancing smart      # Smart load balancing (default)
-
-    # ─── Process Supervision ────────────────────────────────────────────────
-    PassengerResistDeploymentErrors on  # Keep old processes during failed deploy
-
-    # ─── Logging ────────────────────────────────────────────────────────────
-    PassengerLogLevel 2               # Info level logging
+    PassengerMinInstances 2
+    PassengerBufferResponse off
 </IfModule>
 
 # ─── Static File Caching ──────────────────────────────────────────────────
@@ -77,12 +47,6 @@
     Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.razorpay.com wss:;"
 </IfModule>
 
-# ─── SSE Endpoint Pass-Through (No Buffering) ─────────────────────────────
-<IfModule mod_proxy.c>
-    # Ensure SSE endpoints are not buffered
-    ProxyPass /api/blogs/stream http://localhost:5000/api/blogs/stream
-    ProxyPassReverse /api/blogs/stream http://localhost:5000/api/blogs/stream
-</IfModule>
 
 # ─── Catch-All for React Router ──────────────────────────────────────────
 <IfModule mod_rewrite.c>

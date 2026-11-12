@@ -22,8 +22,8 @@ const createPool = (host) => mysql.createPool({
   database: env("MYSQL_DATABASE", "DB_NAME") || 'jaivarahi',
   port: Number(env("MYSQL_PORT", "DB_PORT")) || 3306,
   waitForConnections: true,
-  connectionLimit: Number(env("DB_POOL_LIMIT", "MYSQL_POOL_LIMIT") || 100),
-  maxIdle: Number(env("DB_POOL_MAX_IDLE", "MYSQL_POOL_MAX_IDLE") || 50),
+  connectionLimit: Number(env("DB_POOL_LIMIT", "MYSQL_POOL_LIMIT") || 25),
+  maxIdle: Number(env("DB_POOL_MAX_IDLE", "MYSQL_POOL_MAX_IDLE") || 15),
   idleTimeout: 120000,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000,
@@ -81,7 +81,7 @@ export const queryRead = (sql, params) => getReadPool().query(sql, params);
 // ─── Health Check ───────────────────────────────────────────────────
 export const checkDatabaseHealth = async () => {
   try {
-    await writePool.query("SELECT 1 as primary");
+    await writePool.query("SELECT 1 as is_primary");
     let replicas = 0;
     for (const rp of readPools) {
       try {

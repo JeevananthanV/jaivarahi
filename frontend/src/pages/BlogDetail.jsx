@@ -175,10 +175,10 @@ const BlogDetail = () => {
       },
       {
         label: "Kosala",
-        href: "#",
+        href: '/kosala',
         children: [
-          { label: "Donation", href: "/payment" },
-          { label: "Donation Archive", href: "/payment" }
+          { label: 'Donation', href: '/kosala' },
+          { label: 'Donation Archive', href: '/kosala/archive' }
         ]
       },
       {
@@ -402,7 +402,7 @@ const BlogDetail = () => {
     <>
       {blog && (
         <SeoEnhanced
-          title={blog.meta_title?.trim() || `${currentTitle} - Varahi Vani | Jai Varahi Peedam`}
+          title={blog.meta_title?.trim() || `${currentTitle} - VarahiBlog| Jai Varahi Peedam`}
           description={blog.meta_description?.trim() || currentSnippet || "Spiritual teachings and updates from Jai Varahi Peedam."}
           keywords={blog.focus_keyword?.trim() ? `${blog.focus_keyword.trim()}, Varahi Amman, Spiritual Wisdom, ${currentTitle}, Jai Varahi Peedam` : `Varahi Amman, Spiritual Wisdom, ${currentTitle}, Jai Varahi Peedam`}
           canonical={`https://www.jaivarahi.org/blog/${blog.slug || blog.id}`}
@@ -482,8 +482,8 @@ const BlogDetail = () => {
 
             {/* Elegant Top Breadcrumb Navigation Bar */}
             <div style={{
-              background: "#faf8f5",
-              borderBottom: "1px solid #ede8e0",
+              background: "var(--background-light)",
+              borderBottom: "1px solid var(--background-medium)",
               padding: "14px 0",
               marginBottom: "28px"
             }}>
@@ -502,7 +502,7 @@ const BlogDetail = () => {
                   <Link 
                     to="/" 
                     style={{ 
-                      color: "#6b7280", 
+                      color: "var(--text-muted)", 
                       textDecoration: "none", 
                       fontWeight: 500,
                       display: "inline-flex",
@@ -513,12 +513,12 @@ const BlogDetail = () => {
                     <span>🏠</span> {isTamil ? "முகப்பு" : "Home"}
                   </Link>
 
-                  <span style={{ color: "#d1d5db", fontSize: "12px" }}>›</span>
+                  <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>›</span>
 
                   <Link 
                     to={`/blog?lang=${activeLang}`} 
                     style={{ 
-                      color: "#6b7280", 
+                      color: "var(--text-muted)", 
                       textDecoration: "none", 
                       fontWeight: 500 
                     }}
@@ -526,15 +526,15 @@ const BlogDetail = () => {
                     {isTamil ? "ஆன்மீகப் பதிவுகள்" : "Varahi Vani"}
                   </Link>
 
-                  <span style={{ color: "#d1d5db", fontSize: "12px" }}>›</span>
+                  <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>›</span>
 
                   <span style={{ 
-                    color: "#7a0c0c", 
+                    color: "var(--primary-color)", 
                     fontWeight: 600, 
-                    background: "rgba(122, 12, 12, 0.08)", 
+                    background: "var(--hover-bg)", 
                     padding: "3px 10px", 
-                    borderRadius: "6px",
-                    border: "1px solid rgba(122, 12, 12, 0.15)",
+                    borderRadius: "6px", 
+                    border: "1px solid var(--hover-bg)",
                     fontSize: "12.5px"
                   }}>
                     {category}
@@ -543,7 +543,7 @@ const BlogDetail = () => {
 
                 {/* Language Switcher */}
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px" }}>
-                  <span style={{ color: "#9ca3af", fontWeight: 500 }}>
+                  <span style={{ color: "var(--text-muted)", fontWeight: 500 }}>
                     {isTamil ? "மொழி:" : "Language:"}
                   </span>
                   <Link 
@@ -553,10 +553,10 @@ const BlogDetail = () => {
                       borderRadius: "6px", 
                       textDecoration: "none",
                       fontWeight: activeLang === "ta" ? 700 : 500,
-                      background: activeLang === "ta" ? "#7a0c0c" : "#f3f0ea",
-                      color: activeLang === "ta" ? "#ffffff" : "#4b5563",
+                      background: activeLang === "ta" ? "var(--primary-color)" : "var(--background-light)",
+                      color: activeLang === "ta" ? "var(--light-text)" : "var(--text-color)",
                       border: "1px solid",
-                      borderColor: activeLang === "ta" ? "#7a0c0c" : "#e5e0d8",
+                      borderColor: activeLang === "ta" ? "var(--primary-color)" : "var(--background-medium)",
                       fontSize: "12px"
                     }}
                   >
@@ -569,10 +569,10 @@ const BlogDetail = () => {
                       borderRadius: "6px", 
                       textDecoration: "none",
                       fontWeight: activeLang === "en" ? 700 : 500,
-                      background: activeLang === "en" ? "#7a0c0c" : "#f3f0ea",
-                      color: activeLang === "en" ? "#ffffff" : "#4b5563",
+                      background: activeLang === "en" ? "var(--primary-color)" : "var(--background-light)",
+                      color: activeLang === "en" ? "var(--light-text)" : "var(--text-color)",
                       border: "1px solid",
-                      borderColor: activeLang === "en" ? "#7a0c0c" : "#e5e0d8",
+                      borderColor: activeLang === "en" ? "var(--primary-color)" : "var(--background-medium)",
                       fontSize: "12px"
                     }}
                   >
@@ -609,7 +609,7 @@ const BlogDetail = () => {
                   </h1>
 
                   {/* Metadata Bar */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", borderBottom: "1px solid #eee", paddingBottom: "14px", marginBottom: "20px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", borderBottom: "1px solid var(--background-medium)", paddingBottom: "14px", marginBottom: "20px" }}>
                     <div className="blog-detail-meta" style={{ margin: 0, padding: 0, border: "none" }}>
                       <span>📅 {new Date(blog.created_at).toLocaleDateString(isTamil ? "ta-IN" : "en-IN", { day: "numeric", month: "long", year: "numeric" })}</span>
                       <span>👤 {isTamil ? "ஸ்வாமி பல்லூர் வாராஹிதாசன் (நிறுவுநர்)" : "Swamy Pallur Varahidhasan (Founder)"}</span>
@@ -665,61 +665,61 @@ const BlogDetail = () => {
 
 
                   {/* ─── SPIRITUAL ACTION CARDS (SERVICES, DONATIONS, DEVOTEES) ─── */}
-                  <div style={{ margin: "40px 0 30px", padding: "28px 24px", background: "linear-gradient(135deg, #fdfaf4 0%, #f7f1e6 100%)", borderRadius: "16px", border: "1px solid #ebdcc5", boxShadow: "0 4px 20px rgba(100,50,20,0.06)" }}>
+                  <div style={{ margin: "40px 0 30px", padding: "28px 24px", background: "var(--background-light)", borderRadius: "16px", border: "1px solid var(--background-medium)", boxShadow: "0 4px 20px rgba(100,50,20,0.06)" }}>
                     <div style={{ textAlign: "center", marginBottom: "20px" }}>
-                      <span style={{ fontSize: "12px", textTransform: "uppercase", fontWeight: "700", letterSpacing: "1px", color: "var(--primary-color, #7a0c0c)", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <span style={{ fontSize: "12px", textTransform: "uppercase", fontWeight: "700", letterSpacing: "1px", color: "var(--primary-color)", display: "inline-flex", alignItems: "center", gap: "6px" }}>
                         🔱 {isTamil ? "ஆன்மீக சேவைகள் & திருப்பணிகள்" : "Divine Seva & Temple Services"}
                       </span>
-                      <h3 style={{ fontFamily: "'Georgia', serif", fontSize: "1.35rem", color: "#361c10", margin: "6px 0 0" }}>
+                      <h3 style={{ fontFamily: "'Georgia', serif", fontSize: "1.35rem", color: "var(--text-strong)", margin: "6px 0 0" }}>
                         {isTamil ? "வாராஹி அம்மனின் பரிபூரண அருளைப் பெறுங்கள்" : "Connect with Goddess Varahi's Divine Grace"}
                       </h3>
                     </div>
 
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
                       {/* 1. Services & Homam CTA */}
-                      <div style={{ background: "#ffffff", padding: "20px", borderRadius: "12px", border: "1px solid #e3d5c1", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
+                      <div style={{ background: "var(--light-text)", padding: "20px", borderRadius: "12px", border: "1px solid var(--background-medium)", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
                         <div>
                           <div style={{ fontSize: "28px", marginBottom: "8px" }}>🪔</div>
-                          <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "15px", margin: "0 0 6px", color: "#7a0c0c", fontWeight: "700" }}>
+                          <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "15px", margin: "0 0 6px", color: "var(--primary-color)", fontWeight: "700" }}>
                             {isTamil ? "பூஜை & ஹோமங்கள்" : "Temple Services"}
                           </h4>
-                          <p style={{ fontSize: "12px", color: "#6e5d53", lineHeight: "1.5", margin: "0 0 14px" }}>
+                          <p style={{ fontSize: "12px", color: "var(--text-muted)", lineHeight: "1.5", margin: "0 0 14px" }}>
                             {isTamil ? "உங்கள் தோஷ நிவர்த்தி மற்றும் காரிய சித்திக்காக விசேஷ ஹோமங்கள் முன்பதிவு செய்யுங்கள்." : "Book special Homams, Abishekam, and Parihara rituals at the sanctum."}
                           </p>
                         </div>
-                        <Link to="/services" style={{ display: "inline-block", background: "#7a0c0c", color: "#ffffff", padding: "9px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(122,12,12,0.2)" }}>
+                        <Link to="/services" style={{ display: "inline-block", background: "var(--primary-color)", color: "var(--light-text)", padding: "9px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(122,12,12,0.2)" }}>
                           {isTamil ? "சேவைகள் காண்க →" : "Book Services →"}
                         </Link>
                       </div>
 
                       {/* 2. Donations CTA */}
-                      <div style={{ background: "#ffffff", padding: "20px", borderRadius: "12px", border: "1px solid #e3d5c1", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
+                      <div style={{ background: "var(--light-text)", padding: "20px", borderRadius: "12px", border: "1px solid var(--background-medium)", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
                         <div>
                           <div style={{ fontSize: "28px", marginBottom: "8px" }}>🙏</div>
-                          <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "15px", margin: "0 0 6px", color: "#7a0c0c", fontWeight: "700" }}>
+                          <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "15px", margin: "0 0 6px", color: "var(--primary-color)", fontWeight: "700" }}>
                             {isTamil ? "அன்னதானம் & நன்கொடை" : "Temple Donation"}
                           </h4>
-                          <p style={{ fontSize: "12px", color: "#6e5d53", lineHeight: "1.5", margin: "0 0 14px" }}>
+                          <p style={{ fontSize: "12px", color: "var(--text-muted)", lineHeight: "1.5", margin: "0 0 14px" }}>
                             {isTamil ? "நித்ய அன்னதானம் மற்றும் கோசாலை திருப்பணிக்கு உங்கள் காணிக்கையை செலுத்துங்கள் (80G)." : "Contribute to daily Annadhanam and Kosala maintenance with 80G tax benefits."}
                           </p>
                         </div>
-                        <Link to="/payment" style={{ display: "inline-block", background: "linear-gradient(135deg, #b8860b 0%, #d4af37 100%)", color: "#ffffff", padding: "9px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(184,134,11,0.2)" }}>
+                        <Link to="/payment" style={{ display: "inline-block", background: "linear-gradient(135deg, var(--special-color) 0%, var(--accent-color) 100%)", color: "var(--light-text)", padding: "9px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(184,134,11,0.2)" }}>
                           {isTamil ? "நன்கொடை அளிக்க →" : "Donate Online →"}
                         </Link>
                       </div>
 
                       {/* 3. Devotee Registration CTA */}
-                      <div style={{ background: "#ffffff", padding: "20px", borderRadius: "12px", border: "1px solid #e3d5c1", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
+                      <div style={{ background: "var(--light-text)", padding: "20px", borderRadius: "12px", border: "1px solid var(--background-medium)", display: "flex", flexDirection: "column", justifyContent: "space-between", textAlign: "center" }}>
                         <div>
                           <div style={{ fontSize: "28px", marginBottom: "8px" }}>✍️</div>
-                          <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "15px", margin: "0 0 6px", color: "#7a0c0c", fontWeight: "700" }}>
+                          <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "15px", margin: "0 0 6px", color: "var(--primary-color)", fontWeight: "700" }}>
                             {isTamil ? "பக்தர் சங்கல்ப பதிவு" : "Devotee Registration"}
                           </h4>
-                          <p style={{ fontSize: "12px", color: "#6e5d53", lineHeight: "1.5", margin: "0 0 14px" }}>
+                          <p style={{ fontSize: "12px", color: "var(--text-muted)", lineHeight: "1.5", margin: "0 0 14px" }}>
                             {isTamil ? "உங்கள் குடும்ப நட்சத்திரம், ராசி விவரங்களை நித்ய பூஜை சங்கல்பத்தில் இணைக்கவும்." : "Register your family Nakshatram and Rasi details for nithya pooja sankalpam."}
                           </p>
                         </div>
-                        <Link to="/devoteesdetails" style={{ display: "inline-block", background: "#361c10", color: "#ffffff", padding: "9px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(54,28,16,0.2)" }}>
+                        <Link to="/devoteesdetails" style={{ display: "inline-block", background: "var(--secondary-color)", color: "var(--light-text)", padding: "9px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textDecoration: "none", boxShadow: "0 3px 10px rgba(54,28,16,0.2)" }}>
                           {isTamil ? "இலவச பதிவு →" : "Register Free →"}
                         </Link>
                       </div>
@@ -845,7 +845,7 @@ const BlogDetail = () => {
                             {b.thumbnail_url ? (
                               <img src={b.thumbnail_url} alt={bTitle} className="recent-post-thumb" onError={(e) => { e.target.src = "/assets/img/images_new/banner1.webp"; }} />
                             ) : (
-                              <div className="recent-post-thumb" style={{ background: "#eee", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px" }}>No Image</div>
+                              <div className="recent-post-thumb" style={{ background: "var(--background-medium)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px" }}>No Image</div>
                             )}
                             <div className="recent-post-info">
                               <h4 className="recent-post-title">{bTitle}</h4>
@@ -860,15 +860,15 @@ const BlogDetail = () => {
 
                 {/* Widget 3: Devotee Registration CTA */}
                 <div className="sidebar-widget" style={{ padding: 0, border: "none", marginBottom: "20px" }}>
-                  <div style={{ background: "linear-gradient(135deg, #2d1212 0%, #4a1515 100%)", borderRadius: "12px", padding: "20px", color: "#ffffff", textAlign: "center", border: "1px solid rgba(218,165,32,0.4)" }}>
+                  <div style={{ background: "linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%)", borderRadius: "12px", padding: "20px", color: "var(--light-text)", textAlign: "center", border: "1px solid var(--hover-bg)" }}>
                     <div style={{ fontSize: "24px", marginBottom: "6px" }}>✍️</div>
-                    <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "16px", color: "#f7d984", margin: "0 0 8px" }}>
+                    <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "16px", color: "var(--special-color)", margin: "0 0 8px" }}>
                       {isTamil ? "பக்தர் பதிவு & சங்கல்பம்" : "Devotee Sankalpam"}
                     </h4>
-                    <p style={{ fontSize: "12px", color: "#e8d9c5", margin: "0 0 14px", lineHeight: "1.5" }}>
+                    <p style={{ fontSize: "12px", color: "var(--light-text)", margin: "0 0 14px", lineHeight: "1.5" }}>
                       {isTamil ? "கோவில் நித்ய பூஜையில் உங்கள் குடும்பத்தினரின் பெயர் மற்றும் நட்சத்திரத்தை சேர்க்கவும்." : "Enroll your family details for nithya pooja sankalpam and blessings."}
                     </p>
-                    <Link to="/devoteesdetails" style={{ display: "inline-block", background: "#f7d984", color: "#361c10", padding: "8px 18px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textDecoration: "none", width: "80%" }}>
+                    <Link to="/devoteesdetails" style={{ display: "inline-block", background: "var(--special-color)", color: "var(--light-text)", padding: "8px 18px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textDecoration: "none", width: "80%" }}>
                       {isTamil ? "இப்போதே பதிவு செய்" : "Register Details"}
                     </Link>
                   </div>
@@ -876,15 +876,15 @@ const BlogDetail = () => {
 
                 {/* Widget 4: Donations & Annadhanam CTA */}
                 <div className="sidebar-widget" style={{ padding: 0, border: "none", marginBottom: "20px" }}>
-                  <div style={{ background: "linear-gradient(135deg, #fffcf5 0%, #f9f2e3 100%)", borderRadius: "12px", padding: "20px", color: "#361c10", textAlign: "center", border: "1px solid #e3d3ba" }}>
+                  <div style={{ background: "var(--background-light)", borderRadius: "12px", padding: "20px", color: "var(--text-strong)", textAlign: "center", border: "1px solid var(--background-medium)" }}>
                     <div style={{ fontSize: "24px", marginBottom: "6px" }}>🙏</div>
-                    <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "16px", color: "#8a1010", margin: "0 0 8px" }}>
+                    <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "16px", color: "var(--primary-color)", margin: "0 0 8px" }}>
                       {isTamil ? "அன்னதான நன்கொடை" : "Annadhanam Donation"}
                     </h4>
-                    <p style={{ fontSize: "12px", color: "#6b594e", margin: "0 0 14px", lineHeight: "1.5" }}>
+                    <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: "0 0 14px", lineHeight: "1.5" }}>
                       {isTamil ? "தினசரி பக்தர்களுக்கு அன்னதானம் வழங்க உங்கள் பங்களிப்பை அளியுங்கள் (80G வரி விலக்கு)." : "Support daily Annadhanam and Kosala seva with 80G tax exemption."}
                     </p>
-                    <Link to="/payment" style={{ display: "inline-block", background: "#8a1010", color: "#ffffff", padding: "8px 18px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textDecoration: "none", width: "80%" }}>
+                    <Link to="/payment" style={{ display: "inline-block", background: "var(--primary-color)", color: "var(--light-text)", padding: "8px 18px", borderRadius: "20px", fontSize: "12px", fontWeight: "700", textDecoration: "none", width: "80%" }}>
                       {isTamil ? "நன்கொடை செலுத்து" : "Donate Now"}
                     </Link>
                   </div>
@@ -920,16 +920,16 @@ const BlogDetail = () => {
                     const bSnippet = (activeLang === "ta" ? b.snippet_ta : b.snippet_en) || b.snippet || "";
                     const bCatInfo = getBlogCategoryAndTags(b, isTamil);
                     return (
-                      <article key={b.id} className="blog-card" style={{ display: "flex", flexDirection: "column", background: "#fff", borderRadius: "12px", border: "1px solid var(--background-medium)", overflow: "hidden", height: "100%" }}>
+                      <article key={b.id} className="blog-card" style={{ display: "flex", flexDirection: "column", background: "var(--light-text)", borderRadius: "12px", border: "1px solid var(--background-medium)", overflow: "hidden", height: "100%" }}>
                         <div style={{ height: "160px", position: "relative", overflow: "hidden" }}>
                           {b.thumbnail_url ? (
                             <img src={b.thumbnail_url} alt={bTitle} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => { e.target.src = "/assets/img/images_new/banner1.webp"; }} />
                           ) : (
-                            <div style={{ width: "100%", height: "100%", background: "#eee", display: "flex", alignItems: "center", justifyContent: "center" }}>No Image</div>
+                            <div style={{ width: "100%", height: "100%", background: "var(--background-medium)", display: "flex", alignItems: "center", justifyContent: "center" }}>No Image</div>
                           )}
                         </div>
                         <div style={{ padding: "16px", flexGrow: 1, display: "flex", flexDirection: "column" }}>
-                          <span style={{ fontSize: "11px", color: "var(--accent-color, #b8860b)", fontWeight: "600", textTransform: "uppercase", marginBottom: "8px", display: "block" }}>
+                          <span style={{ fontSize: "11px", color: "var(--accent-color)", fontWeight: "600", textTransform: "uppercase", marginBottom: "8px", display: "block" }}>
                             {bCatInfo.category}
                           </span>
                           <h4 style={{ fontFamily: "'Georgia', serif", fontSize: "1.15rem", color: "var(--text-strong)", margin: "0 0 10px", lineHeight: "1.4" }}>

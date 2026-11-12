@@ -58,6 +58,7 @@ import blogRoutes from "./routes/blogRoutes.js";
 import mediaRoutes from "./routes/mediaRoutes.js";
 import { getBlogSitemapXml } from "./controllers/blogController.js";
 import webhookRoutes from "./routes/webhookRoutes.js";
+import kosalaRoutes  from "./routes/kosalaRoutes.js";
 import pool               from "./db/pool.js";
 
 // ─── CONSTANTS ────────────────────────────────────────────────
@@ -169,10 +170,43 @@ export const distributedSSE = {
     }
 };
 
-// ─── REAL-TIME BIRTHDAY/ANNIVERSARY BROADCAST ───────────────────────
-// Broadcast birthday/anniversary events to all connected instances via Redis
+// ─── ACTIVE IN-MEMORY SSE CONNECTION MANAGER ─────────────────────────
+const activeSSEClients = new Map();
+
+// Periodic SSE Keep-Alive Heartbeat (every 25s to keep connections alive)
+setInterval(() => {
+    for (const [clientId, client] of activeSSEClients.entries()) {
+        try {
+            client.res.write(`: heartbeat ${Date.now()}\n\n`);
+        } catch (err) {
+            activeSSEClients.delete(clientId);
+        }
+    }
+}, 25000);
+
+// ─── REAL-TIME NOTIFICATION & BROADCAST ENGINE ───────────────────────
 export const realtime = {
-    // Add a client ID to the tracking set
+    // Register active SSE client connection
+    addConnection: (clientId, res, channels = ['all']) => {
+        activeSSEClients.set(clientId, {
+            res,
+            channels: new Set(channels),
+            connectedAt: Date.now()
+        });
+        if (redisAvailable) {
+            redisClient.sAdd("sse_clients", clientId).catch(() => {});
+        }
+    },
+
+    // Remove active SSE client connection
+    removeConnection: (clientId) => {
+        activeSSEClients.delete(clientId);
+        if (redisAvailable) {
+            redisClient.sRem("sse_clients", clientId).catch(() => {});
+        }
+    },
+
+    // Legacy support
     addClient: async (clientId) => {
         if (!redisAvailable) return;
         try {
@@ -182,8 +216,8 @@ export const realtime = {
         }
     },
 
-    // Remove a client ID from the tracking set
     removeClient: async (clientId) => {
+        activeSSEClients.delete(clientId);
         if (!redisAvailable) return;
         try {
             await redisClient.sRem("sse_clients", clientId);
@@ -192,31 +226,87 @@ export const realtime = {
         }
     },
 
+    // Broadcast generic event (booking, payment, jothidam, etc.) to all connected clients
+    broadcastEvent: async (eventPayload, channel = 'all') => {
+        const payloadStr = JSON.stringify(eventPayload);
+        const sseMessage = `event: ${eventPayload.event || 'message'}\ndata: ${payloadStr}\n\n`;
+
+        // 1. Direct memory write to local connected clients
+        for (const [clientId, client] of activeSSEClients.entries()) {
+            if (client.channels.has('all') || client.channels.has(channel)) {
+                try {
+                    client.res.write(sseMessage);
+                } catch (err) {
+                    activeSSEClients.delete(clientId);
+                }
+            }
+        }
+
+        // 2. Publish to Redis for distributed workers
+        if (redisAvailable) {
+            try {
+                await redisClient.publish("sse_events", payloadStr);
+            } catch (err) {
+                console.warn("Redis event broadcast error:", err.message);
+            }
+        }
+    },
+
     // Broadcast birthday event to all instances
     broadcastBirthday: async (birthdayData) => {
-        if (!redisAvailable) return;
-        try {
-            await redisClient.publish("sse_birthdays", JSON.stringify({
-                event: "birthday",
-                data: birthdayData,
-                timestamp: Date.now()
-            }));
-        } catch (err) {
-            console.warn("Redis birthday broadcast error:", err.message);
+        const payload = {
+            event: "birthday",
+            data: birthdayData,
+            timestamp: Date.now()
+        };
+        const payloadStr = JSON.stringify(payload);
+        const sseMessage = `event: birthday\ndata: ${payloadStr}\n\n`;
+
+        for (const [clientId, client] of activeSSEClients.entries()) {
+            if (client.channels.has('all') || client.channels.has('birthdays')) {
+                try {
+                    client.res.write(sseMessage);
+                } catch (err) {
+                    activeSSEClients.delete(clientId);
+                }
+            }
+        }
+
+        if (redisAvailable) {
+            try {
+                await redisClient.publish("sse_birthdays", payloadStr);
+            } catch (err) {
+                console.warn("Redis birthday broadcast error:", err.message);
+            }
         }
     },
 
     // Broadcast anniversary event to all instances
     broadcastAnniversary: async (anniversaryData) => {
-        if (!redisAvailable) return;
-        try {
-            await redisClient.publish("sse_anniversaries", JSON.stringify({
-                event: "anniversary",
-                data: anniversaryData,
-                timestamp: Date.now()
-            }));
-        } catch (err) {
-            console.warn("Redis anniversary broadcast error:", err.message);
+        const payload = {
+            event: "anniversary",
+            data: anniversaryData,
+            timestamp: Date.now()
+        };
+        const payloadStr = JSON.stringify(payload);
+        const sseMessage = `event: anniversary\ndata: ${payloadStr}\n\n`;
+
+        for (const [clientId, client] of activeSSEClients.entries()) {
+            if (client.channels.has('all') || client.channels.has('anniversaries')) {
+                try {
+                    client.res.write(sseMessage);
+                } catch (err) {
+                    activeSSEClients.delete(clientId);
+                }
+            }
+        }
+
+        if (redisAvailable) {
+            try {
+                await redisClient.publish("sse_anniversaries", payloadStr);
+            } catch (err) {
+                console.warn("Redis anniversary broadcast error:", err.message);
+            }
         }
     },
 
@@ -288,7 +378,7 @@ app.set("trust proxy", 1);
 
 // ─── SECURITY HEADERS ─────────────────────────────────────────
 app.use(helmet({
-    contentSecurityPolicy: false,       // Razorpay loads external scripts
+    contentSecurityPolicy: true,
     crossOriginEmbedderPolicy: false,
 }));
 
@@ -367,7 +457,7 @@ app.use(cors(corsOptions));
 // ─── RATE LIMITING ────────────────────────────────────────────
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: safeNumber(process.env.GENERAL_RATE_LIMIT_MAX, isProd ? 600 : 10000),
+    max: 100,  // Reduced from production default; strict but appropriate for temple service
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many requests. Try again after 15 minutes." },
@@ -375,7 +465,7 @@ const generalLimiter = rateLimit({
 
 const authLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
-    max: safeNumber(process.env.AUTH_RATE_LIMIT_MAX, isProd ? 15 : 1000),
+    max: 20,  // Strict auth rate limit - 20 login attempts per hour
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many login attempts. Try again after 1 hour." },
@@ -383,7 +473,7 @@ const authLimiter = rateLimit({
 
 const paymentLimiter = rateLimit({
     windowMs: 60 * 1000,
-    max: safeNumber(process.env.PAYMENT_RATE_LIMIT_MAX, 60),
+    max: 30,  // 30 payment requests per minute - strict but workable
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many payment requests. Please slow down." },
@@ -391,15 +481,7 @@ const paymentLimiter = rateLimit({
 
 const submissionLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: (req) => {
-        const authHeader = req.headers.authorization || "";
-        // Authenticated admin or temple staff get high quota for bulk entries
-        if (authHeader.startsWith("Bearer ")) return safeNumber(process.env.ADMIN_SUB_RATE_LIMIT_MAX, isProd ? 500 : 5000);
-        // Public submissions per IP - graduated limits
-        if (isProd) return safeNumber(process.env.PUBLIC_SUB_RATE_LIMIT_MAX, 200);
-        // Development: generous but bounded to prevent abuse
-        return safeNumber(process.env.DEV_SUB_RATE_LIMIT_MAX, 1000);
-    },
+    max: 50,  // Strict submission limit - 50 submissions per 15 minutes
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many submissions from this network. Please wait a few minutes before trying again." },
@@ -407,7 +489,7 @@ const submissionLimiter = rateLimit({
 
 const adminLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
-    max: safeNumber(process.env.ADMIN_RATE_LIMIT_MAX, isProd ? 200 : 500),
+    max: 50,  // Strict admin rate limit - 50 requests per hour
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many admin requests. Please slow down." },
@@ -484,6 +566,8 @@ app.use("/api/admin", adminLimiter);  // ADD: Rate limit admin routes
 // ─── API ROUTE MOUNTINGS ──────────────────────────────────────
 app.use("/api/payments", paymentLimiter);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/payment", paymentLimiter);
+app.use("/api/payment", paymentRoutes);
 app.use("/api/astavarahi2", astavarahi2Routes);
 app.use("/api/bookings", bookingRoutes);
 
@@ -512,14 +596,8 @@ app.use("/api", blogRoutes);
 app.use("/api", mediaRoutes);
 app.get("/sitemap-blogs.xml", getBlogSitemapXml);
 app.use("/api/webhooks", webhookRoutes);
+app.use("/api/kosala", kosalaRoutes);
 
-// Static uploads serving for blog images and assets
-const uploadsPath = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsPath)) {
-    fs.mkdirSync(uploadsPath, { recursive: true });
-}
-app.use("/uploads", express.static(uploadsPath, { maxAge: "30d" }));
-app.use("/api/uploads", express.static(uploadsPath, { maxAge: "30d" }));
 
 
 // ─── HEALTH CHECK ─────────────────────────────────────────────
@@ -635,7 +713,9 @@ app.use((err, req, res, _next) => {
         response.stack = err.stack;
     }
     
-    res.status(status).json(response);
+    // Don't leak stack traces in production - only show generic message
+    const safeStatus = isProd ? 500 : status;
+    res.status(safeStatus).json(response);
 });
 
 // ─── PROCESS-LEVEL SAFETY NETS ─────────────────────────────────
@@ -681,12 +761,22 @@ function logRoutes(app) {
 }
 
 // ─── SERVER STARTUP ───────────────────────────────────────────
-const preferredPort = parseInt(process.env.PORT || "5000", 10);
-let port = preferredPort;
+let port = process.env.PORT || "5005";
+let isPassenger = typeof global.PhusionPassenger !== "undefined";
+
+if (isPassenger) {
+    global.PhusionPassenger.configure({ autoInstall: false });
+    port = "passenger";
+}
+
 let serverInstance = null;
+let retryCount = 0;
+const MAX_PORT_RETRIES = 10;
 
 function startServer(portToTry) {
-    serverInstance = app.listen(portToTry, "0.0.0.0", () => {
+    const listenArgs = portToTry === "passenger" ? ["passenger"] : [Number(portToTry), "0.0.0.0"];
+
+    serverInstance = app.listen(...listenArgs, () => {
         console.log("\n============================================================");
         console.log(`🚀 Server running in ${isProd ? "PRODUCTION" : "DEVELOPMENT"} mode`);
         console.log(`   Port              : ${portToTry}`);
@@ -702,15 +792,16 @@ function startServer(portToTry) {
     });
 
     serverInstance.on("error", (err) => {
-        if (err.code === "EADDRINUSE") {
+        if (err.code === "EADDRINUSE" && portToTry !== "passenger") {
             console.warn(`⚠️  Port ${portToTry} is already in use.`);
-            if (!isProd) {
-                const nextPort = portToTry + 1;
+            if (retryCount < MAX_PORT_RETRIES) {
+                retryCount++;
+                const nextPort = Number(portToTry) + 1;
                 console.log(`   Trying next port: ${nextPort}...`);
                 startServer(nextPort);
                 return;
             }
-            console.error(`❌ Could not find an available port starting from ${preferredPort}.`);
+            console.error(`❌ Could not find an available port after ${MAX_PORT_RETRIES} attempts.`);
         } else {
             console.error("❌ Server failed to start:", err.message);
         }

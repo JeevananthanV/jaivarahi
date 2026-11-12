@@ -76,6 +76,7 @@ const Login = () => {
                 onChange={(e) => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: '' })); }}
                 required 
                 autoFocus
+                autoComplete="username"
                 placeholder="admin@example.com"
               />
               {fieldErrors.email && <div style={{ color: 'var(--er)', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.email}</div>}
@@ -90,6 +91,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setFieldErrors(p => ({ ...p, password: '' })); }}
                 required 
+                autoComplete="current-password"
                 placeholder="••••••••"
               />
               {fieldErrors.password && <div style={{ color: 'var(--er)', fontSize: '12px', marginTop: '4px' }}>{fieldErrors.password}</div>}

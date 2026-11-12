@@ -153,7 +153,7 @@ const ServiceManager = () => {
                     <td>{row.duration || '-'}</td>
                     <td>₹{Number(row.amount || 0).toLocaleString('en-IN')}</td>
                     <td style={{ textAlign: 'center' }}>
-                      {row.is_featured ? <Star size={16} color="#fbbf24" fill="#fbbf24" style={{ display: 'inline' }} /> : <Star size={16} color="var(--tx3)" style={{ display: 'inline' }} />}
+                      {row.is_featured ? <Star size={16} color="var(--special-color)" fill="var(--special-color)" style={{ display: 'inline' }} /> : <Star size={16} color="var(--tx3)" style={{ display: 'inline' }} />}
                     </td>
                     <td>
                       <span className={`badge ${row.status === 'active' ? 'b-ok' : 'b-mu'}`}>{row.status}</span>

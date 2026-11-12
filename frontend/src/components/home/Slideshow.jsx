@@ -114,14 +114,14 @@ function Slideshow() {
               power and peace.
             </p>
             <div className="button-group">
-              <a href="/devoteesdetails" className="custom-btn main-button">
-                Devotee Registration{' '}
+              <a href="/book-pooja" className="custom-btn main-button">
+                Book Pooja &amp; Prasadham{' '}
                 <svg className="icon-svg" aria-hidden="true">
                   <use href="#icon-arrow-right"></use>
                 </svg>
               </a>
-              <a href="/about" className="custom-btn outline-button">
-                View Services{' '}
+              <a href="/payment" className="custom-btn outline-button">
+                Donate to Temple{' '}
                 <svg className="icon-svg" aria-hidden="true">
                   <use href="#icon-arrow-right"></use>
                 </svg>
@@ -169,8 +169,8 @@ function Slideshow() {
                   <use href="#icon-arrow-right"></use>
                 </svg>
               </a>
-              <a href="/about" className="custom-btn outline-button">
-                View Services{' '}
+              <a href="/book-pooja" className="custom-btn outline-button">
+                Book Pooja Online{' '}
                 <svg className="icon-svg" aria-hidden="true">
                   <use href="#icon-arrow-right"></use>
                 </svg>

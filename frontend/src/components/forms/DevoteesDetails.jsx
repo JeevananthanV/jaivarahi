@@ -70,10 +70,10 @@ const DevoteesDetails = () => {
       },
       {
         label: "Kosala",
-        href: "#",
+        href: '/kosala',
         children: [
-          { label: "Donation", href: "/payment" },
-          { label: "Donation Archive", href: "/payment" },
+          { label: 'Donation', href: '/kosala' },
+          { label: 'Donation Archive', href: '/kosala/archive' },
         ],
       },
       {
@@ -234,7 +234,7 @@ const DevoteesDetails = () => {
   };
 
   return (
-    <div style={{ backgroundColor: "#fbf8f2", minHeight: "100vh", color: "#2d241e" }}>
+    <div style={{ backgroundColor: "var(--background-light)", minHeight: "100vh", color: "var(--text-color)" }}>
       <SeoEnhanced
         title="Devotee Registration & Sankalpam Form | Jai Varahi Peedam"
         description="Register your family details at Sri Kottai Varahi Amman Temple for nithya pooja sankalpam, divine blessings, and festival updates."
@@ -279,21 +279,21 @@ const DevoteesDetails = () => {
           backgroundSize: "cover",
           padding: "100px 20px 70px",
           textAlign: "center",
-          color: "#ffffff"
+          color: "var(--light-text)"
         }}
       >
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(218, 165, 32, 0.18)", border: "1px solid rgba(218, 165, 32, 0.4)", padding: "6px 18px", borderRadius: "30px", fontSize: "13px", fontWeight: "600", color: "#f7d984", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "16px" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(218, 165, 32, 0.18)", border: "1px solid rgba(218, 165, 32, 0.4)", padding: "6px 18px", borderRadius: "30px", fontSize: "13px", fontWeight: "600", color: "var(--special-color)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "16px" }}>
             <Sparkles size={14} /> ஸ்ரீ கோட்டை வாராஹி பீடம்
           </div>
-          <h1 style={{ fontFamily: "Cinzel, serif", fontSize: "clamp(28px, 4vw, 42px)", fontWeight: "700", margin: "0 0 12px", color: "#ffffff", letterSpacing: "0.5px" }}>
+          <h1 style={{ fontFamily: "Cinzel, serif", fontSize: "clamp(28px, 4vw, 42px)", fontWeight: "700", margin: "0 0 12px", color: "var(--light-text)", letterSpacing: "0.5px" }}>
             Devotees Registration & Sankalpam
           </h1>
-          <p style={{ fontSize: "15px", color: "#e8d9c5", lineHeight: "1.6", maxWidth: "680px", margin: "0 auto 20px" }}>
+          <p style={{ fontSize: "15px", color: "var(--light-text)", lineHeight: "1.6", maxWidth: "680px", margin: "0 auto 20px" }}>
             Register your family details to participate in temple prayers, daily nithya pooja sankalpam, and receive sacred prasadam updates.
           </p>
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", fontSize: "13px", color: "#f7d984" }}>
-            <a href="/" style={{ color: "#ffffff", textDecoration: "none" }}>Home</a>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", fontSize: "13px", color: "var(--special-color)" }}>
+            <a href="/" style={{ color: "var(--light-text)", textDecoration: "none" }}>Home</a>
             <span>•</span>
             <span>Devotee Registration</span>
           </div>
@@ -305,49 +305,49 @@ const DevoteesDetails = () => {
         
         {/* Trust Badges */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px", marginBottom: "24px" }}>
-          <div style={{ background: "#ffffff", padding: "16px 20px", borderRadius: "12px", display: "flex", alignItems: "center", gap: "14px", border: "1px solid #ebdcc5", boxShadow: "0 4px 15px rgba(0,0,0,0.03)" }}>
-            <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "rgba(180, 20, 20, 0.08)", color: "#8a1010", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: "var(--light-text)", padding: "16px 20px", borderRadius: "12px", display: "flex", alignItems: "center", gap: "14px", border: "1px solid var(--background-medium)", boxShadow: "0 4px 15px rgba(0,0,0,0.03)" }}>
+            <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "rgba(180, 20, 20, 0.08)", color: "var(--primary-color)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Sparkles size={20} />
             </div>
             <div>
-              <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#361c10" }}>Nithya Sankalpam</h4>
-              <p style={{ margin: 0, fontSize: "12px", color: "#7a6558" }}>Family names included in prayers</p>
+              <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "var(--text-strong)" }}>Nithya Sankalpam</h4>
+              <p style={{ margin: 0, fontSize: "12px", color: "var(--text-muted)" }}>Family names included in prayers</p>
             </div>
           </div>
 
-          <div style={{ background: "#ffffff", padding: "16px 20px", borderRadius: "12px", display: "flex", alignItems: "center", gap: "14px", border: "1px solid #ebdcc5", boxShadow: "0 4px 15px rgba(0,0,0,0.03)" }}>
-            <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "rgba(180, 20, 20, 0.08)", color: "#8a1010", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: "var(--light-text)", padding: "16px 20px", borderRadius: "12px", display: "flex", alignItems: "center", gap: "14px", border: "1px solid var(--background-medium)", boxShadow: "0 4px 15px rgba(0,0,0,0.03)" }}>
+            <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "rgba(180, 20, 20, 0.08)", color: "var(--primary-color)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <ShieldCheck size={20} />
             </div>
             <div>
-              <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#361c10" }}>Temple Direct</h4>
-              <p style={{ margin: 0, fontSize: "12px", color: "#7a6558" }}>Official temple database entry</p>
+              <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "var(--text-strong)" }}>Temple Direct</h4>
+              <p style={{ margin: 0, fontSize: "12px", color: "var(--text-muted)" }}>Official temple database entry</p>
             </div>
           </div>
 
-          <div style={{ background: "#ffffff", padding: "16px 20px", borderRadius: "12px", display: "flex", alignItems: "center", gap: "14px", border: "1px solid #ebdcc5", boxShadow: "0 4px 15px rgba(0,0,0,0.03)" }}>
-            <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "rgba(180, 20, 20, 0.08)", color: "#8a1010", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: "var(--light-text)", padding: "16px 20px", borderRadius: "12px", display: "flex", alignItems: "center", gap: "14px", border: "1px solid var(--background-medium)", boxShadow: "0 4px 15px rgba(0,0,0,0.03)" }}>
+            <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "rgba(180, 20, 20, 0.08)", color: "var(--primary-color)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Users size={20} />
             </div>
             <div>
-              <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#361c10" }}>Devotee Community</h4>
-              <p style={{ margin: 0, fontSize: "12px", color: "#7a6558" }}>Special event & Pooja notices</p>
+              <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "var(--text-strong)" }}>Devotee Community</h4>
+              <p style={{ margin: 0, fontSize: "12px", color: "var(--text-muted)" }}>Special event & Pooja notices</p>
             </div>
           </div>
         </div>
 
         {/* Form Container Card */}
-        <div style={{ background: "#ffffff", borderRadius: "20px", border: "1px solid #e8dbca", boxShadow: "0 15px 45px rgba(100, 60, 20, 0.08)", padding: "clamp(24px, 4vw, 44px)", overflow: "hidden" }}>
+        <div style={{ background: "var(--light-text)", borderRadius: "20px", border: "1px solid var(--background-medium)", boxShadow: "0 15px 45px rgba(100, 60, 20, 0.08)", padding: "clamp(24px, 4vw, 44px)", overflow: "hidden" }}>
           
           {isSubmitted ? (
             <div style={{ textAlign: "center", padding: "40px 20px" }}>
-              <div style={{ width: "76px", height: "76px", borderRadius: "50%", background: "#ecfdf5", color: "#059669", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: "20px" }}>
+              <div style={{ width: "76px", height: "76px", borderRadius: "50%", background: "var(--hover-bg)", color: "var(--valarpirai-ashtami-color)", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: "20px" }}>
                 <CheckCircle2 size={44} />
               </div>
-              <h2 style={{ fontFamily: "Cinzel, serif", color: "#8a1010", fontSize: "26px", fontWeight: "700", marginBottom: "12px" }}>
+              <h2 style={{ fontFamily: "Cinzel, serif", color: "var(--primary-color)", fontSize: "26px", fontWeight: "700", marginBottom: "12px" }}>
                 Registration Submitted Successfully
               </h2>
-              <p style={{ color: "#615047", fontSize: "15px", maxWidth: "560px", margin: "0 auto 28px", lineHeight: "1.6" }}>
+              <p style={{ color: "var(--text-muted)", fontSize: "15px", maxWidth: "560px", margin: "0 auto 28px", lineHeight: "1.6" }}>
                 Thank you, <strong>{name}</strong>. Your family details have been saved for Sri Kottai Varahi Amman temple prayers and sankalpams. May Goddess Varahi bless your home with peace, protection, and prosperity.
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: "14px", flexWrap: "wrap" }}>
@@ -356,8 +356,8 @@ const DevoteesDetails = () => {
                   onClick={handleReset}
                   style={{
                     padding: "12px 28px",
-                    background: "#8a1010",
-                    color: "#ffffff",
+                    background: "var(--primary-color)",
+                    color: "var(--light-text)",
                     border: "none",
                     borderRadius: "30px",
                     fontWeight: "600",
@@ -372,9 +372,9 @@ const DevoteesDetails = () => {
                   href="/"
                   style={{
                     padding: "12px 28px",
-                    background: "#f7f1e6",
-                    color: "#361c10",
-                    border: "1px solid #dfd2be",
+                    background: "var(--background-light)",
+                    color: "var(--text-strong)",
+                    border: "1px solid var(--background-medium)",
                     borderRadius: "30px",
                     fontWeight: "600",
                     fontSize: "14px",
@@ -399,9 +399,9 @@ const DevoteesDetails = () => {
                     marginBottom: "28px",
                     borderRadius: "10px",
                     borderLeft: "4px solid",
-                    borderColor: message.type === "success" ? "#10b981" : "#ef4444",
-                    backgroundColor: message.type === "success" ? "#ecfdf5" : "#fef2f2",
-                    color: message.type === "success" ? "#065f46" : "#991b1b",
+                    borderColor: message.type === "success" ? "var(--valarpirai-ashtami-color)" : "var(--accent-color)",
+                    backgroundColor: message.type === "success" ? "var(--hover-bg)" : "var(--hover-bg)",
+                    color: message.type === "success" ? "var(--valarpirai-ashtami-color)" : "var(--primary-color)",
                     fontSize: "14px"
                   }}
                 >
@@ -412,16 +412,16 @@ const DevoteesDetails = () => {
 
               {/* ── 1. PRIMARY DEVOTEE DETAILS ── */}
               <div style={{ marginBottom: "32px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingBottom: "10px", borderBottom: "2px solid #f3e9d8", marginBottom: "20px" }}>
-                  <User size={20} color="#8a1010" />
-                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#8a1010", fontFamily: "Cinzel, serif" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingBottom: "10px", borderBottom: "2px solid var(--background-medium)", marginBottom: "20px" }}>
+                  <User size={20} color="var(--primary-color)" />
+                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "var(--primary-color)", fontFamily: "Cinzel, serif" }}>
                     Primary Devotee Information (முதன்மை பக்தர் விவரங்கள்)
                   </h3>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "18px" }}>
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#361c10", marginBottom: "6px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "var(--text-strong)", marginBottom: "6px" }}>
                       Full Name *
                     </label>
                     <input
@@ -436,18 +436,18 @@ const DevoteesDetails = () => {
                         width: "100%",
                         padding: "11px 14px",
                         borderRadius: "8px",
-                        border: errors.name ? "1px solid #ef4444" : "1px solid #d8ccb8",
-                        backgroundColor: "#fdfbf8",
+                        border: errors.name ? "1px solid var(--accent-color)" : "1px solid var(--background-medium)",
+                        backgroundColor: "var(--light-text)",
                         fontSize: "14px",
                         outline: "none",
                         boxSizing: "border-box"
                       }}
                     />
-                    {errors.name && <span style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors.name}</span>}
+                    {errors.name && <span style={{ color: "var(--accent-color)", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors.name}</span>}
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#361c10", marginBottom: "6px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "var(--text-strong)", marginBottom: "6px" }}>
                       Contact Mobile Number *
                     </label>
                     <input
@@ -462,18 +462,18 @@ const DevoteesDetails = () => {
                         width: "100%",
                         padding: "11px 14px",
                         borderRadius: "8px",
-                        border: errors.contact ? "1px solid #ef4444" : "1px solid #d8ccb8",
-                        backgroundColor: "#fdfbf8",
+                        border: errors.contact ? "1px solid var(--accent-color)" : "1px solid var(--background-medium)",
+                        backgroundColor: "var(--light-text)",
                         fontSize: "14px",
                         outline: "none",
                         boxSizing: "border-box"
                       }}
                     />
-                    {errors.contact && <span style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors.contact}</span>}
+                    {errors.contact && <span style={{ color: "var(--accent-color)", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors.contact}</span>}
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#361c10", marginBottom: "6px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "var(--text-strong)", marginBottom: "6px" }}>
                       Email Address (Optional)
                     </label>
                     <input
@@ -488,18 +488,18 @@ const DevoteesDetails = () => {
                         width: "100%",
                         padding: "11px 14px",
                         borderRadius: "8px",
-                        border: errors.emailAddress ? "1px solid #ef4444" : "1px solid #d8ccb8",
-                        backgroundColor: "#fdfbf8",
+                        border: errors.emailAddress ? "1px solid var(--accent-color)" : "1px solid var(--background-medium)",
+                        backgroundColor: "var(--light-text)",
                         fontSize: "14px",
                         outline: "none",
                         boxSizing: "border-box"
                       }}
                     />
-                    {errors.emailAddress && <span style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors.emailAddress}</span>}
+                    {errors.emailAddress && <span style={{ color: "var(--accent-color)", fontSize: "12px", marginTop: "4px", display: "block" }}>{errors.emailAddress}</span>}
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#361c10", marginBottom: "6px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "var(--text-strong)", marginBottom: "6px" }}>
                       Gothram (கோத்திரம்)
                     </label>
                     <input
@@ -512,8 +512,8 @@ const DevoteesDetails = () => {
                         width: "100%",
                         padding: "11px 14px",
                         borderRadius: "8px",
-                        border: "1px solid #d8ccb8",
-                        backgroundColor: "#fdfbf8",
+                        border: "1px solid var(--background-medium)",
+                        backgroundColor: "var(--light-text)",
                         fontSize: "14px",
                         outline: "none",
                         boxSizing: "border-box"
@@ -527,7 +527,7 @@ const DevoteesDetails = () => {
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#361c10", marginBottom: "6px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "var(--text-strong)", marginBottom: "6px" }}>
                       Father's Name (தந்தை பெயர்)
                     </label>
                     <input
@@ -539,8 +539,8 @@ const DevoteesDetails = () => {
                         width: "100%",
                         padding: "11px 14px",
                         borderRadius: "8px",
-                        border: "1px solid #d8ccb8",
-                        backgroundColor: "#fdfbf8",
+                        border: "1px solid var(--background-medium)",
+                        backgroundColor: "var(--light-text)",
                         fontSize: "14px",
                         outline: "none",
                         boxSizing: "border-box"
@@ -549,7 +549,7 @@ const DevoteesDetails = () => {
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#361c10", marginBottom: "6px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "var(--text-strong)", marginBottom: "6px" }}>
                       Mother's Name (தாய் பெயர்)
                     </label>
                     <input
@@ -561,8 +561,8 @@ const DevoteesDetails = () => {
                         width: "100%",
                         padding: "11px 14px",
                         borderRadius: "8px",
-                        border: "1px solid #d8ccb8",
-                        backgroundColor: "#fdfbf8",
+                        border: "1px solid var(--background-medium)",
+                        backgroundColor: "var(--light-text)",
                         fontSize: "14px",
                         outline: "none",
                         boxSizing: "border-box"
@@ -574,9 +574,9 @@ const DevoteesDetails = () => {
 
               {/* ── 2. POSTAL ADDRESS ── */}
               <div style={{ marginBottom: "32px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingBottom: "10px", borderBottom: "2px solid #f3e9d8", marginBottom: "20px" }}>
-                  <MapPin size={20} color="#8a1010" />
-                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#8a1010", fontFamily: "Cinzel, serif" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingBottom: "10px", borderBottom: "2px solid var(--background-medium)", marginBottom: "20px" }}>
+                  <MapPin size={20} color="var(--primary-color)" />
+                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "var(--primary-color)", fontFamily: "Cinzel, serif" }}>
                     Postal Address for Communications & Prasadam (முகவரி)
                   </h3>
                 </div>
@@ -591,8 +591,8 @@ const DevoteesDetails = () => {
                       width: "100%",
                       padding: "12px 14px",
                       borderRadius: "8px",
-                      border: "1px solid #d8ccb8",
-                      backgroundColor: "#fdfbf8",
+                      border: "1px solid var(--background-medium)",
+                      backgroundColor: "var(--light-text)",
                       fontSize: "14px",
                       outline: "none",
                       resize: "vertical",
@@ -604,16 +604,16 @@ const DevoteesDetails = () => {
 
               {/* ── 3. MARITAL STATUS ── */}
               <div style={{ marginBottom: "32px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingBottom: "10px", borderBottom: "2px solid #f3e9d8", marginBottom: "20px" }}>
-                  <Heart size={20} color="#8a1010" />
-                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#8a1010", fontFamily: "Cinzel, serif" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingBottom: "10px", borderBottom: "2px solid var(--background-medium)", marginBottom: "20px" }}>
+                  <Heart size={20} color="var(--primary-color)" />
+                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "var(--primary-color)", fontFamily: "Cinzel, serif" }}>
                     Marital Status & Sacred Dates (திருமண நிலை)
                   </h3>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "18px", alignItems: "center" }}>
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#361c10", marginBottom: "8px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "var(--text-strong)", marginBottom: "8px" }}>
                       Status
                     </label>
                     <div style={{ display: "flex", gap: "12px" }}>
@@ -624,9 +624,9 @@ const DevoteesDetails = () => {
                           flex: 1,
                           padding: "10px 16px",
                           borderRadius: "8px",
-                          border: marriedStatus === "unmarried" ? "2px solid #8a1010" : "1px solid #d8ccb8",
-                          backgroundColor: marriedStatus === "unmarried" ? "rgba(138, 16, 16, 0.08)" : "#fdfbf8",
-                          color: marriedStatus === "unmarried" ? "#8a1010" : "#5a4b41",
+                          border: marriedStatus === "unmarried" ? "2px solid var(--primary-color)" : "1px solid var(--background-medium)",
+                          backgroundColor: marriedStatus === "unmarried" ? "rgba(138, 16, 16, 0.08)" : "var(--light-text)",
+                          color: marriedStatus === "unmarried" ? "var(--primary-color)" : "var(--text-muted)",
                           fontWeight: "600",
                           fontSize: "14px",
                           cursor: "pointer"
@@ -641,9 +641,9 @@ const DevoteesDetails = () => {
                           flex: 1,
                           padding: "10px 16px",
                           borderRadius: "8px",
-                          border: marriedStatus === "married" ? "2px solid #8a1010" : "1px solid #d8ccb8",
-                          backgroundColor: marriedStatus === "married" ? "rgba(138, 16, 16, 0.08)" : "#fdfbf8",
-                          color: marriedStatus === "married" ? "#8a1010" : "#5a4b41",
+                          border: marriedStatus === "married" ? "2px solid var(--primary-color)" : "1px solid var(--background-medium)",
+                          backgroundColor: marriedStatus === "married" ? "rgba(138, 16, 16, 0.08)" : "var(--light-text)",
+                          color: marriedStatus === "married" ? "var(--primary-color)" : "var(--text-muted)",
                           fontWeight: "600",
                           fontSize: "14px",
                           cursor: "pointer"
@@ -656,7 +656,7 @@ const DevoteesDetails = () => {
 
                   {marriedStatus === "married" && (
                     <div>
-                      <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#361c10", marginBottom: "6px" }}>
+                      <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "var(--text-strong)", marginBottom: "6px" }}>
                         Wedding Anniversary Date (திருமண நாள்)
                       </label>
                       <input
@@ -667,8 +667,8 @@ const DevoteesDetails = () => {
                           width: "100%",
                           padding: "10px 14px",
                           borderRadius: "8px",
-                          border: "1px solid #d8ccb8",
-                          backgroundColor: "#fdfbf8",
+                          border: "1px solid var(--background-medium)",
+                          backgroundColor: "var(--light-text)",
                           fontSize: "14px",
                           outline: "none",
                           boxSizing: "border-box"
@@ -681,15 +681,15 @@ const DevoteesDetails = () => {
 
               {/* ── 4. FAMILY MEMBERS FOR SANKALPAM ── */}
               <div style={{ marginBottom: "32px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "10px", borderBottom: "2px solid #f3e9d8", marginBottom: "20px", flexWrap: "wrap", gap: "10px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: "10px", borderBottom: "2px solid var(--background-medium)", marginBottom: "20px", flexWrap: "wrap", gap: "10px" }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <Users size={20} color="#8a1010" />
-                      <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#8a1010", fontFamily: "Cinzel, serif" }}>
+                      <Users size={20} color="var(--primary-color)" />
+                      <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "var(--primary-color)", fontFamily: "Cinzel, serif" }}>
                         Family Members for Sankalpam (குடும்ப உறுப்பினர்கள்)
                       </h3>
                     </div>
-                    <div style={{ fontSize: "12px", color: "#7a675a", marginTop: "2px" }}>
+                    <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>
                       ⭐ Selecting Star (நட்சத்திரம்) automatically auto-fills Moon Sign (ராசி)
                     </div>
                   </div>
@@ -703,7 +703,7 @@ const DevoteesDetails = () => {
                       padding: "8px 16px",
                       borderRadius: "20px",
                       backgroundColor: "rgba(138, 16, 16, 0.08)",
-                      color: "#8a1010",
+                      color: "var(--primary-color)",
                       border: "1px solid rgba(138, 16, 16, 0.3)",
                       fontSize: "13px",
                       fontWeight: "700",
@@ -715,7 +715,7 @@ const DevoteesDetails = () => {
                 </div>
 
                 {familyMembers.length === 0 ? (
-                  <div style={{ background: "#fcf9f4", border: "1px dashed #d8ccb8", borderRadius: "10px", padding: "24px", textAlign: "center", color: "#7a675a" }}>
+                  <div style={{ background: "var(--background-light)", border: "1px dashed var(--background-medium)", borderRadius: "10px", padding: "24px", textAlign: "center", color: "var(--text-muted)" }}>
                     <p style={{ margin: "0 0 10px", fontSize: "14px" }}>
                       No additional family members added yet.
                     </p>
@@ -725,7 +725,7 @@ const DevoteesDetails = () => {
                       style={{
                         background: "none",
                         border: "none",
-                        color: "#8a1010",
+                        color: "var(--primary-color)",
                         fontWeight: "700",
                         fontSize: "13px",
                         cursor: "pointer",
@@ -741,8 +741,8 @@ const DevoteesDetails = () => {
                       <div
                         key={idx}
                         style={{
-                          background: "#faf6ef",
-                          border: "1px solid #ebdcc5",
+                          background: "var(--background-light)",
+                          border: "1px solid var(--background-medium)",
                           borderRadius: "12px",
                           padding: "16px",
                           display: "grid",
@@ -752,7 +752,7 @@ const DevoteesDetails = () => {
                         }}
                       >
                         <div>
-                          <label style={{ display: "block", fontSize: "11px", fontWeight: "700", color: "#6e594d", textTransform: "uppercase", marginBottom: "4px" }}>
+                          <label style={{ display: "block", fontSize: "11px", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
                             Relationship (உறவு)
                           </label>
                           <select
@@ -762,8 +762,8 @@ const DevoteesDetails = () => {
                               width: "100%",
                               padding: "8px 10px",
                               borderRadius: "6px",
-                              border: "1px solid #d8ccb8",
-                              backgroundColor: "#ffffff",
+                              border: "1px solid var(--background-medium)",
+                              backgroundColor: "var(--light-text)",
                               fontSize: "13px",
                               outline: "none",
                               boxSizing: "border-box"
@@ -776,7 +776,7 @@ const DevoteesDetails = () => {
                         </div>
 
                         <div>
-                          <label style={{ display: "block", fontSize: "11px", fontWeight: "700", color: "#6e594d", textTransform: "uppercase", marginBottom: "4px" }}>
+                          <label style={{ display: "block", fontSize: "11px", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
                             Member {idx + 1} Name
                           </label>
                           <input
@@ -788,8 +788,8 @@ const DevoteesDetails = () => {
                               width: "100%",
                               padding: "8px 12px",
                               borderRadius: "6px",
-                              border: "1px solid #d8ccb8",
-                              backgroundColor: "#ffffff",
+                              border: "1px solid var(--background-medium)",
+                              backgroundColor: "var(--light-text)",
                               fontSize: "13px",
                               outline: "none",
                               boxSizing: "border-box"
@@ -798,7 +798,7 @@ const DevoteesDetails = () => {
                         </div>
 
                         <div>
-                          <label style={{ display: "block", fontSize: "11px", fontWeight: "700", color: "#6e594d", textTransform: "uppercase", marginBottom: "4px" }}>
+                          <label style={{ display: "block", fontSize: "11px", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
                             Nakshatram (நட்சத்திரம்)
                           </label>
                           <select
@@ -808,8 +808,8 @@ const DevoteesDetails = () => {
                               width: "100%",
                               padding: "8px 10px",
                               borderRadius: "6px",
-                              border: "1px solid #d8ccb8",
-                              backgroundColor: "#ffffff",
+                              border: "1px solid var(--background-medium)",
+                              backgroundColor: "var(--light-text)",
                               fontSize: "13px",
                               outline: "none",
                               boxSizing: "border-box"
@@ -823,7 +823,7 @@ const DevoteesDetails = () => {
                         </div>
 
                         <div>
-                          <label style={{ display: "block", fontSize: "11px", fontWeight: "700", color: "#6e594d", textTransform: "uppercase", marginBottom: "4px" }}>
+                          <label style={{ display: "block", fontSize: "11px", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
                             Rasi (ராசி)
                           </label>
                           <select
@@ -833,8 +833,8 @@ const DevoteesDetails = () => {
                               width: "100%",
                               padding: "8px 10px",
                               borderRadius: "6px",
-                              border: "1px solid #d8ccb8",
-                              backgroundColor: "#ffffff",
+                              border: "1px solid var(--background-medium)",
+                              backgroundColor: "var(--light-text)",
                               fontSize: "13px",
                               outline: "none",
                               boxSizing: "border-box"
@@ -848,7 +848,7 @@ const DevoteesDetails = () => {
                         </div>
 
                         <div>
-                          <label style={{ display: "block", fontSize: "11px", fontWeight: "700", color: "#6e594d", textTransform: "uppercase", marginBottom: "4px" }}>
+                          <label style={{ display: "block", fontSize: "11px", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "4px" }}>
                             Date of Birth
                           </label>
                           <input
@@ -859,8 +859,8 @@ const DevoteesDetails = () => {
                               width: "100%",
                               padding: "8px 10px",
                               borderRadius: "6px",
-                              border: "1px solid #d8ccb8",
-                              backgroundColor: "#ffffff",
+                              border: "1px solid var(--background-medium)",
+                              backgroundColor: "var(--light-text)",
                               fontSize: "13px",
                               outline: "none",
                               boxSizing: "border-box"
@@ -875,7 +875,7 @@ const DevoteesDetails = () => {
                             style={{
                               background: "none",
                               border: "none",
-                              color: "#dc2626",
+                              color: "var(--accent-color)",
                               cursor: "pointer",
                               padding: "6px",
                               borderRadius: "6px"
@@ -893,9 +893,9 @@ const DevoteesDetails = () => {
 
               {/* ── 5. PRAYER NOTES ── */}
               <div style={{ marginBottom: "36px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingBottom: "10px", borderBottom: "2px solid #f3e9d8", marginBottom: "20px" }}>
-                  <FileText size={20} color="#8a1010" />
-                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#8a1010", fontFamily: "Cinzel, serif" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingBottom: "10px", borderBottom: "2px solid var(--background-medium)", marginBottom: "20px" }}>
+                  <FileText size={20} color="var(--primary-color)" />
+                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "var(--primary-color)", fontFamily: "Cinzel, serif" }}>
                     Special Prayers / Notes (பிரார்த்தனை குறிப்புகள்)
                   </h3>
                 </div>
@@ -910,8 +910,8 @@ const DevoteesDetails = () => {
                       width: "100%",
                       padding: "12px 14px",
                       borderRadius: "8px",
-                      border: "1px solid #d8ccb8",
-                      backgroundColor: "#fdfbf8",
+                      border: "1px solid var(--background-medium)",
+                      backgroundColor: "var(--light-text)",
                       fontSize: "14px",
                       outline: "none",
                       resize: "vertical",
@@ -932,8 +932,8 @@ const DevoteesDetails = () => {
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "10px",
-                    background: isLoading ? "#999999" : "linear-gradient(135deg, #8a1010 0%, #b31414 100%)",
-                    color: "#ffffff",
+                    background: isLoading ? "var(--text-muted)" : "linear-gradient(135deg, var(--primary-color) 0%, var(--heading-color) 100%)",
+                    color: "var(--light-text)",
                     border: "none",
                     borderRadius: "30px",
                     padding: "14px 44px",
@@ -948,7 +948,7 @@ const DevoteesDetails = () => {
                   <Sparkles size={18} />
                   {isLoading ? "Submitting Registration..." : "Submit Devotee Registration"}
                 </button>
-                <p style={{ margin: "14px 0 0", fontSize: "12px", color: "#827063" }}>
+                <p style={{ margin: "14px 0 0", fontSize: "12px", color: "var(--text-muted)" }}>
                   Sri Kottai Varahi Amman Temple • All devotee information is treated as sacred and confidential.
                 </p>
               </div>

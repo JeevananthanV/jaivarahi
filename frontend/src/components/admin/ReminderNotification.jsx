@@ -1,26 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Bell,
-  Cake,
-  Heart,
-  MessageCircle,
-  RefreshCw,
-  Eye,
-  X,
-  Phone,
-  Mail,
-  MapPin,
-  ChevronRight,
-  Shield,
-  Users,
-  FileText,
-  Sparkles,
-  ShoppingBag,
-  Coins,
-  Ticket,
-  Clock,
-  UserCheck
+  Bell, Cake, Heart, MessageCircle, RefreshCw, Eye, X, Phone,
+  Mail, MapPin, ChevronRight, Shield, Users, FileText, Sparkles,
+  ShoppingBag, Coins, Ticket, Clock, UserCheck, CheckCircle2,
+  ExternalLink, CalendarDays, ArrowUpRight
 } from 'lucide-react';
 import adminApi from './adminApi';
 
@@ -30,13 +14,17 @@ const ReminderNotification = () => {
   const [anniversaries, setAnniversaries] = useState([]);
   const [recentForms, setRecentForms] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('all'); // all, forms, birthdays, anniversaries
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'forms', 'birthdays', 'anniversaries'
   const [selectedPerson, setSelectedPerson] = useState(null);
-  const dropdownRef = useRef(null);
+  const popoverRef = useRef(null);
+  const triggerRef = useRef(null);
   const navigate = useNavigate();
 
-  const fetchAllNotifications = async () => {
-    setLoading(true);
+  const fetchAllNotifications = async (showSpin = false) => {
+    if (showSpin) setIsRefreshing(true);
+    else setLoading(true);
+
     try {
       const [bData, aData, feedData] = await Promise.all([
         adminApi.getBirthdays({ days: 7 }).catch(() => ({ birthdays: [] })),
@@ -51,20 +39,36 @@ const ReminderNotification = () => {
       console.error('Failed to load notifications:', err);
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
 
   useEffect(() => {
     fetchAllNotifications();
-    // Auto-refresh every 3 minutes
-    const interval = setInterval(fetchAllNotifications, 3 * 60 * 1000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => fetchAllNotifications(false), 3 * 60 * 1000);
+
+    // Live Real-Time SSE Stream subscription
+    const stream = adminApi.createRealtimeStream((event) => {
+      if (event && (event.event || event.type)) {
+        fetchAllNotifications(false);
+      }
+    });
+
+    return () => {
+      clearInterval(interval);
+      if (stream && stream.close) stream.close();
+    };
   }, []);
 
-  // Close dropdown on outside click
+  // Close popover on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        popoverRef.current && 
+        !popoverRef.current.contains(event.target) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(event.target)
+      ) {
         setIsOpen(false);
       }
     };
@@ -100,10 +104,9 @@ const ReminderNotification = () => {
   const todayReminders = formattedReminders.filter((r) => r.days_until === 0).length;
 
   const getBadgeClass = (days) => {
-    if (days <= 0) return 'dash-pill ok';
-    if (days <= 2) return 'dash-pill er';
-    if (days <= 5) return 'dash-pill wa';
-    return 'dash-pill in';
+    if (days <= 0) return 'notif-tag notif-tag-today';
+    if (days === 1) return 'notif-tag notif-tag-tomorrow';
+    return 'notif-tag notif-tag-upcoming';
   };
 
   const getBadgeLabel = (days) => {
@@ -130,679 +133,429 @@ const ReminderNotification = () => {
     return d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
   };
 
-  const getFormIcon = (type) => {
+  const getFormStyle = (type) => {
     switch (type) {
       case 'devotee':
-        return <UserCheck size={15} />;
+        return { icon: <UserCheck size={16} />, bg: 'rgba(37, 99, 235, 0.12)', color: '#2563eb' };
       case 'booking':
-        return <Sparkles size={15} />;
+        return { icon: <CalendarDays size={16} />, bg: 'rgba(217, 119, 6, 0.12)', color: '#d97706' };
       case 'prasadham':
-        return <ShoppingBag size={15} />;
+        return { icon: <ShoppingBag size={16} />, bg: 'rgba(21, 150, 107, 0.12)', color: '#15966b' };
       case 'donation':
-        return <Coins size={15} />;
+        return { icon: <Coins size={16} />, bg: 'rgba(154, 59, 52, 0.12)', color: '#9a3b34' };
       case 'vip':
-        return <Ticket size={15} />;
+        return { icon: <Ticket size={16} />, bg: 'rgba(139, 92, 246, 0.12)', color: '#8b5cf6' };
       default:
-        return <FileText size={15} />;
-    }
-  };
-
-  const getFormColor = (type) => {
-    switch (type) {
-      case 'devotee':
-        return { bg: 'var(--inb)', color: 'var(--in)' };
-      case 'booking':
-        return { bg: 'var(--special-08)', color: 'var(--special)' };
-      case 'prasadham':
-        return { bg: 'rgba(21, 150, 107, 0.12)', color: 'var(--ok)' };
-      case 'donation':
-        return { bg: 'rgba(234, 88, 12, 0.12)', color: 'var(--accent-color)' };
-      case 'vip':
-        return { bg: 'rgba(168, 85, 247, 0.12)', color: 'var(--purple, #a855f7)' };
-      default:
-        return { bg: 'var(--bg3)', color: 'var(--tx2)' };
+        return { icon: <FileText size={16} />, bg: 'rgba(100, 116, 139, 0.12)', color: '#64748b' };
     }
   };
 
   return (
-    <div style={{ position: 'relative' }} ref={dropdownRef}>
-      {/* Bell Trigger Button with ripple animation */}
+    <div className="notif-wrapper">
+      {/* Bell Trigger Button */}
       <button
-        className="btn-ripple ic-btn"
+        ref={triggerRef}
+        type="button"
+        className={`ic-btn notif-bell-btn ${isOpen ? 'active' : ''} ${totalBadgeCount > 0 ? 'has-unread' : ''}`}
         onClick={() => {
           setIsOpen(!isOpen);
-          if (!isOpen) fetchAllNotifications();
+          if (!isOpen) fetchAllNotifications(false);
         }}
         title={`Notifications & Reminders (${totalBadgeCount} items)`}
-        style={{
-          color: totalBadgeCount > 0 ? 'var(--special)' : 'var(--tx2)',
-          borderColor: totalBadgeCount > 0 ? 'var(--bd2)' : 'var(--bd)',
-        }}
+        aria-label="Notifications"
+        aria-expanded={isOpen}
       >
-        <Bell size={18} />
+        <Bell size={18} className="notif-bell-icon" />
         {totalBadgeCount > 0 && (
-          <span
-            style={{
-              position: 'absolute',
-              top: -4,
-              right: -4,
-              background: todayReminders > 0 ? 'var(--er)' : 'var(--special)',
-              color: 'var(--light-text)',
-              fontSize: 10,
-              fontWeight: 800,
-              minWidth: 18,
-              height: 18,
-              borderRadius: 9,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '0 4px',
-              border: '2px solid var(--bg2)',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-            }}
-          >
+          <span className={`notif-counter-badge ${todayReminders > 0 ? 'urgent' : ''}`}>
             {totalBadgeCount > 99 ? '99+' : totalBadgeCount}
           </span>
         )}
       </button>
 
-      {/* Popover Dropdown with slide animation */}
+      {/* Modern Floating Popover Dropdown */}
       {isOpen && (
-        <div
-          className="modal-ov"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="reminder-notif-title"
-          onClick={() => setIsOpen(false)}
-        >
-          <div
-            ref={dropdownRef}
-            className="modal"
-            style={{ maxWidth: 540 }}
-            onClick={(e) => e.stopPropagation()}
-            tabIndex="-1"
-          >
-            {/* Header */}
-            <div className="modal-hd">
-              <div className="d-flex align-center gap-3">
-                <Bell size={16} color="var(--accent-color)" />
-                <h4 id="reminder-notif-title" className="modal-title">
-                  Notifications & Reminders
-                </h4>
-                <button
-                  className="modal-x"
-                  onClick={() => setIsOpen(false)}
-                  title="Close"
-                  aria-label="Close modal"
-                >
-                  <X size={20} />
-                </button>
+        <div className="notif-popover-card animate-scale-in" ref={popoverRef}>
+          {/* Popover Header */}
+          <div className="notif-card-header">
+            <div className="notif-header-left">
+              <div className="notif-header-icon-box">
+                <Bell size={16} />
+              </div>
+              <div>
+                <h4 className="notif-header-title">Notifications Hub</h4>
+                <div className="notif-header-subtitle">
+                  {totalBadgeCount} {totalBadgeCount === 1 ? 'alert' : 'alerts'} &bull; {todayReminders > 0 ? `${todayReminders} today` : 'Real-time feed'}
+                </div>
               </div>
             </div>
 
-            {/* Filter Tabs with button animations */}
-            <div
-              className="d-flex justify-between p-3 px-0 border-b b-er bg-bg3"
+            <div className="notif-header-actions">
+              <button 
+                type="button"
+                className={`notif-icon-action ${isRefreshing ? 'spinning' : ''}`}
+                onClick={() => fetchAllNotifications(true)}
+                title="Refresh notifications"
+              >
+                <RefreshCw size={14} />
+              </button>
+              <button 
+                type="button"
+                className="notif-icon-action"
+                onClick={() => setIsOpen(false)}
+                title="Close"
+              >
+                <X size={15} />
+              </button>
+            </div>
+          </div>
+
+          {/* Interactive Filter Tabs */}
+          <div className="notif-tabs-bar">
+            <button
+              type="button"
+              className={`notif-tab-pill ${activeTab === 'all' ? 'active' : ''}`}
+              onClick={() => setActiveTab('all')}
             >
-              <div className="d-flex gap-2 flex-wrap">
-                <button
-                  onClick={() => setActiveTab('all')}
-                  className={`btn btn-sm ${activeTab === 'all' ? 'btn-primary' : 'btn-outline'} fs-10 p-2`}
-                  aria-pressed={activeTab === 'all'}
-                >
-                  All <span className="tx2">({totalBadgeCount})</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('forms')}
-                  className={`btn btn-sm ${activeTab === 'forms' ? 'btn-primary' : 'btn-outline'} fs-10 p-2`}
-                  aria-pressed={activeTab === 'forms'}
-                >
-                  📝 Forms <span className="tx2">({formattedForms.length})</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('birthdays')}
-                  className={`btn btn-sm ${activeTab === 'birthdays' ? 'btn-primary' : 'btn-outline'} fs-10 p-2`}
-                  aria-pressed={activeTab === 'birthdays'}
-                >
-                  🎂 Birthdays <span className="tx2">({birthdays.length})</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('anniversaries')}
-                  className={`btn btn-sm ${activeTab === 'anniversaries' ? 'btn-primary' : 'btn-outline'} fs-10 p-2`}
-                  aria-pressed={activeTab === 'anniversaries'}
-                >
-                  💍 Anniversaries <span className="tx2">({anniversaries.length})</span>
-                </button>
+              <span>All</span>
+              <span className="notif-tab-count">{totalBadgeCount}</span>
+            </button>
+            <button
+              type="button"
+              className={`notif-tab-pill ${activeTab === 'forms' ? 'active' : ''}`}
+              onClick={() => setActiveTab('forms')}
+            >
+              <span>Forms</span>
+              <span className="notif-tab-count">{formattedForms.length}</span>
+            </button>
+            <button
+              type="button"
+              className={`notif-tab-pill ${activeTab === 'birthdays' ? 'active' : ''}`}
+              onClick={() => setActiveTab('birthdays')}
+            >
+              <span>🎂 Birthdays</span>
+              <span className="notif-tab-count">{birthdays.length}</span>
+            </button>
+            <button
+              type="button"
+              className={`notif-tab-pill ${activeTab === 'anniversaries' ? 'active' : ''}`}
+              onClick={() => setActiveTab('anniversaries')}
+            >
+              <span>💍 Anniversaries</span>
+              <span className="notif-tab-count">{anniversaries.length}</span>
+            </button>
+          </div>
+
+          {/* Notification List Scroll Area */}
+          <div className="notif-list-container">
+            {loading && displayedList.length === 0 ? (
+              <div className="notif-loading-state">
+                <RefreshCw size={22} className="spin" />
+                <span>Loading latest updates...</span>
               </div>
-              <div className="tx2 fs-11 color-tx3">
-                {todayReminders > 0 && <span className="b-er">Today: {todayReminders}</span>}
+            ) : displayedList.length === 0 ? (
+              <div className="notif-empty-state">
+                <div className="notif-empty-icon">
+                  <CheckCircle2 size={32} />
+                </div>
+                <div className="notif-empty-title">All Caught Up!</div>
+                <div className="notif-empty-text">
+                  No pending alerts or reminders in this category.
+                </div>
               </div>
-            </div>
-
-            {/* Feed List */}
-            <div className="flex-1 p-4 overflow-y-auto">
-              {loading && displayedList.length === 0 ? (
-                <div className="spin-w pt-4 text-center">
-                  <div className="spin" />
-                </div>
-              ) : displayedList.length === 0 ? (
-                <div className="p-4 text-center text-muted">
-                  <p style={{ margin: 0, fontWeight: 600 }}>No items in this section</p>
-                  <p style={{ margin: '4px 0 0', fontSize: 11 }}>All notifications are up to date!</p>
-                </div>
-              ) : (
-                displayedList.map((item, idx) => {
-                  if (item.itemCategory === 'form') {
-                    const styleMeta = getFormColor(item.formType);
-                    return (
-                      <div
-                        key={`form-${item.id || idx}`}
-                        className="dash-row card-hover"
-                        style={{
-                          borderBottom: idx === displayedList.length - 1 ? 'none' : '1px solid var(--bd)',
-                          gap: 10,
-                        }}
-                      >
-                        <div className="d-flex align-center gap-3 min-width-0 flex-1">
-                          <div
-                            style={{
-                              width: 32,
-                              height: 32,
-                              borderRadius: '50%',
-                              background: styleMeta.bg,
-                              color: styleMeta.color,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              flexShrink: 0,
-                            }}
-                          >
-                            {getFormIcon(item.formType)}
-                          </div>
-
-                          <div style={{ minWidth: 0, flex: 1 }}>
-                            <div
-                              style={{
-                                fontWeight: 600,
-                                fontSize: 13,
-                                color: 'var(--tx)',
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                              }}
-                            >
-                              {item.name || item.formTitle}
-                            </div>
-                            <div
-                              style={{
-                                fontSize: 11,
-                                color: 'var(--tx3)',
-                                marginTop: 2,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 6,
-                                flexWrap: 'wrap',
-                              }}
-                            >
-                              <span style={{ fontWeight: 600, color: styleMeta.color }}>
-                                {item.formTitle}
-                              </span>
-                              {item.contact && <span>• 📞 {item.contact}</span>}
-                              {item.created_at && (
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
-                                  • <Clock size={10} /> {formatTimeAgo(item.created_at)}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="d-flex align-items-center gap-4 flex-shrink-0">
-                          <button
-                            onClick={() => {
-                              setIsOpen(false);
-                              if (item.link) navigate(item.link);
-                            }}
-                            className="btn btn-sm btn-outline fs-10 p-1"
-                            title="Open in Admin"
-                            style={{ borderRadius: 'var(--r-sm)', display: 'inline-flex', alignItems: 'center', gap: 2 }}
-                          >
-                            <span>Open</span>
-                            <ChevronRight size={10} />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  // Reminder Item with badge animation
+            ) : (
+              displayedList.map((item, idx) => {
+                if (item.itemCategory === 'form') {
+                  const styleMeta = getFormStyle(item.formType);
                   return (
-                    <div
-                      key={`rem-${item.reminderType}-${item.id || idx}`}
-                      className="dash-row card-hover"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '10px 8px',
-                        borderBottom: idx === displayedList.length - 1 ? 'none' : '1px solid var(--bd)',
-                        gap: 10,
-                      }}
-                    >
-                      <div className="d-flex align-items-center gap-3 min-width-0 flex-1">
-                        <div
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: '50%',
-                            background:
-                              item.reminderType === 'birthday'
-                                ? 'var(--special-08)'
-                                : 'rgba(219, 39, 119, 0.1)',
-                            color:
-                              item.reminderType === 'birthday' ? 'var(--special)' : '#db2777',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                          }}
-                        >
-                          {item.reminderType === 'birthday' ? (
-                            <Cake size={15} />
-                          ) : (
-                            <Heart size={15} />
+                    <div key={`form-${item.id || idx}`} className="notif-item form-item">
+                      <div 
+                        className="notif-item-icon-box"
+                        style={{ background: styleMeta.bg, color: styleMeta.color }}
+                      >
+                        {styleMeta.icon}
+                      </div>
+
+                      <div className="notif-item-content">
+                        <div className="notif-item-top">
+                          <span className="notif-item-title">
+                            {item.name || item.formTitle}
+                          </span>
+                          {item.created_at && (
+                            <span className="notif-item-time">
+                              <Clock size={10} style={{ marginRight: 3 }} />
+                              {formatTimeAgo(item.created_at)}
+                            </span>
                           )}
                         </div>
 
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <div
-                            style={{
-                              fontWeight: 600,
-                              fontSize: 13,
-                              color: 'var(--tx)',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                            }}
-                          >
-                            {item.name}
-                            {item.relationship && item.relationship !== 'Devotee' && (
-                              <span style={{ fontSize: 10.5, color: 'var(--tx3)', marginLeft: 4, fontWeight: 400 }}>
-                                ({item.relationship})
-                              </span>
-                            )}
-                          </div>
-                          <div style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 2 }}>
-                            {item.reminderType === 'birthday'
-                              ? `🎂 ${item.birthday ? new Date(item.birthday).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : ''}`
-                              : `💍 ${item.wedding_date ? new Date(item.wedding_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : ''} ${item.years_married ? `(${item.years_married}y)` : ''}`}
-                            {item.type === 'admin' && ' • Admin'}
-                          </div>
+                        <div className="notif-item-desc">
+                          <span className="notif-type-tag" style={{ color: styleMeta.color, borderColor: styleMeta.bg }}>
+                            {item.formTitle}
+                          </span>
+                          {item.contact && <span className="notif-contact-tag">📞 {item.contact}</span>}
                         </div>
                       </div>
 
-                      <div className="d-flex align-items-center gap-3 flex-shrink-0">
-                        {/* View Details Button */}
-                        <button
-                          onClick={() => {
-                            setSelectedPerson(item);
-                          }}
-                          className="btn btn-sm btn-outline"
-                          title="View Details"
-                          style={{ padding: '3px 6px', fontSize: 10, borderRadius: 'var(--r-sm)' }}
-                          aria-label={`View details for ${item.name}`}
-                        >
-                          <Eye size={11} />
-                        </button>
+                      <button
+                        type="button"
+                        className="notif-action-btn"
+                        onClick={() => {
+                          setIsOpen(false);
+                          if (item.link) navigate(item.link);
+                        }}
+                        title="Open in Admin"
+                      >
+                        <span>View</span>
+                        <ArrowUpRight size={12} />
+                      </button>
+                    </div>
+                  );
+                }
 
-                        {/* WhatsApp Wish Button */}
-                        {item.contact && (
-                          <a
-                            href={`https://wa.me/91${item.contact.replace(/\D/g, '')}?text=${
-                              item.reminderType === 'birthday'
-                                ? `Happy%20Birthday%20${encodeURIComponent(item.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
-                                : `Happy%20Wedding%20Anniversary%20${encodeURIComponent(item.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
-                            }`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-sm btn-primary"
-                            style={{
-                              padding: '3px 6px',
-                              fontSize: 10,
-                              background: 'var(--whatsapp)',
-                              borderColor: 'var(--whatsapp)',
-                              borderRadius: 'var(--r-sm)',
-                              color: 'var(--light-text)',
-                            }}
-                            title="Send WhatsApp Wish"
-                          >
-                            <MessageCircle size={11} />
-                          </a>
-                        )}
+                // Reminder Item (Birthday / Anniversary)
+                const isBday = item.reminderType === 'birthday';
+                return (
+                  <div key={`rem-${item.reminderType}-${item.id || idx}`} className="notif-item reminder-item">
+                    <div 
+                      className={`notif-item-icon-box ${isBday ? 'bday-box' : 'anniv-box'}`}
+                    >
+                      {isBday ? <Cake size={16} /> : <Heart size={16} />}
+                    </div>
 
-                        <span className={getBadgeClass(item.days_until)} style={{ fontSize: 10, padding: '2px 6px' }}>
+                    <div className="notif-item-content">
+                      <div className="notif-item-top">
+                        <span className="notif-item-title">
+                          {item.name}
+                          {item.relationship && item.relationship !== 'Devotee' && (
+                            <span className="notif-relation-chip">({item.relationship})</span>
+                          )}
+                        </span>
+                        <span className={getBadgeClass(item.days_until)}>
                           {getBadgeLabel(item.days_until)}
                         </span>
                       </div>
+
+                      <div className="notif-item-desc">
+                        <span className="notif-date-label">
+                          {isBday 
+                            ? `🎂 ${item.birthday ? new Date(item.birthday).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : ''}`
+                            : `💍 ${item.wedding_date ? new Date(item.wedding_date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : ''} ${item.years_married ? `(${item.years_married}y)` : ''}`}
+                        </span>
+                      </div>
                     </div>
-                  );
-                })
-              )}
-            </div>
 
-            {/* Footer links */}
-            <div
-              className="p-3 px-0 border-t b-er bg-bg3 d-flex justify-between align-items-center flex-wrap gap-2"
+                    {/* Action buttons */}
+                    <div className="notif-item-actions">
+                      <button
+                        type="button"
+                        className="notif-mini-btn"
+                        onClick={() => setSelectedPerson(item)}
+                        title="View Full Profile Details"
+                      >
+                        <Eye size={13} />
+                      </button>
+
+                      {item.contact && (
+                        <a
+                          href={`https://wa.me/91${item.contact.replace(/\D/g, '')}?text=${
+                            isBday
+                              ? `Happy%20Birthday%20${encodeURIComponent(item.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
+                              : `Happy%20Wedding%20Anniversary%20${encodeURIComponent(item.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
+                          }`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="notif-mini-btn whatsapp"
+                          title="Send Divine WhatsApp Wish"
+                        >
+                          <MessageCircle size={13} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Popover Footer Navigation */}
+          <div className="notif-card-footer">
+            <button
+              type="button"
+              className="notif-footer-link"
+              onClick={() => {
+                setIsOpen(false);
+                navigate('/admin/devotees');
+              }}
             >
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  navigate('/admin/devotees');
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--in)',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                }}
-              >
-                Devotee Forms <ChevronRight size={11} />
-              </button>
-
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  navigate('/admin/birthdays');
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--primary-color)',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                }}
-              >
-                Birthdays <ChevronRight size={11} />
-              </button>
-
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  navigate('/admin/wedding-anniversaries');
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--special)',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                }}
-              >
-                Anniversaries <ChevronRight size={11} />
-              </button>
-            </div>
+              <span>Devotee Forms</span>
+              <ChevronRight size={12} />
+            </button>
+            <button
+              type="button"
+              className="notif-footer-link"
+              onClick={() => {
+                setIsOpen(false);
+                navigate('/admin/birthdays');
+              }}
+            >
+              <span>Birthdays</span>
+              <ChevronRight size={12} />
+            </button>
+            <button
+              type="button"
+              className="notif-footer-link"
+              onClick={() => {
+                setIsOpen(false);
+                navigate('/admin/wedding-anniversaries');
+              }}
+            >
+              <span>Anniversaries</span>
+              <ChevronRight size={12} />
+            </button>
           </div>
         </div>
       )}
 
-      {/* Full Details Modal for Reminders */}
+      {/* Person Astrological & Contact Details Modal */}
       {selectedPerson && (
-        <div
-          className="modal-ov"
-          onClick={() => setSelectedPerson(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="reminder-detail-title"
-        >
-          <div
-            className="modal"
-            style={{ maxWidth: 540 }}
+        <div className="cmd-modal-backdrop" onClick={() => setSelectedPerson(null)}>
+          <div 
+            className="cmd-modal-container animate-slide-down" 
+            style={{ maxWidth: 500 }} 
             onClick={(e) => e.stopPropagation()}
-            tabIndex="-1"
           >
-            {/* Modal Header */}
-            <div className="modal-hd">
-              <div className="d-flex align-center gap-3">
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
-                    background:
-                      selectedPerson.reminderType === 'birthday'
-                        ? 'var(--special-08)'
-                        : 'rgba(219, 39, 119, 0.1)',
-                    color:
-                      selectedPerson.reminderType === 'birthday'
-                        ? 'var(--special)'
-                        : '#db2777',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
+            {/* Header */}
+            <div className="cmd-search-bar" style={{ justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div 
+                  className={`notif-item-icon-box ${selectedPerson.reminderType === 'birthday' ? 'bday-box' : 'anniv-box'}`}
+                  style={{ width: 36, height: 36 }}
                 >
-                  {selectedPerson.reminderType === 'birthday' ? (
-                    <Cake size={20} />
-                  ) : (
-                    <Heart size={20} />
-                  )}
+                  {selectedPerson.reminderType === 'birthday' ? <Cake size={18} /> : <Heart size={18} />}
                 </div>
                 <div>
-                  <h4 id="reminder-detail-title" className="modal-title" style={{ margin: 0 }}>
-                    {selectedPerson.name}
-                  </h4>
-                  <span className="dash-pill in" style={{ fontSize: 11, marginTop: 2 }}>
-                    {selectedPerson.source || selectedPerson.role || 'Devotee'}
-                  </span>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--tx)' }}>{selectedPerson.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--tx3)' }}>{selectedPerson.source || 'Devotee Record'}</div>
                 </div>
-
-                <button
-                  className="modal-x"
-                  onClick={() => setSelectedPerson(null)}
-                  title="Close"
-                  aria-label="Close modal"
-                >
-                  <X size={20} />
-                </button>
               </div>
+              <button 
+                type="button" 
+                className="cmd-close-btn" 
+                onClick={() => setSelectedPerson(null)}
+              >
+                <X size={16} />
+              </button>
+            </div>
 
-              {/* Modal Body */}
-              <div className="modal-body">
-                {/* Countdown Banner */}
-                <div
-                  style={{
-                    background: 'var(--special-08)',
-                    border: '1px solid var(--bd2)',
-                    borderRadius: 'var(--r)',
-                    padding: 'var(--sp-3) var(--sp-4)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: 'var(--sp-4)',
-                  }}
-                >
-                  <div>
-                    <div
-                      style={{ fontSize: 11, color: 'var(--tx3)', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}
-                    >
-                      {selectedPerson.reminderType === 'birthday' ? 'Birthday' : 'Wedding Anniversary'}
-                    </div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--tx)' }}>
-                      {selectedPerson.birthday || selectedPerson.wedding_date
-                        ? new Date(selectedPerson.birthday || selectedPerson.wedding_date).toLocaleDateString('en-IN', {
-                            weekday: 'short',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })
-                        : 'No date'}
-                    </div>
+            {/* Modal Body */}
+            <div style={{ padding: 18, maxHeight: '65vh', overflowY: 'auto' }}>
+              {/* Event Banner */}
+              <div 
+                style={{ 
+                  background: 'var(--primary-10)', 
+                  border: '1px solid var(--bd2)', 
+                  borderRadius: 'var(--r)', 
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 16
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 11, color: 'var(--tx3)', textTransform: 'uppercase', fontWeight: 700 }}>
+                    {selectedPerson.reminderType === 'birthday' ? 'Celebration Date' : 'Wedding Date'}
                   </div>
-                  <span className={getBadgeClass(selectedPerson.days_until)} style={{ fontSize: 13, padding: '4px 10px' }}>
-                    {getBadgeLabel(selectedPerson.days_until)}
-                  </span>
-                </div>
-
-                {/* Detail Rows */}
-                <div
-                  style={{
-                    background: 'var(--bg3)',
-                    borderRadius: 'var(--r)',
-                    padding: '0 var(--sp-4)',
-                    marginBottom: 'var(--sp-4)',
-                    border: '1px solid var(--bd)',
-                  }}
-                >
-                  {selectedPerson.years_married > 0 && (
-                    <div className="detail-row">
-                      <span className="detail-key">Milestone</span>
-                      <span className="detail-val" style={{ color: 'var(--special)' }}>
-                        {selectedPerson.years_married} Years Completed
-                      </span>
-                    </div>
-                  )}
-
-                  {selectedPerson.devotee_name && (
-                    <div className="detail-row">
-                      <span className="detail-key">Devotee / Head</span>
-                      <span className="detail-val">{selectedPerson.devotee_name}</span>
-                    </div>
-                  )}
-
-                  {selectedPerson.relationship && (
-                    <div className="detail-row">
-                      <span className="detail-key">Relationship</span>
-                      <span className="detail-val">{selectedPerson.relationship}</span>
-                    </div>
-                  )}
-
-                  {selectedPerson.star && (
-                    <div className="detail-row">
-                      <span className="detail-key">Nakshatram (Star)</span>
-                      <span className="detail-val">{selectedPerson.star}</span>
-                    </div>
-                  )}
-
-                  {selectedPerson.rasi && (
-                    <div className="detail-row">
-                      <span className="detail-key">Rasi</span>
-                      <span className="detail-val">{selectedPerson.rasi}</span>
-                    </div>
-                  )}
-
-                  {selectedPerson.gothram && (
-                    <div className="detail-row">
-                      <span className="detail-key">Gothram</span>
-                      <span className="detail-val">{selectedPerson.gothram}</span>
-                    </div>
-                  )}
-
-                  {selectedPerson.father_name && (
-                    <div className="detail-row">
-                      <span className="detail-key">Father's Name</span>
-                      <span className="detail-val">{selectedPerson.father_name}</span>
-                    </div>
-                  )}
-
-                  {selectedPerson.mother_name && (
-                    <div className="detail-row">
-                      <span className="detail-key">Mother's Name</span>
-                      <span className="detail-val">{selectedPerson.mother_name}</span>
-                    </div>
-                  )}
-
-                  {selectedPerson.role && selectedPerson.type === 'admin' && (
-                    <div className="detail-row">
-                      <span className="detail-key">Admin Role</span>
-                      <span className="detail-val">{selectedPerson.role}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Contact Information */}
-                <div
-                  style={{
-                    background: 'var(--bg3)',
-                    padding: 'var(--sp-3) var(--sp-4)',
-                    borderRadius: 'var(--r)',
-                    border: '1px solid var(--bd)',
-                  }}
-                >
-                  <div style={{ fontSize: 11, color: 'var(--tx3)', marginBottom: 'var(--sp-2)', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 700 }}>
-                    Contact Information
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--tx)', marginTop: 2 }}>
+                    {selectedPerson.birthday || selectedPerson.wedding_date
+                      ? new Date(selectedPerson.birthday || selectedPerson.wedding_date).toLocaleDateString('en-IN', {
+                          weekday: 'short',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })
+                      : 'Not specified'}
                   </div>
-
-                  {selectedPerson.contact && (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--sp-2)', flexWrap: 'wrap', gap: 'var(--sp-2)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 13, color: 'var(--tx)' }}>
-                        <Phone size={14} color="var(--in)" />
-                        <span>{selectedPerson.contact}</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: 'var(--sp-2)' }}>
-                        <a href={`tel:${selectedPerson.contact}`} className="btn btn-sm btn-outline" style={{ padding: '2px 8px', fontSize: 11 }}>
-                          Call
-                        </a>
-                        <a
-                          href={`https://wa.me/91${selectedPerson.contact.replace(/\D/g, '')}?text=${
-                            selectedPerson.reminderType === 'birthday'
-                              ? `Happy%20Birthday%20${encodeURIComponent(selectedPerson.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
-                              : `Happy%20Wedding%20Anniversary%20${encodeURIComponent(selectedPerson.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
-                        }`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-sm btn-primary"
-                          style={{ padding: '2px 8px', fontSize: 11, background: 'var(--whatsapp)', borderColor: 'var(--whatsapp)', color: 'var(--light-text)' }}
-                        >
-                          WhatsApp
-                        </a>
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedPerson.email && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', fontSize: 13, marginBottom: 'var(--sp-2)', color: 'var(--tx)' }}>
-                      <Mail size={14} color="var(--accent-color)" />
-                      <a href={`mailto:${selectedPerson.email}`} style={{ color: 'var(--tx)', textDecoration: 'none' }}>
-                        {selectedPerson.email}
-                      </a>
-                    </div>
-                  )}
-
-                  {selectedPerson.postal_address && (
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--sp-2)', fontSize: 12, color: 'var(--tx2)', marginTop: 'var(--sp-2)' }}>
-                      <MapPin size={14} color="var(--special)" style={{ marginTop: 2, flexShrink: 0 }} />
-                      <span>{selectedPerson.postal_address}</span>
-                    </div>
-                  )}
-
-                  {selectedPerson.note && (
-                    <div style={{ marginTop: 'var(--sp-2)', padding: 'var(--sp-2)', background: 'var(--bg2)', borderRadius: 'var(--r-sm)', fontSize: 12, color: 'var(--tx2)', border: '1px solid var(--bd)' }}>
-                      <strong style={{ color: 'var(--tx)' }}>Note:</strong> {selectedPerson.note}
-                    </div>
-                  )}
                 </div>
+                <span className={getBadgeClass(selectedPerson.days_until)}>
+                  {getBadgeLabel(selectedPerson.days_until)}
+                </span>
               </div>
 
-              {/* Modal Footer */}
-              <div className="modal-ft">
-                <button onClick={() => setSelectedPerson(null)} className="btn btn-outline">
-                  Close
-                </button>
+              {/* Astrological / Devotee Details */}
+              <div style={{ background: 'var(--bg3)', borderRadius: 'var(--r)', border: '1px solid var(--bd)', padding: '4px 14px', marginBottom: 16 }}>
+                {selectedPerson.years_married > 0 && (
+                  <div className="detail-row">
+                    <span className="detail-key">Milestone</span>
+                    <span className="detail-val" style={{ color: 'var(--special)' }}>{selectedPerson.years_married} Years</span>
+                  </div>
+                )}
+                {selectedPerson.star && (
+                  <div className="detail-row">
+                    <span className="detail-key">Nakshatram (Star)</span>
+                    <span className="detail-val">{selectedPerson.star}</span>
+                  </div>
+                )}
+                {selectedPerson.rasi && (
+                  <div className="detail-row">
+                    <span className="detail-key">Rasi</span>
+                    <span className="detail-val">{selectedPerson.rasi}</span>
+                  </div>
+                )}
+                {selectedPerson.gothram && (
+                  <div className="detail-row">
+                    <span className="detail-key">Gothram</span>
+                    <span className="detail-val">{selectedPerson.gothram}</span>
+                  </div>
+                )}
+                {selectedPerson.devotee_name && (
+                  <div className="detail-row">
+                    <span className="detail-key">Head of Family</span>
+                    <span className="detail-val">{selectedPerson.devotee_name}</span>
+                  </div>
+                )}
               </div>
+
+              {/* Contact Actions */}
+              {selectedPerson.contact && (
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <a
+                    href={`tel:${selectedPerson.contact}`}
+                    className="btn btn-outline"
+                    style={{ flex: 1, justifyContent: 'center', gap: 6, fontSize: 12.5 }}
+                  >
+                    <Phone size={14} color="var(--in)" />
+                    <span>Call ({selectedPerson.contact})</span>
+                  </a>
+                  <a
+                    href={`https://wa.me/91${selectedPerson.contact.replace(/\D/g, '')}?text=${
+                      selectedPerson.reminderType === 'birthday'
+                        ? `Happy%20Birthday%20${encodeURIComponent(selectedPerson.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
+                        : `Happy%20Wedding%20Anniversary%20${encodeURIComponent(selectedPerson.name)}!%20May%20Goddess%20Sri%20Maha%20Varahi%20shower%20divine%20blessings.`
+                    }`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                    style={{ flex: 1, justifyContent: 'center', gap: 6, fontSize: 12.5, background: 'var(--whatsapp)', borderColor: 'var(--whatsapp)' }}
+                  >
+                    <MessageCircle size={14} />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="cmd-modal-footer" style={{ justifyContent: 'flex-end' }}>
+              <button 
+                type="button" 
+                className="btn btn-outline" 
+                onClick={() => setSelectedPerson(null)}
+                style={{ padding: '6px 14px', fontSize: 12 }}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

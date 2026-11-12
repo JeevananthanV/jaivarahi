@@ -69,9 +69,23 @@ function MainHeroBanner() {
           today. Be a part of Varahi Devi's divine mission. Together, let us build HER temple and spread HER
           blessings to the world.
         </p>
-        <button className="primary-action-button" id="donate-bttn" onClick={() => navigate('/payment')}>
-          Donate
-        </button>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '16px' }}>
+          <button className="primary-action-button" id="donate-bttn" onClick={() => navigate('/payment')}>
+            Donate Now
+          </button>
+          <button
+            className="primary-action-button"
+            style={{
+              background: 'linear-gradient(135deg, var(--special-color, #f39c12) 0%, var(--primary-color, #9a3b34) 100%)',
+              color: 'var(--light-text, #ffffff)',
+              borderColor: 'var(--special-color, #f39c12)',
+              fontWeight: 700
+            }}
+            onClick={() => navigate('/book-pooja')}
+          >
+            Book Pooja
+          </button>
+        </div>
       </div>
     </section>
   );

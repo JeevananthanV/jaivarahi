@@ -202,7 +202,7 @@ const ServiceBookingManager = () => {
                       <span className={`badge ${row.payment_status === 'PAID' ? 'b-ok' : row.payment_status === 'FAILED' ? 'b-er' : 'b-wa'}`}>{row.payment_status || 'PENDING'}</span>
                     </td>
                     <td>
-                      <span className="badge" style={{ background: `${STATUS_COLORS[row.status] || '#64748b'}20`, color: STATUS_COLORS[row.status] || '#64748b' }}>{row.status}</span>
+                      <span className="badge" style={{ background: `${STATUS_COLORS[row.status] || 'var(--text-muted)'}20`, color: STATUS_COLORS[row.status] || 'var(--text-muted)' }}>{row.status}</span>
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }} onClick={(e) => e.stopPropagation()}>

@@ -9,7 +9,7 @@ const StatCard = (props) => {
   return (
     <div className="card" style={{ padding: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, background: color || 'var(--special-color)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 40, height: 40, borderRadius: 10, background: color || 'var(--special-color)', color: 'var(--light-text)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Icon size={20} />
         </div>
         <div>

@@ -4,7 +4,7 @@ import { useAdminAuth } from './AdminAuthContext';
 import adminApi from './adminApi';
 import { isRole } from './roles';
 
-const ConfirmModal = ({ message, onConfirm, onCancel, isOpen, onKeyDown }) => (
+const ConfirmModal = ({ message, onConfirm, onCancel, isOpen }) => (
   !isOpen ? null : (
     <div className="modal-backdrop" onClick={onCancel} role="dialog" aria-modal="true" aria-labelledby="confirm-title">
       <div className="modal" style={{ maxWidth: 380 }} onClick={e => e.stopPropagation()}>
@@ -24,7 +24,7 @@ const ConfirmModal = ({ message, onConfirm, onCancel, isOpen, onKeyDown }) => (
   )
 );
 
-const DetailModal = ({ row, onClose, isOpen, onKeyDown }) => (
+const DetailModal = ({ row, onClose, isOpen }) => (
   !isOpen ? null : (
     <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="detail-title">
       <div className="modal" onClick={e => e.stopPropagation()}>
@@ -39,9 +39,7 @@ const DetailModal = ({ row, onClose, isOpen, onKeyDown }) => (
                 <tr key={k}>
                   <td className="detail-key">{k.replace(/_/g, ' ')}</td>
                   <td className="detail-val">
-                    {v === null || v === undefined ? <em style={{ color: 'var(--tx3)' }}>—</em> :
-                      typeof v === 'object' ? <pre style={{ fontSize: 11, margin: 0, whiteSpace: 'pre-wrap', background: 'var(--bg3)', padding: 6, borderRadius: 4 }}>{JSON.stringify(v, null, 2)}</pre> :
-                      String(v)}
+                    {v === null || v === undefined ? <em style={{ color: 'var(--tx3)' }}>—</em> : typeof v === 'object' ? <pre style={{ fontSize: 11, margin: 0, whiteSpace: 'pre-wrap', background: 'var(--bg3)', padding: 6, borderRadius: 4 }}>{JSON.stringify(v, null, 2)}</pre> : String(v)}
                   </td>
                 </tr>
               ))}
@@ -56,7 +54,7 @@ const DetailModal = ({ row, onClose, isOpen, onKeyDown }) => (
   )
 );
 
-// Skeleton row component
+// Skeleton row component for loading states
 const SkeletonRow = ({ columnCount }) => (
   <tr>
     {[...Array(columnCount + 1)].map((_, i) => (
@@ -65,7 +63,15 @@ const SkeletonRow = ({ columnCount }) => (
   </tr>
 );
 
-export const DataTable = ({
+// Helper to format dates in Indian format
+export const fmtDate = (v) => v ? new Date(v).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+
+export const StatusBadge = ({ status }) => {
+  const map = { paid: 'b-ok', CONFIRMED: 'b-ok', failed: 'b-er', PENDING: 'b-wa', created: 'b-mu', CANCELLED: 'b-er' };
+  return <span className={`badge ${map[status] || 'b-mu'}`}>{status}</span>;
+};
+
+const DataTable = ({
   title,
   fetchFn,
   deleteFn,
@@ -88,7 +94,6 @@ export const DataTable = ({
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filters, setFilters] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -98,29 +103,24 @@ export const DataTable = ({
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const totalPages = Math.ceil(total / pageSize);
 
-  // Refs for focus management
-  const modalRef = useRef(null);
-  const previousActiveElement = useRef(null);
-  const searchInputRef = useRef(null);
-
   // Search debouncing
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    const timer = setTimeout(() => setSearch(search), 300);
     return () => clearTimeout(timer);
   }, [search]);
 
   // Reset page when search/filters/pageSize change
-  useEffect(() => { setPage(1); }, [debouncedSearch, filters, pageSize]);
+  useEffect(() => { setPage(1); }, [search, JSON.stringify(filters), pageSize]);
 
   // Load data
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
-      const params = { 
-        page, 
-        limit: pageSize, 
-        search: debouncedSearch, 
+      const params = {
+        page,
+        limit: pageSize,
+        search,
         ...filters,
         ...(sortConfig.key && { sortBy: sortConfig.key, sortDir: sortConfig.direction })
       };
@@ -134,21 +134,21 @@ export const DataTable = ({
     } finally {
       setLoading(false);
     }
-  }, [fetchFn, page, pageSize, debouncedSearch, filters, sortConfig]);
+  }, [fetchFn, page, pageSize, search, JSON.stringify(filters), sortConfig]);
 
   useEffect(() => { load(); }, [load]);
 
   // Focus management for modals
-  const openModal = useCallback((ref) => {
-    previousActiveElement.current = document.activeElement;
+  const openModal = (ref) => {
+    ref.current?.focus();
     setTimeout(() => ref.current?.focus(), 0);
     document.body.style.overflow = 'hidden';
-  }, []);
+  };
 
-  const closeModal = useCallback(() => {
+  const closeModal = () => {
     document.body.style.overflow = '';
-    previousActiveElement.current?.focus();
-  }, []);
+    // Return focus to previous element if available
+  };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -170,12 +170,7 @@ export const DataTable = ({
     setPage(1);
   };
 
-  const pageNums = useMemo(() => {
-    const nums = [];
-    for (let i = Math.max(1, page - 2); i <= Math.min(totalPages, page + 2); i++) nums.push(i);
-    return nums;
-  }, [page, totalPages]);
-
+  // Compute sorted rows
   const sortedRows = useMemo(() => {
     if (!sortConfig.key || !enableSorting) return rows;
     return [...rows].sort((a, b) => {
@@ -224,7 +219,7 @@ export const DataTable = ({
                 onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
                 aria-label="Rows per page"
               >
-                {pageSizeOptions.map(size => <option key={size} value={size}>{size}</option>)}
+                {pageSizeOptions.map(size => <option key={size} value={size}>{size}</option>)};
               </select>
             </label>
             <button className="btn btn-sm btn-ol" onClick={load} aria-label="Refresh data">↺ Refresh</button>
@@ -234,9 +229,8 @@ export const DataTable = ({
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--bd)' }}>
           <div className="toolbar">
             <div className="toolbar-l">
-              <div style={{ position: 'relative', width: 280 }}>
+              <div style={{ position: 'relative', width: 300 }}>
                 <input
-                  ref={searchInputRef}
                   className="form-control"
                   placeholder={searchPlaceholder}
                   value={search}
@@ -244,7 +238,7 @@ export const DataTable = ({
                   aria-label={searchPlaceholder}
                   aria-describedby="search-hint"
                 />
-                <span id="search-hint" style={{ position: 'absolute', left: -9999 }}>Press Enter to search</span>
+                <span id="search-hint" style={{ position: 'absolute', left: -9999, opacity: 0, pointerEvents: 'none' }}>Press Enter to search</span>
               </div>
               {filterControls && filterControls({ filters, setFilters })}
             </div>
@@ -261,7 +255,6 @@ export const DataTable = ({
         <div className="admin-table-wrap">
           {loading ? (
             <>
-              {/* Skeleton rows */}
               {[...Array(pageSize)].map((_, i) => (
                 <SkeletonRow key={i} columnCount={columnCount} />
               ))}
@@ -284,35 +277,60 @@ export const DataTable = ({
                         cursor: enableSorting ? 'pointer' : 'default',
                         userSelect: 'none',
                         whiteSpace: 'nowrap',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6
+                        width: c.width || 'auto',
+                        minWidth: c.minWidth || 'auto',
+                        textAlign: c.align || 'left',
+                        verticalAlign: 'middle',
+                        ...(c.style || {})
                       }}
                       aria-sort={sortConfig.key === c.key ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
                     >
-                      {c.label}
-                      {enableSorting && sortConfig.key === c.key && (
-                        <span style={{ fontSize: 10 }}>{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>
-                      )}
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        justifyContent: c.align === 'right' ? 'flex-end' : c.align === 'center' ? 'center' : 'flex-start'
+                      }}>
+                        <span>{c.label}</span>
+                        {enableSorting && (
+                          <span style={{
+                            fontSize: 10,
+                            color: sortConfig.key === c.key ? 'var(--primary-color)' : 'var(--tx3)',
+                            opacity: sortConfig.key === c.key ? 1 : 0.4
+                          }}>
+                            {sortConfig.key === c.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '⇅'}
+                          </span>
+                        )}
+                      </div>
                     </th>
                   ))}
-                  <th style={{ width: 120 }}>Actions</th>
+                  <th style={{ width: 140, textAlign: 'right', whiteSpace: 'nowrap', verticalAlign: 'middle' }}>
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {sortedRows.map(row => (
                   <tr key={row[rowKey]}>
                     {columns.map(c => (
-                      <td key={c.key}>
+                      <td
+                        key={c.key}
+                        style={{
+                          width: c.width || 'auto',
+                          minWidth: c.minWidth || 'auto',
+                          textAlign: c.align || 'left',
+                          verticalAlign: 'middle'
+                        }}
+                      >
                         {c.render ? c.render(row[c.key], row) : (row[c.key] ?? '—')}
                       </td>
                     ))}
-                    <td>
-                      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                    <td style={{ textAlign: 'right', verticalAlign: 'middle' }}>
+                      <div style={{ display: 'inline-flex', gap: 4, alignItems: 'center', justifyContent: 'flex-end' }}>
                         {((!extraActions && !hideDefaultView) || showDefaultView) && (
                           <button
                             className="btn btn-xs btn-ol"
-                            onClick={() => { setDetailRow(row); openModal(modalRef); }}
+                            onClick={() => { setDetailRow(row); openModal(null); }}
                             aria-label={`View details for ${row[rowKey]}`}
                           >
                             View
@@ -335,76 +353,69 @@ export const DataTable = ({
               </tbody>
             </table>
           )}
-        </div>
 
-        {totalPages > 1 && (
-          <div className="pagination" role="navigation" aria-label="Pagination">
-            <span className="pagination-info" aria-live="polite">
-              Page {page} of {totalPages} ({total} records)
-            </span>
-            <div className="pagination-controls">
-              <button
-                className="page-btn"
-                onClick={() => setPage(1)}
-                disabled={page === 1}
-                aria-label="First page"
-                aria-disabled={page === 1}
-              >
-                «
-              </button>
-              <button
-                className="page-btn"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                aria-label="Previous page"
-                aria-disabled={page === 1}
-              >
-                ‹
-              </button>
-              {pageNums.map(n => (
+          {totalPages > 1 && (
+            <div className="pagination" role="navigation" aria-label="Pagination">
+              <span className="pagination-info" aria-live="polite">
+                Page {page} of {totalPages} ({total} records)
+              </span>
+              <div className="pagination-controls">
                 <button
-                  key={n}
-                  className={`page-btn ${n === page ? 'active' : ''}`}
-                  onClick={() => setPage(n)}
-                  aria-label={`Page ${n}`}
-                  aria-current={n === page ? 'page' : undefined}
+                  className="page-btn"
+                  onClick={() => setPage(1)}
+                  disabled={page === 1}
+                  aria-label="First page"
+                  aria-disabled={page === 1}
                 >
-                  {n}
+                  «
                 </button>
-              ))}
-              <button
-                className="page-btn"
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                aria-label="Next page"
-                aria-disabled={page === totalPages}
-              >
-                ›
-              </button>
-              <button
-                className="page-btn"
-                onClick={() => setPage(totalPages)}
-                disabled={page === totalPages}
-                aria-label="Last page"
-                aria-disabled={page === totalPages}
-              >
-                »
-              </button>
+                <button
+                  className="page-btn"
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  aria-label="Previous page"
+                  aria-disabled={page === 1}
+                >
+                  ‹
+                </button>
+                {Array.from({ length: Math.ceil(totalPages / 5) }, (_, i) => i + 1).map(n => (
+                  <button
+                    key={n}
+                    className={`page-btn ${n === page ? 'active' : ''}`}
+                    onClick={() => setPage(n)}
+                    aria-label={`Page ${n}`}
+                    aria-current={n === page ? 'page' : undefined}
+                  >
+                    {n}
+                  </button>
+                ))}
+                <button
+                  className="page-btn"
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  aria-label="Next page"
+                  aria-disabled={page === totalPages}
+                >
+                  ›
+                </button>
+                <button
+                  className="page-btn"
+                  onClick={() => setPage(totalPages)}
+                  disabled={page === totalPages}
+                  aria-label="Last page"
+                  aria-disabled={page === totalPages}
+                >
+                  »
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-
+          )}
+        </div>
       </div>
     </>
   );
 };
 
 // ─── Table page helpers ───────────────────────────────────────────────────────
-export const fmtDate = (v) => v ? new Date(v).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-
-export const StatusBadge = ({ status }) => {
-  const map = { paid: 'b-ok', CONFIRMED: 'b-ok', failed: 'b-er', PENDING: 'b-wa', created: 'b-mu', CANCELLED: 'b-er' };
-  return <span className={`badge ${map[status] || 'b-mu'}`}>{status}</span>;
-};
-
+export { DataTable };
 export default DataTable;

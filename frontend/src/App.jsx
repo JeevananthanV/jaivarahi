@@ -28,6 +28,13 @@ const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 const AdminApp = lazy(() => import('./components/admin/AdminApp.jsx'));
 const Blog = lazy(() => import('./pages/Blog.jsx'));
 const BlogDetail = lazy(() => import('./pages/BlogDetail.jsx'));
+const Kosala = lazy(() => import('./pages/Kosala.jsx'));
+const KosalaDonate = lazy(() => import('./pages/KosalaDonate.jsx'));
+const KosalaDonationSuccess = lazy(() => import('./pages/KosalaDonationSuccess.jsx'));
+const KosalaDonationFailure = lazy(() => import('./pages/KosalaDonationFailure.jsx'));
+const KosalaDonationArchive = lazy(() => import('./pages/KosalaDonationArchive.jsx'));
+const KosalaCowDetails = lazy(() => import('./pages/KosalaCowDetails.jsx'));
+const KosalaReceipt = lazy(() => import('./pages/KosalaReceipt.jsx'));
 
 import ErrorBoundary from './components/common/ErrorBoundary.jsx';
 
@@ -58,6 +65,17 @@ function App() {
         <Route path="/terms-condition" element={<TermsCondition />} />
         <Route path="/services" element={<Services />} />
         <Route path="/book-pooja" element={<BookPooja />} />
+        <Route path="/book_pooja" element={<BookPooja />} />
+        <Route path="/donation" element={<Payment />} />
+        <Route path="/donations" element={<Payment />} />
+        <Route path="/kosala" element={<Kosala />} />
+        <Route path="/kosala/donate" element={<KosalaDonate />} />
+        <Route path="/kosala/archive" element={<KosalaDonationArchive />} />
+        <Route path="/kosala/success" element={<KosalaDonationSuccess />} />
+        <Route path="/kosala/failure" element={<KosalaDonationFailure />} />
+        <Route path="/kosala/cows/:id" element={<KosalaCowDetails />} />
+        <Route path="/kosala/receipt/:paymentId" element={<KosalaReceipt />} />
+        <Route path="/kosala-donation" element={<Kosala />} />
         {/* Fallbacks for unspecified routes used in nav */}
         <Route path="/ashada_navarathiri" element={<AshadaNavarathiri />} />
         

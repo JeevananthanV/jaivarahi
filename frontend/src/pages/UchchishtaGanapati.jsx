@@ -26,10 +26,10 @@ const UchchishtaGanapati = () => {
     },
     {
       label: 'Kosala',
-      href: '#',
+      href: '/kosala',
       children: [
-        { label: 'Donation', href: '/payment' },
-        { label: 'Donation Archive', href: '/payment' },
+        { label: 'Donation', href: '/kosala' },
+        { label: 'Donation Archive', href: '/kosala/archive' },
       ],
     },
     {
@@ -228,8 +228,8 @@ const UchchishtaGanapati = () => {
             <h2>Invoke Ganapati Grace</h2>
             <p>Join sacred worship and connect with mantra, offerings, and special pooja schedules.</p>
             <div className="site-cta__actions">
-                <a href="/payment" className="site-cta__btn">Join Now</a>
-                <a href="/calendar" className="site-cta__btn site-cta__btn--alt">View Dates</a>
+                <a href="/book-pooja" className="site-cta__btn">Book Pooja</a>
+                <a href="/payment" className="site-cta__btn site-cta__btn--alt">Donate to Temple</a>
             </div>
             </div>
         </section>

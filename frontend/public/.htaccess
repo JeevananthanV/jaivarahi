@@ -1,55 +1,69 @@
 # ============================================================
-# PUBLIC_HTML .HTACCESS — STATIC FRONTEND + API PROXY
+# PRODUCTION-READY .HTACCESS FOR CPANEL (JAI VARAHI PEEDAM)
 # ============================================================
 
 # ------------------------------------------------------------
-# 1. PREVENT PASSENGER ERROR #3 (PassengerUser not set)
-# If Phusion Passenger is active on the server/vhost, disable it
-# on static web root so Apache serves React SPA assets directly.
+# 1. PASSENGER & SERVER ENGINE DIRECTIVES
+# Disable Passenger on static web root so Apache directly serves Vite assets.
 # ------------------------------------------------------------
 <IfModule mod_passenger.c>
     PassengerEnabled off
 </IfModule>
 
-# Disable directory listing
+# Disable directory browsing & multi-views
 Options -Indexes -MultiViews
+DirectoryIndex index.html
 
-# Protect sensitive files and archives from web access
-<FilesMatch "(\.env|\.git|\.zip|\.tar|\.gz|\.bak|\.sql|\.log|package\.json|package-lock\.json|composer\.json|README\.md|\.htaccess)$">
+# Block direct access to hidden, environment, backup, and sensitive files
+<FilesMatch "(\.env|\.git|\.zip|\.tar|\.gz|\.bak|\.sql|\.sqlite|\.log|package\.json|package-lock\.json|composer\.json|README\.md|\.htaccess)$">
     Require all denied
 </FilesMatch>
 
 # ============================================================
-# URL REWRITING
+# 2. URL REWRITING & ROUTING (MOD_REWRITE)
 # ============================================================
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /
 
     # --------------------------------------------------------
-    # FORCE HTTPS + WWW
-    # Uncomment ONLY if cPanel/CloudLinux is not already
-    # handling HTTPS and canonical host redirects.
+    # FORCE HTTPS (Uncomment if not handled by Cloudflare / cPanel SSL)
     # --------------------------------------------------------
-    # RewriteCond %{HTTPS} !=on [OR]
-    # RewriteCond %{HTTP_HOST} !^www\.jaivarahi\.org$ [NC]
-    # RewriteRule ^ https://www.jaivarahi.org%{REQUEST_URI} [R=301,L]
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
     # --------------------------------------------------------
-    # API PROXY TO NODE.JS BACKEND (127.0.0.1:5000)
-    # Requires: mod_proxy, mod_proxy_http enabled on server
+    # REALTIME SSE / WEBSOCKET SUPPORT
     # --------------------------------------------------------
-    RewriteRule ^health$ http://127.0.0.1:5000/health [P,L]
-    RewriteRule ^api/(.*)$ http://127.0.0.1:5000/api/$1 [P,L]
-    RewriteRule ^payments/(.*)$ http://127.0.0.1:5000/payments/$1 [P,L]
+    <IfModule mod_proxy_wstunnel.c>
+        RewriteCond %{HTTP:Upgrade} websocket [NC]
+        RewriteCond %{HTTP:Connection} upgrade [NC]
+        RewriteRule ^api/(.*)$ ws://127.0.0.1:5005/api/$1 [P,L]
+    </IfModule>
 
     # --------------------------------------------------------
-    # ADMIN REACT SPA
+    # API & BACKEND PROXY (Node.js Express on 127.0.0.1:5005)
     # --------------------------------------------------------
-    RewriteRule ^admin/?$ /admin.html [L]
-    RewriteRule ^admin/(.*)$ /admin.html [L]
+    RewriteRule ^health$ http://127.0.0.1:5005/health [P,L]
+    RewriteRule ^health/frontend$ http://127.0.0.1:5005/health/frontend [P,L]
+    RewriteRule ^api/(.*)$ http://127.0.0.1:5005/api/$1 [P,L]
+    RewriteRule ^payment/(.*)$ http://127.0.0.1:5005/payment/$1 [P,L]
+    RewriteRule ^payments/(.*)$ http://127.0.0.1:5005/payments/$1 [P,L]
+    RewriteRule ^uploads/(.*)$ http://127.0.0.1:5005/uploads/$1 [P,L]
+    RewriteRule ^sitemap-blogs\.xml$ http://127.0.0.1:5005/sitemap-blogs.xml [P,L]
 
     # --------------------------------------------------------
-    # MAIN REACT SPA — fallback unknown routes to index.html
+    # ADMIN REACT SPA ROUTING
+    # Routes /admin and /admin/* to admin.html
+    # --------------------------------------------------------
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^admin(/.*)?$ /admin.html [L]
+
+    # --------------------------------------------------------
+    # MAIN PUBLIC REACT SPA ROUTING
+    # Fallback all other client-side routes to index.html
     # --------------------------------------------------------
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
@@ -57,53 +71,62 @@ Options -Indexes -MultiViews
 </IfModule>
 
 # ============================================================
-# CORS HEADERS FOR PROXIED API ROUTES
-# Express also enforces CORS; these headers provide defense-in-depth.
+# 3. PROXY & SSE BUFFERING RULES
 # ============================================================
-SetEnvIf Request_URI "^/(api|payments|health)" IS_API_REQUEST
-
-<IfModule mod_headers.c>
-    Header always set Access-Control-Allow-Origin "https://www.jaivarahi.org" env=IS_API_REQUEST
-    Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" env=IS_API_REQUEST
-    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With" env=IS_API_REQUEST
-    Header always set Access-Control-Expose-Headers "Content-Length, X-Request-Id" env=IS_API_REQUEST
-    Header always set Access-Control-Max-Age "86400" env=IS_API_REQUEST
+<IfModule mod_setenvif.c>
+    # Disable buffering on SSE stream endpoints to allow real-time notifications
+    SetEnvIf Request_URI "^/api/services/notifications/stream" no-gzip dont-vary
+    SetEnvIf Request_URI "^/api/admin/services/notifications/stream" no-gzip dont-vary
+    SetEnvIf Request_URI "^/api/blogs/sse" no-gzip dont-vary
+    SetEnvIf Request_URI "^/api/realtime/stream" no-gzip dont-vary
 </IfModule>
 
 # ============================================================
-# SECURITY HEADERS
+# 4. CORS & DEFENSE-IN-DEPTH HEADERS
+# ============================================================
+SetEnvIf Request_URI "^/(api|payments?|health)" IS_API_REQUEST
+
+<IfModule mod_headers.c>
+    # setifempty prevents duplicate CORS headers when backend Express already responds with CORS
+    Header setifempty Access-Control-Allow-Origin "https://www.jaivarahi.org" env=IS_API_REQUEST
+    Header setifempty Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" env=IS_API_REQUEST
+    Header setifempty Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With" env=IS_API_REQUEST
+    Header setifempty Access-Control-Expose-Headers "Content-Length, X-Request-Id" env=IS_API_REQUEST
+    Header setifempty Access-Control-Max-Age "86400" env=IS_API_REQUEST
+</IfModule>
+
+# ============================================================
+# 5. SECURITY HEADERS
 # ============================================================
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 
-    # HSTS — only when HTTPS is active
+    # HSTS (1 year max-age with preload)
     Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=HTTPS
 
-    # Strip server signatures
+    # Remove server information headers
     Header always unset Server
     Header always unset X-Powered-By
 </IfModule>
 
 # ============================================================
-# CACHING
+# 6. CACHING & PERFORMANCE (EXPIRES & CACHE-CONTROL)
 # ============================================================
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresDefault "access plus 1 month"
 
-    # HTML — always fresh
+    # HTML files — never cache so users always get fresh SPA bundles
     ExpiresByType text/html "access plus 0 seconds"
-
-    # Data / feeds
     ExpiresByType application/json "access plus 0 seconds"
     ExpiresByType application/xml "access plus 0 seconds"
     ExpiresByType text/xml "access plus 0 seconds"
 
-    # Static assets — long-lived, fingerprinted by Vite
+    # Static fingerprinted assets — cache for 1 year
     ExpiresByType text/css "access plus 1 year"
     ExpiresByType application/javascript "access plus 1 year"
     ExpiresByType text/javascript "access plus 1 year"
@@ -121,9 +144,12 @@ SetEnvIf Request_URI "^/(api|payments|health)" IS_API_REQUEST
 </IfModule>
 
 <IfModule mod_headers.c>
+    # 1-Year immutable cache for static hashed bundles and assets
     <FilesMatch "\.(js|mjs|css|png|jpg|jpeg|gif|svg|ico|webp|avif|woff|woff2|ttf|otf|eot)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
     </FilesMatch>
+
+    # HTML and dynamic data must revalidate
     <FilesMatch "\.(html|json)$">
         Header set Cache-Control "no-cache, no-store, must-revalidate"
         Header set Pragma "no-cache"
@@ -132,7 +158,7 @@ SetEnvIf Request_URI "^/(api|payments|health)" IS_API_REQUEST
 </IfModule>
 
 # ============================================================
-# COMPRESSION
+# 7. GZIP & BROTLI COMPRESSION (MOD_DEFLATE)
 # ============================================================
 <IfModule mod_deflate.c>
     AddOutputFilterByType DEFLATE \
@@ -148,7 +174,7 @@ SetEnvIf Request_URI "^/(api|payments|health)" IS_API_REQUEST
 </IfModule>
 
 # ============================================================
-# ERROR PAGES — route through SPA for consistent UX
+# 8. ERROR DOCUMENTS
 # ============================================================
 ErrorDocument 404 /index.html
 ErrorDocument 403 /index.html

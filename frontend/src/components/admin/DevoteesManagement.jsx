@@ -5,7 +5,6 @@ import {
   Eye, 
   Edit3, 
   Plus, 
-  Trash2, 
   Users, 
   Heart, 
   MapPin, 
@@ -14,13 +13,16 @@ import {
   Copy, 
   Check, 
   UserCheck,
-  AlertTriangle
+  AlertTriangle,
+  Send,
+  X
 } from 'lucide-react';
 import { 
   STAR_OPTIONS, 
   RASI_OPTIONS, 
   RELATIONSHIP_OPTIONS, 
   GOTHRAM_SUGGESTIONS, 
+  deriveRasiFromStar,
   formatSankalpamChantingText 
 } from '../../utils/astrologyData';
 
@@ -91,7 +93,15 @@ const DevoteesManagement = () => {
   const updateFamilyMember = (index, field, value) => {
     setFamilyMembers(prev => prev.map((m, i) => {
       if (i !== index) return m;
-      return { ...m, [field]: value };
+      const updated = { ...m, [field]: value };
+      // Smart Vedic astrology auto-fill: derive Rasi from Star automatically
+      if (field === 'star' && value) {
+        const autoRasi = deriveRasiFromStar(value);
+        if (autoRasi) {
+          updated.rasi = autoRasi;
+        }
+      }
+      return updated;
     }));
   };
 
@@ -169,6 +179,16 @@ const DevoteesManagement = () => {
     setTimeout(() => setCopiedToast(false), 2500);
   };
 
+  const handleWhatsAppShare = (devotee) => {
+    const text = formatSankalpamChantingText(devotee);
+    const cleanPhone = devotee.contact ? devotee.contact.replace(/\D/g, '') : '';
+    const phoneParam = cleanPhone.length >= 10 ? (cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone) : '';
+    const url = phoneParam 
+      ? `https://api.whatsapp.com/send?phone=${phoneParam}&text=${encodeURIComponent(text)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) return setError('Primary Devotee Name is required');
@@ -210,13 +230,14 @@ const DevoteesManagement = () => {
   };
 
   const columns = [
-    { key: 'id', label: 'ID', render: (v) => <span style={{ fontWeight: 700 }}>#{v}</span> },
-    { key: 'name', label: 'Devotee Name', render: (v) => <span style={{ fontWeight: 600, color: 'var(--special-color)' }}>{v}</span> },
-    { key: 'contact', label: 'Contact', render: (v) => <code>{v}</code> },
-    { key: 'gothram', label: 'Gothram', render: (v) => v || <span style={{ color: 'var(--tx3)' }}>-</span> },
+    { key: 'id', label: 'ID', width: 80, render: (v) => <span style={{ fontWeight: 700 }}>#{v}</span> },
+    { key: 'name', label: 'Devotee Name', minWidth: 160, render: (v) => <span style={{ fontWeight: 600, color: 'var(--special)' }}>{v}</span> },
+    { key: 'contact', label: 'Contact', minWidth: 130, render: (v) => <code>{v}</code> },
+    { key: 'gothram', label: 'Gothram', minWidth: 130, render: (v) => v || <span style={{ color: 'var(--tx3)' }}>-</span> },
     {
       key: 'family_members',
       label: 'Sankalpam Lineage',
+      minWidth: 160,
       render: (v) => {
         let count = 0;
         try {
@@ -237,6 +258,7 @@ const DevoteesManagement = () => {
     { 
       key: 'married_status', 
       label: 'Marital Status', 
+      minWidth: 120,
       render: (v) => (
         <span className={`badge ${v === 'married' ? 'b-success' : 'b-info'}`} style={{ textTransform: 'capitalize' }}>
           {v || 'Unmarried'}
@@ -246,10 +268,11 @@ const DevoteesManagement = () => {
     { 
       key: 'added_by', 
       label: 'Source', 
+      minWidth: 120,
       render: (v) => {
         const val = v || 'Public';
         if (val.toLowerCase().includes('super admin')) {
-          return <span className="badge b-gold" title={val}>👑 Admin</span>;
+          return <span className="badge b-gold" title={val}>👑 Super Admin</span>;
         } else if (val.toLowerCase().includes('admin')) {
           return <span className="badge b-success" title={val}>🛡️ Counter</span>;
         } else {
@@ -257,29 +280,33 @@ const DevoteesManagement = () => {
         }
       } 
     },
-    { key: 'created_at', label: 'Registered On', render: fmtDate },
+    { key: 'created_at', label: 'Registered On', minWidth: 130, render: fmtDate },
   ];
 
   return (
     <div className="page on">
       {/* Toast Feedback */}
       {copiedToast && (
-        <div style={{
-          position: 'fixed',
-          bottom: 24,
-          right: 24,
-          zIndex: 9999,
-          background: '#15803d',
-          color: '#ffffff',
-          padding: '12px 20px',
-          borderRadius: 10,
-          boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          fontWeight: 600,
-          fontSize: 14
-        }}>
+        <div 
+          role="status" 
+          aria-live="polite"
+          style={{
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            zIndex: 9999,
+            background: 'var(--ok)',
+            color: 'var(--light-text)',
+            padding: '12px 20px',
+            borderRadius: 'var(--r-sm)',
+            boxShadow: 'var(--sh-lg)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            fontWeight: 600,
+            fontSize: 14
+          }}
+        >
           <Check size={18} /> Sankalpam details copied to clipboard!
         </div>
       )}
@@ -287,7 +314,7 @@ const DevoteesManagement = () => {
       <div className="ph">
         <div>
           <h1 className="ph-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Users size={22} color="var(--special-color)" /> Devotee Directory & Sankalpam Records
+            <Users size={22} color="var(--special)" /> Devotee Directory & Sankalpam Records
           </h1>
           <p className="ph-sub">Manage registered temple devotees, smart astrological linkages, and family Sankalpam records.</p>
         </div>
@@ -327,20 +354,37 @@ const DevoteesManagement = () => {
 
       {/* ─── ADD / EDIT DEVOTEE MODAL ─── */}
       {isAddOpen && (
-        <div className="modal-backdrop">
-          <div className="modal" style={{ maxWidth: '820px', width: '95%' }}>
+        <div 
+          className="modal-backdrop" 
+          role="dialog" 
+          aria-modal="true" 
+          aria-labelledby="devotee-modal-title"
+          onClick={() => { setIsAddOpen(false); resetForm(); }}
+        >
+          <div 
+            className="modal" 
+            style={{ maxWidth: '840px', width: '95%' }} 
+            onClick={e => e.stopPropagation()}
+            tabIndex="-1"
+          >
             {/* Modal Header */}
             <div className="modal-header">
               <div>
-                <span className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 18 }}>
-                  <Sparkles size={20} color="var(--special-color)" /> 
+                <span id="devotee-modal-title" className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 18 }}>
+                  <Sparkles size={20} color="var(--special)" /> 
                   {editingId ? `Edit Devotee Details #${editingId}` : 'Add New Devotee & Family Sankalpam'}
                 </span>
                 <div style={{ fontSize: 12, color: 'var(--tx3)', marginTop: 2 }}>
-                  Smart Astrological Auto-Linkage
+                  Smart Astrological Auto-Linkage (Nakshatram ➔ Rasi Auto Fill)
                 </div>
               </div>
-              <button className="modal-close" onClick={() => { setIsAddOpen(false); resetForm(); }}>×</button>
+              <button 
+                className="modal-close" 
+                onClick={() => { setIsAddOpen(false); resetForm(); }}
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
             </div>
 
             {/* Modal Body */}
@@ -351,9 +395,9 @@ const DevoteesManagement = () => {
                 {/* Duplicate Phone Alert Card */}
                 {duplicateDevotee && (
                   <div style={{
-                    background: 'rgba(217, 119, 6, 0.1)',
-                    border: '1px solid #d97706',
-                    borderRadius: 8,
+                    background: 'var(--wab)',
+                    border: '1px solid var(--wa)',
+                    borderRadius: 'var(--r-sm)',
                     padding: '12px 16px',
                     marginBottom: 18,
                     display: 'flex',
@@ -361,7 +405,7 @@ const DevoteesManagement = () => {
                     justifyContent: 'space-between',
                     gap: 12
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#b45309' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--wa)' }}>
                       <AlertTriangle size={18} />
                       <div>
                         <strong>Existing Devotee Found:</strong> {duplicateDevotee.name} (#{duplicateDevotee.id}) is already registered with this phone number.
@@ -369,8 +413,7 @@ const DevoteesManagement = () => {
                     </div>
                     <button
                       type="button"
-                      className="btn btn-xs"
-                      style={{ background: '#d97706', color: '#ffffff', border: 'none', whiteSpace: 'nowrap' }}
+                      className="btn btn-xs btn-pr"
                       onClick={() => {
                         const toEdit = duplicateDevotee;
                         handleEditClick(toEdit);
@@ -383,14 +426,15 @@ const DevoteesManagement = () => {
 
                 {/* SECTION 1: PRIMARY DEVOTEE CONTACT */}
                 <div style={{ marginBottom: 22 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--special-color)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--special)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <UserCheck size={16} /> 1. Primary Devotee & Contact Information
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label>Devotee Primary Name *</label>
+                      <label htmlFor="devotee-primary-name">Devotee Primary Name *</label>
                       <input 
+                        id="devotee-primary-name"
                         type="text" 
                         className="form-control" 
                         placeholder="Family Head / Devotee Name" 
@@ -401,11 +445,12 @@ const DevoteesManagement = () => {
                     </div>
 
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label>Contact Number (10 Digits) *</label>
+                      <label htmlFor="devotee-contact-phone">Contact Number (10 Digits) *</label>
                       <input 
+                        id="devotee-contact-phone"
                         type="tel" 
                         className="form-control" 
-                        placeholder="10-digit mobile" 
+                        placeholder="10-digit mobile number" 
                         value={contact} 
                         onChange={e => setContact(e.target.value)} 
                         required 
@@ -415,8 +460,9 @@ const DevoteesManagement = () => {
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, marginTop: 12 }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label>Gothram (கோத்ரம்)</label>
+                      <label htmlFor="devotee-gothram">Gothram (கோத்ரம்)</label>
                       <input 
+                        id="devotee-gothram"
                         type="text" 
                         className="form-control" 
                         list="gothram-suggestions-full" 
@@ -432,8 +478,9 @@ const DevoteesManagement = () => {
                     </div>
 
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label>Email Address</label>
+                      <label htmlFor="devotee-email">Email Address</label>
                       <input 
+                        id="devotee-email"
                         type="email" 
                         className="form-control" 
                         placeholder="devotee@example.com" 
@@ -445,8 +492,13 @@ const DevoteesManagement = () => {
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14, marginTop: 12 }}>
                     <div className="form-group" style={{ margin: 0 }}>
-                      <label>Marital Status</label>
-                      <select className="form-control" value={marriedStatus} onChange={e => setMarriedStatus(e.target.value)}>
+                      <label htmlFor="devotee-marital-status">Marital Status</label>
+                      <select 
+                        id="devotee-marital-status"
+                        className="form-control" 
+                        value={marriedStatus} 
+                        onChange={e => setMarriedStatus(e.target.value)}
+                      >
                         <option value="unmarried">Unmarried (திருமணமாகாதவர்)</option>
                         <option value="married">Married (திருமணமானவர்)</option>
                       </select>
@@ -454,8 +506,14 @@ const DevoteesManagement = () => {
 
                     {marriedStatus === 'married' ? (
                       <div className="form-group" style={{ margin: 0 }}>
-                        <label>Wedding Date (திருமண நாள்)</label>
-                        <input type="date" className="form-control" value={weddingDate} onChange={e => setWeddingDate(e.target.value)} />
+                        <label htmlFor="devotee-wedding-date">Wedding Date (திருமண நாள்)</label>
+                        <input 
+                          id="devotee-wedding-date"
+                          type="date" 
+                          className="form-control" 
+                          value={weddingDate} 
+                          onChange={e => setWeddingDate(e.target.value)} 
+                        />
                       </div>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'flex-end' }}>
@@ -471,14 +529,28 @@ const DevoteesManagement = () => {
                   </div>
 
                   {showParents && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginTop: 12, background: 'var(--bg2)', padding: 12, borderRadius: 8 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginTop: 12, background: 'var(--bg2)', padding: 12, borderRadius: 'var(--r-sm)', border: '1px solid var(--bd)' }}>
                       <div className="form-group" style={{ margin: 0 }}>
-                        <label>Father's Name (தந்தை பெயர்)</label>
-                        <input type="text" className="form-control" placeholder="Father's Name" value={fatherName} onChange={e => setFatherName(e.target.value)} />
+                        <label htmlFor="devotee-father-name">Father's Name (தந்தை பெயர்)</label>
+                        <input 
+                          id="devotee-father-name"
+                          type="text" 
+                          className="form-control" 
+                          placeholder="Father's Name" 
+                          value={fatherName} 
+                          onChange={e => setFatherName(e.target.value)} 
+                        />
                       </div>
                       <div className="form-group" style={{ margin: 0 }}>
-                        <label>Mother's Name (தாய் பெயர்)</label>
-                        <input type="text" className="form-control" placeholder="Mother's Name" value={motherName} onChange={e => setMotherName(e.target.value)} />
+                        <label htmlFor="devotee-mother-name">Mother's Name (தாய் பெயர்)</label>
+                        <input 
+                          id="devotee-mother-name"
+                          type="text" 
+                          className="form-control" 
+                          placeholder="Mother's Name" 
+                          value={motherName} 
+                          onChange={e => setMotherName(e.target.value)} 
+                        />
                       </div>
                     </div>
                   )}
@@ -488,11 +560,11 @@ const DevoteesManagement = () => {
                 <div style={{ marginBottom: 22 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--special-color)', textTransform: 'uppercase', letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--special)', textTransform: 'uppercase', letterSpacing: 0.5, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Users size={16} /> 2. Family Members for Sankalpam
                       </div>
                       <div style={{ fontSize: 11, color: 'var(--tx3)' }}>
-                        ⭐ Selecting Star auto-fills Moon Sign (Rasi) automatically
+                        ⭐ Selecting Star automatically auto-fills Moon Sign (Rasi)
                       </div>
                     </div>
                     <button type="button" className="btn btn-sm btn-ol" onClick={addFamilyMember}>
@@ -501,10 +573,10 @@ const DevoteesManagement = () => {
                   </div>
 
                   {familyMembers.length === 0 ? (
-                    <div style={{ background: 'var(--bg2)', border: '1px dashed var(--border)', borderRadius: 8, padding: '16px', textAlign: 'center', color: 'var(--tx3)', fontSize: 13 }}>
+                    <div style={{ background: 'var(--bg2)', border: '1px dashed var(--bd)', borderRadius: 'var(--r-sm)', padding: '16px', textAlign: 'center', color: 'var(--tx3)', fontSize: 13 }}>
                       No additional family members added. Primary devotee will be recorded for Sankalpam.
                       <div style={{ marginTop: 6 }}>
-                        <button type="button" onClick={addFamilyMember} style={{ background: 'none', border: 'none', color: 'var(--special-color)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>
+                        <button type="button" onClick={addFamilyMember} style={{ background: 'none', border: 'none', color: 'var(--special)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>
                           + Click to add spouse, children, or parents
                         </button>
                       </div>
@@ -515,11 +587,11 @@ const DevoteesManagement = () => {
                         <thead>
                           <tr>
                             <th style={{ width: 140 }}>Relationship</th>
-                            <th>Name</th>
+                            <th>Name *</th>
                             <th>Nakshatram (Star)</th>
                             <th>Rasi (Moon Sign)</th>
                             <th style={{ width: 120 }}>DOB</th>
-                            <th style={{ width: 36 }}></th>
+                            <th style={{ width: 44, textAlign: 'center' }}>Remove</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -527,6 +599,7 @@ const DevoteesManagement = () => {
                             <tr key={index}>
                               <td>
                                 <select
+                                  aria-label={`Relationship for member ${index + 1}`}
                                   className="form-control"
                                   style={{ height: 34, padding: '2px 6px', fontSize: 12 }}
                                   value={member.relationship || 'Member'}
@@ -539,6 +612,7 @@ const DevoteesManagement = () => {
                               </td>
                               <td>
                                 <input 
+                                  aria-label={`Name for member ${index + 1}`}
                                   type="text" 
                                   className="form-control" 
                                   style={{ height: 34, padding: '2px 6px', fontSize: 13 }} 
@@ -550,6 +624,7 @@ const DevoteesManagement = () => {
                               </td>
                               <td>
                                 <select 
+                                  aria-label={`Nakshatram for member ${index + 1}`}
                                   className="form-control" 
                                   style={{ height: 34, padding: '2px 6px', fontSize: 12 }} 
                                   value={member.star || ''} 
@@ -563,6 +638,7 @@ const DevoteesManagement = () => {
                               </td>
                               <td>
                                 <select 
+                                  aria-label={`Rasi for member ${index + 1}`}
                                   className="form-control" 
                                   style={{ height: 34, padding: '2px 6px', fontSize: 12 }} 
                                   value={member.rasi || ''} 
@@ -576,6 +652,7 @@ const DevoteesManagement = () => {
                               </td>
                               <td>
                                 <input 
+                                  aria-label={`Date of birth for member ${index + 1}`}
                                   type="date" 
                                   className="form-control" 
                                   style={{ height: 34, padding: '2px 6px', fontSize: 12 }} 
@@ -587,10 +664,11 @@ const DevoteesManagement = () => {
                                 <button 
                                   type="button" 
                                   onClick={() => removeFamilyMember(index)} 
-                                  style={{ border: 'none', background: 'none', color: 'var(--er)', fontSize: 18, cursor: 'pointer' }}
+                                  style={{ border: 'none', background: 'none', color: 'var(--er)', fontSize: 18, cursor: 'pointer', padding: 4 }}
                                   title="Remove Member"
+                                  aria-label={`Remove family member ${member.name || index + 1}`}
                                 >
-                                  ×
+                                  <X size={16} />
                                 </button>
                               </td>
                             </tr>
@@ -603,13 +681,14 @@ const DevoteesManagement = () => {
 
                 {/* SECTION 3: POSTAL LOGISTICS & PRAYER NOTES */}
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--special-color)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--special)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <MapPin size={16} /> 3. Postal Address & Prayer Intentions
                   </div>
 
                   <div className="form-group">
-                    <label>Postal Delivery Address (For Prasadam Dispatch)</label>
+                    <label htmlFor="devotee-postal-address">Postal Delivery Address (For Prasadam Dispatch)</label>
                     <input 
+                      id="devotee-postal-address"
                       type="text" 
                       className="form-control" 
                       placeholder="Door No, Street Name, City, Pincode" 
@@ -619,8 +698,9 @@ const DevoteesManagement = () => {
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label>Special Prayer Intentions / Notes</label>
+                    <label htmlFor="devotee-notes">Special Prayer Intentions / Notes</label>
                     <textarea 
+                      id="devotee-notes"
                       className="form-control" 
                       rows={2} 
                       placeholder="Prayer intentions (e.g., health, career success, family harmony)..." 
@@ -633,7 +713,7 @@ const DevoteesManagement = () => {
               </div>
 
               {/* Modal Footer */}
-              <div className="modal-footer" style={{ padding: '14px 24px', borderTop: '1px solid var(--border)', background: 'var(--bg2)', justifyContent: 'space-between' }}>
+              <div className="modal-footer" style={{ padding: '14px 24px', borderTop: '1px solid var(--bd)', background: 'var(--bg2)', justifyContent: 'space-between' }}>
                 <button type="button" className="btn btn-ol" onClick={resetForm} style={{ fontSize: 13 }}>
                   Clear Form
                 </button>
@@ -653,30 +733,50 @@ const DevoteesManagement = () => {
 
       {/* ─── VIEW FULL DEVOTEE PROFILE 360° MODAL ─── */}
       {viewingDevotee && (
-        <div className="modal-backdrop" onClick={() => setViewingDevotee(null)}>
-          <div className="modal" style={{ maxWidth: 740 }} onClick={e => e.stopPropagation()}>
+        <div 
+          className="modal-backdrop" 
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="view-devotee-title"
+          onClick={() => setViewingDevotee(null)}
+        >
+          <div className="modal" style={{ maxWidth: 740 }} onClick={e => e.stopPropagation()} tabIndex="-1">
             <div className="modal-header">
-              <span className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Sparkles size={18} color="var(--special-color)" /> Devotee Profile #{viewingDevotee.id}
+              <span id="view-devotee-title" className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Sparkles size={18} color="var(--special)" /> Devotee Profile #{viewingDevotee.id}
               </span>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <button 
                   className="btn btn-xs btn-ol" 
                   onClick={() => handleCopySankalpam(viewingDevotee)}
-                  title="Copy formatted text for WhatsApp message"
+                  title="Copy formatted text for priest / records"
                 >
-                  <Copy size={13} /> Copy WhatsApp
+                  <Copy size={13} /> Copy Sankalpam
                 </button>
-                <button className="modal-close" onClick={() => setViewingDevotee(null)}>×</button>
+                <button 
+                  className="btn btn-xs btn-pr" 
+                  onClick={() => handleWhatsAppShare(viewingDevotee)}
+                  title="Share Sankalpam on WhatsApp"
+                  style={{ background: 'var(--whatsapp)', borderColor: 'var(--whatsapp)', color: 'var(--light-text)' }}
+                >
+                  <Send size={13} /> WhatsApp
+                </button>
+                <button 
+                  className="modal-close" 
+                  onClick={() => setViewingDevotee(null)}
+                  aria-label="Close modal"
+                >
+                  <X size={20} />
+                </button>
               </div>
             </div>
 
             <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
               {/* Profile Card 1: Contact & Identification */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 16, background: 'var(--bg2)', padding: 16, borderRadius: 12, border: '1px solid var(--border)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 16, background: 'var(--bg2)', padding: 16, borderRadius: 'var(--r-sm)', border: '1px solid var(--bd)' }}>
                 <div>
                   <div style={{ fontSize: 11, color: 'var(--tx3)', textTransform: 'uppercase', fontWeight: 700 }}>Devotee Name</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--special-color)' }}>{viewingDevotee.name}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--special)' }}>{viewingDevotee.name}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: 11, color: 'var(--tx3)', textTransform: 'uppercase', fontWeight: 700 }}>Contact Number</div>
@@ -706,9 +806,9 @@ const DevoteesManagement = () => {
               </div>
 
               {/* Profile Card 2: Postal Prasadam Delivery */}
-              <div style={{ marginBottom: 16, background: 'var(--bg)', padding: 14, borderRadius: 10, border: '1px solid var(--border)' }}>
+              <div style={{ marginBottom: 16, background: 'var(--bg2)', padding: 14, borderRadius: 'var(--r-sm)', border: '1px solid var(--bd)' }}>
                 <div style={{ fontSize: 12, color: 'var(--tx3)', fontWeight: 700, textTransform: 'uppercase', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <MapPin size={14} color="var(--special-color)" /> Postal Delivery Address (For Prasadham Dispatch)
+                  <MapPin size={14} color="var(--special)" /> Postal Delivery Address (For Prasadham Dispatch)
                 </div>
                 <div style={{ fontSize: 13, color: viewingDevotee.postal_address ? 'var(--tx)' : 'var(--tx3)', fontStyle: viewingDevotee.postal_address ? 'normal' : 'italic' }}>
                   {viewingDevotee.postal_address || 'No postal address provided (In-person temple collection).'}
@@ -718,10 +818,10 @@ const DevoteesManagement = () => {
               {/* Profile Card 3: Sacred Family Lineage for Sankalpam */}
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, color: 'var(--tx3)', fontWeight: 700, textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Users size={14} color="var(--special-color)" /> Family Members for Sankalpam Archana ({viewingDevotee.parsedFamily?.length || 0})
+                  <Users size={14} color="var(--special)" /> Family Members for Sankalpam Archana ({viewingDevotee.parsedFamily?.length || 0})
                 </div>
                 {!viewingDevotee.parsedFamily || viewingDevotee.parsedFamily.length === 0 ? (
-                  <p style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--tx3)', background: 'var(--bg2)', padding: 12, borderRadius: 8 }}>
+                  <p style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--tx3)', background: 'var(--bg2)', padding: 12, borderRadius: 'var(--r-sm)', border: '1px solid var(--bd)' }}>
                     Only primary devotee registered for Sankalpam.
                   </p>
                 ) : (
@@ -745,7 +845,7 @@ const DevoteesManagement = () => {
                               </span>
                             </td>
                             <td style={{ fontWeight: 600 }}>{m.name || '-'}</td>
-                            <td style={{ color: 'var(--special-color)' }}>{m.star || '-'}</td>
+                            <td style={{ color: 'var(--special)' }}>{m.star || '-'}</td>
                             <td>{m.rasi || '-'}</td>
                             <td>{m.dob ? fmtDate(m.dob) : '-'}</td>
                           </tr>
@@ -762,14 +862,14 @@ const DevoteesManagement = () => {
                   <div style={{ fontSize: 12, color: 'var(--tx3)', fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 }}>
                     🪔 Special Prayers / Notes
                   </div>
-                  <div style={{ background: 'var(--bg2)', padding: 12, borderRadius: 8, border: '1px solid var(--border)', fontSize: 13, fontStyle: 'italic' }}>
+                  <div style={{ background: 'var(--bg2)', padding: 12, borderRadius: 'var(--r-sm)', border: '1px solid var(--bd)', fontSize: 13, fontStyle: 'italic' }}>
                     "{viewingDevotee.note}"
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="modal-footer">
+            <div className="modal-footer" style={{ borderTop: '1px solid var(--bd)', background: 'var(--bg2)' }}>
               <button type="button" className="btn btn-ol" onClick={() => setViewingDevotee(null)}>Close</button>
               <button 
                 type="button" 

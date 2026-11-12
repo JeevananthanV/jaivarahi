@@ -2,6 +2,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 const router = express.Router();
 
@@ -21,12 +22,22 @@ export const originGuard = (req, res, next) => {
   // Check ALL mutating methods, not just POST
   if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) return next();
   const origin = req.get("origin");
-  // Strict origin check - no referer fallback (referer is easily spoofed)
-  const isAllowed = ALLOWED_PUBLIC_ORIGINS.some(
-    (o) => origin?.startsWith(o)
-  );
-  if (!isAllowed) {
-    return res.status(403).json({ error: "Invalid origin" });
+  if (origin) {
+    const isAllowed = ALLOWED_PUBLIC_ORIGINS.some(
+      (o) => origin?.startsWith(o)
+    );
+    if (!isAllowed) {
+      return res.status(403).json({ error: "Invalid origin" });
+    }
+  }
+  
+  // CSRF Token check - validate only when session has csrfToken
+  const sessionToken = req.session?.csrfToken;
+  if (sessionToken) {
+    const csrfToken = req.get("X-CSRF-Token");
+    if (!csrfToken || csrfToken !== sessionToken) {
+      return res.status(403).json({ error: "Invalid CSRF token" });
+    }
   }
   next();
 };
@@ -132,6 +143,10 @@ const generateRefreshToken = () => {
   return jwt.sign({ type: 'refresh' }, process.env.ADMIN_JWT_SECRET, { expiresIn: '30d' });
 };
 
+const generateCSRFToken = () => {
+  return crypto.randomBytes(32).toString('hex');
+};
+
 const storeRefreshToken = async (db, adminId, token) => {
   const hash = await bcrypt.hash(token, 10);
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -153,13 +168,27 @@ export const loginAdmin = async (req, res) => {
       }
       const isEnvMatch = await bcrypt.compare(password, envHash);
       if (isEnvMatch) {
-        const user = { id: 0, name: 'System Admin', email: envEmail, role: 'Super Admin' };
+        let [dbUsers] = await db.execute('SELECT * FROM admin_users WHERE email = ?', [envEmail]);
+        let adminId = dbUsers[0]?.id;
+        if (!adminId) {
+          const [insertRes] = await db.execute(
+            'INSERT INTO admin_users (name, email, role, password_hash) VALUES (?, ?, ?, ?)',
+            ['System Admin', envEmail, 'Super Admin', envHash]
+          );
+          adminId = insertRes.insertId;
+        }
+        const user = { id: adminId, name: dbUsers[0]?.name || 'System Admin', email: envEmail, role: dbUsers[0]?.role || 'Super Admin' };
         const token = jwt.sign(user, process.env.ADMIN_JWT_SECRET, { expiresIn: '8h' });
         const refreshToken = generateRefreshToken();
-        await storeRefreshToken(db, 0, refreshToken);
+        await storeRefreshToken(db, adminId, refreshToken);
+        // Set CSRF token in session for admin
+        if (req.session) {
+          req.session.csrfToken = generateCSRFToken();
+        }
         return res.json({ token, user, refresh_token: refreshToken });
       }
     }
+    // ... (rest of function remains unchanged)
 
     // 2. Fallback to Database Admin Users
     const [users] = await db.execute('SELECT * FROM admin_users WHERE email = ?', [email]);
@@ -355,28 +384,6 @@ router.get('/birthdays', auth, async (req, res) => {
       }
     }
 
-    // 2. Fetch Admin users
-    const [admins] = await db.execute(
-      'SELECT id, name, email, role, date_of_birth, date_of_wedding, last_login FROM admin_users WHERE date_of_birth IS NOT NULL'
-    );
-    for (const adm of admins) {
-      const days = calculateDaysUntil(adm.date_of_birth);
-      if (days !== null && days <= maxDays) {
-        birthdays.push({
-          id: `adm-${adm.id}`,
-          type: 'admin',
-          source: 'Admin User',
-          name: adm.name,
-          email: adm.email,
-          role: adm.role,
-          birthday: adm.date_of_birth,
-          last_login: adm.last_login,
-          days_until: days,
-          days_until_next: days,
-        });
-      }
-    }
-
     birthdays.sort((a, b) => a.days_until - b.days_until);
 
     // ─── REAL-TIME BROADCAST ───
@@ -402,7 +409,7 @@ router.get('/birthdays', auth, async (req, res) => {
   }
 });
 
-// ─── Wedding Anniversary Reminders (Devotees & Admins) ────────────────────────
+// ─── Wedding Anniversary Reminders (Devotees) ────────────────────────
 router.get('/wedding-anniversaries', auth, async (req, res) => {
   const db = req.app.locals.db;
   const maxDays = Math.min(365, Math.max(1, parseInt(req.query.days) || 60));
@@ -449,31 +456,6 @@ router.get('/wedding-anniversaries', auth, async (req, res) => {
           years_married: yearsMarried,
           anniversary_next: days === 0 ? 'Anniversary today!' : `Anniversary in ${days} days`,
           role: 'Devotee',
-        });
-      }
-    }
-
-    // 2. Fetch married admins
-    const [admins] = await db.execute(
-      'SELECT id, name, email, role, date_of_wedding, last_login FROM admin_users WHERE date_of_wedding IS NOT NULL'
-    );
-    for (const adm of admins) {
-      const days = calculateDaysUntil(adm.date_of_wedding);
-      if (days !== null && days <= maxDays) {
-        const rawDate = new Date(adm.date_of_wedding);
-        const yearsMarried = Math.max(0, new Date().getFullYear() - rawDate.getFullYear());
-        weddingAnniversaries.push({
-          id: `adm-wed-${adm.id}`,
-          type: 'admin',
-          source: 'Admin User',
-          name: adm.name,
-          email: adm.email,
-          role: adm.role,
-          wedding_date: adm.date_of_wedding,
-          last_login: adm.last_login,
-          days_until: days,
-          years_married: yearsMarried,
-          anniversary_next: days === 0 ? 'Anniversary today!' : `Anniversary in ${days} days`,
         });
       }
     }
@@ -590,7 +572,7 @@ router.get('/notifications/feed', auth, async (req, res) => {
     // 4. Recent Donations
     try {
       const [donations] = await db.execute(`
-        SELECT id, name, phone, email, amount_inr, city, payment_id, status, created_at
+        SELECT id, name, phone, donor_email AS email, amount_inr, city, payment_id, status, created_at
         FROM donations
         ORDER BY created_at DESC LIMIT 8
       `);
@@ -2463,8 +2445,6 @@ router.get('/webhooks/stats', auth, requireRole(['Super Admin', 'Admin']), async
   }
 });
 
-export default router;
-
 // ─── Modern Admin Panel API Endpoints ───────────────────────────────
 // Get admin profile and settings
 router.get('/profile/me', auth, async (req, res) => {
@@ -2587,7 +2567,7 @@ router.post('/users/bulk', auth, requireRole(['Super Admin']), validateBody({
 });
 
 // Admin statistics dashboard
-router.get('/stats', auth, requireRole(['Super Admin']), async (req, res) => {
+router.get('/stats', auth, requireRole(['Super Admin', 'Admin']), async (req, res) => {
   const db = req.app.locals.db;
   try {
     const today = new Date();
@@ -2633,12 +2613,11 @@ router.get('/stats', auth, requireRole(['Super Admin']), async (req, res) => {
 });
 
 // System health and info
-router.get('/system-info', auth, requireRole(['Super Admin']), async (req, res) => {
+router.get('/system-info', auth, requireRole(['Super Admin', 'Admin']), async (req, res) => {
   const db = req.app.locals.db;
   try {
     const [poolStatus] = await db.execute('SELECT COUNT(*) as connections FROM information_schema.processlist WHERE db = DATABASE()');
     const [dbStats] = await db.execute('SELECT SUM(data_length + index_length) as total_size FROM information_schema.tables WHERE table_schema = DATABASE()');
-    const [sseClients] = await db.execute('SELECT COUNT(*) as client_count FROM (SELECT DISTINCT client_id FROM sse_clients) as t'); // Will fail in prod without Redis
     
     res.json({
       success: true,
@@ -2647,8 +2626,8 @@ router.get('/system-info', auth, requireRole(['Super Admin']), async (req, res) 
         uptime_seconds: Math.round((Date.now() - (global.startedAt || Date.now())) / 1000),
         db_connections: poolStatus[0]?.connections || 0,
         db_size_mb: Math.round((dbStats[0]?.total_size || 0) / 1024 / 1024),
-        sse_clients: 0, // Will be replaced with actual count
-        redis_available: false // Checked at runtime
+        sse_clients: 0,
+        redis_available: false
       }
     });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -2691,7 +2670,88 @@ router.get('/export/audit-log', auth, requireRole(['Super Admin', 'Admin']), asy
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ─── Kosala / Temple Donations Admin Management ───────────────────
+router.get('/donations', auth, requireRole(['Super Admin', 'Admin', 'Finance', 'Auditor']), async (req, res) => {
+  const db = req.app.locals.db;
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 10));
+    const offset = (page - 1) * limit;
+    const { search, status, start, end, category } = req.query;
+
+    const conditions = ['1=1'];
+    const params = [];
+
+    if (search && search.trim()) {
+      const q = `%${search.trim()}%`;
+      conditions.push('(name LIKE ? OR phone LIKE ? OR city LIKE ? OR order_id LIKE ? OR payment_id LIKE ? OR receipt_number LIKE ?)');
+      params.push(q, q, q, q, q, q);
+    }
+
+    if (status && status.trim()) {
+      conditions.push('status = ?');
+      params.push(status.trim());
+    }
+
+    if (category && category.trim()) {
+      conditions.push('category = ?');
+      params.push(category.trim());
+    }
+
+    if (start && start.trim()) {
+      conditions.push('created_at >= ?');
+      params.push(`${start.trim()} 00:00:00`);
+    }
+
+    if (end && end.trim()) {
+      conditions.push('created_at <= ?');
+      params.push(`${end.trim()} 23:59:59`);
+    }
+
+    const whereClause = conditions.join(' AND ');
+
+    // 1. Total records count
+    const [countRows] = await db.execute(
+      `SELECT COUNT(*) as total FROM donations WHERE ${whereClause}`,
+      params
+    );
+    const total = countRows[0]?.total || 0;
+
+    // 2. Revenue calculation for paid donations matching filters
+    const [revRows] = await db.execute(
+      `SELECT COALESCE(SUM(amount_inr), 0) as revenue FROM donations WHERE status = 'paid' AND ${whereClause}`,
+      params
+    );
+    const revenue = parseFloat(revRows[0]?.revenue || 0);
+
+    // 3. Paginated rows
+    const [rows] = await db.query(
+      `SELECT id, order_id, payment_id, amount_inr, amount_paise, phone, name, city, status, category, is_anonymous, notes, receipt_number, created_at, paid_at, failure_reason 
+       FROM donations 
+       WHERE ${whereClause} 
+       ORDER BY id DESC 
+       LIMIT ${limit} OFFSET ${offset}`,
+      params
+    );
+
+    res.json({
+      success: true,
+      rows,
+      total,
+      revenue,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    });
+  } catch (err) {
+    console.error('Admin getDonations error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── END Modern Admin Panel API Endpoints ───
+
+export default router;
 
 
 
