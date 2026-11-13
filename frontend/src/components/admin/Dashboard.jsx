@@ -6,7 +6,6 @@ import {
   CircleDollarSign,
   Download,
   Filter,
-  Gauge,
   Globe2,
   Activity,
   Clock3,
@@ -44,10 +43,18 @@ const DATE_RANGES = [
   { key: 'custom', label: 'Custom' },
 ];
 
-const INR = (value) =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(Number(value || 0));
+const EMPTY_RECORD = Object.freeze({});
+const isRecord = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 
-const pct = (value) => `${Number(value || 0).toFixed(1)}%`;
+const finiteNumber = (value) => {
+  const number = Number(value ?? 0);
+  return Number.isFinite(number) ? number : 0;
+};
+
+const INR = (value) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(finiteNumber(value));
+
+const pct = (value) => `${finiteNumber(value).toFixed(1)}%`;
 
 const toDisplayDate = (value) => {
   if (!value) return '';
@@ -84,26 +91,66 @@ const Dashboard = () => {
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
   const fetchData = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
+    if (selectedRange === 'custom' && (!customRange.from || !customRange.to)) {
+      activeRequestRef.current?.abort();
+      activeRequestRef.current = null;
+      requestSequenceRef.current += 1;
+      setError('');
+      setExportError('');
+      setNotice('');
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
+
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
+    const requestId = ++requestSequenceRef.current;
+    if (isRefresh) {
+      setRefreshing(true);
+      if (!hasDashboardDataRef.current) setLoading(true);
+    } else {
+      setLoading(true);
+      setRefreshing(false);
+      hasDashboardDataRef.current = false;
+      setData(null);
+    }
+    setError('');
+    setExportError('');
+    setNotice('');
     try {
       const params = { range: selectedRange };
       if (selectedRange === 'custom') {
         if (customRange.from) params.from = customRange.from;
         if (customRange.to) params.to = customRange.to;
       }
-      const result = await adminApi.getDashboard(params);
-      setData(result);
+      const result = await adminApi.getDashboard(params, { signal: controller.signal });
+      if (requestId !== requestSequenceRef.current) return;
+      const dashboardData = result && typeof result === 'object' && !Array.isArray(result) ? result : {};
+      hasDashboardDataRef.current = true;
+      setData(dashboardData);
       setLastUpdated(new Date());
     } catch (err) {
+      if (controller.signal.aborted || requestId !== requestSequenceRef.current) return;
       console.error('Failed to load dashboard data', err);
+      setError(err?.response?.data?.error || err?.response?.data?.message || err?.message || 'We could not load dashboard data. Please try again.');
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (requestId === requestSequenceRef.current) {
+        setLoading(false);
+        setRefreshing(false);
+        if (activeRequestRef.current === controller) activeRequestRef.current = null;
+      }
     }
   }, [selectedRange, customRange.from, customRange.to]);
 
   useEffect(() => {
     fetchData(false);
+    return () => {
+      requestSequenceRef.current += 1;
+      activeRequestRef.current?.abort();
+      activeRequestRef.current = null;
+    };
   }, [fetchData]);
 
   // Real-time Stream Subscription to auto-refresh data when new bookings or payments arrive
@@ -123,6 +170,11 @@ const Dashboard = () => {
 
   // Reveal animation handling
   useEffect(() => {
+    const targets = document.querySelectorAll('.reveal:not(.active)');
+    if (typeof IntersectionObserver === 'undefined') {
+      document.querySelectorAll('.reveal').forEach((el) => el.classList.add('active'));
+      return undefined;
+    }
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -160,12 +212,12 @@ const Dashboard = () => {
     }
   }, [selectedRange, customRange]);
 
-  const totals = data?.totals || {};
-  const summary = data?.summary || {};
-  const attendance = data?.attendance || {};
-  const recentTransactions = data?.recent_transactions || [];
-  const dailyTrend = data?.daily_trend || [];
-  const cityDistribution = data?.city_distribution || [];
+  const totals = isRecord(data?.totals) ? data.totals : EMPTY_RECORD;
+  const summary = isRecord(data?.summary) ? data.summary : EMPTY_RECORD;
+  const attendance = isRecord(data?.attendance) ? data.attendance : EMPTY_RECORD;
+  const recentTransactions = Array.isArray(data?.recent_transactions) ? data.recent_transactions.filter(Boolean) : [];
+  const dailyTrend = Array.isArray(data?.daily_trend) ? data.daily_trend.filter(Boolean) : [];
+  const cityDistribution = Array.isArray(data?.city_distribution) ? data.city_distribution.filter(Boolean) : [];
 
   const metrics = useMemo(() => {
     const netRevenue = Number(totals.total_revenue || 0);
@@ -221,7 +273,7 @@ const Dashboard = () => {
         tone: 'in',
       },
     ];
-  }, [totals, summary, attendance]);
+  }, [totals, summary, attendance, selectedRange]);
 
   const alerts = useMemo(() => {
     const items = [];
@@ -344,7 +396,7 @@ const Dashboard = () => {
   };
 
   const activityRows = (Array.isArray(data?.audit_logs) ? data.audit_logs : []).filter(Boolean).slice(0, 6);
-  const updatedAgo = lastUpdated ? Math.max(1, Math.round((Date.now() - lastUpdated.getTime()) / 1000)) : 0;
+  const updatedAgo = lastUpdated ? Math.max(1, Math.round((clock - lastUpdated.getTime()) / 1000)) : 0;
 
   const exportCsv = () => adminApi.exportCSV('bookings');
 

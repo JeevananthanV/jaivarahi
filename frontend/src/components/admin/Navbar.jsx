@@ -47,8 +47,7 @@ const SEARCH_ROUTES = [
 
 const Navbar = ({ isDark, toggleDark, onToggleSidebar }) => {
   const { user, logout } = useAdminAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -127,15 +126,20 @@ const Navbar = ({ isDark, toggleDark, onToggleSidebar }) => {
 
   // Close user menu on outside click
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+    if (!userMenuOpen) return undefined;
+    const closeOutside = (event) => { if (userMenuRef.current && !userMenuRef.current.contains(event.target)) setUserMenuOpen(false); };
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') {
         setUserMenuOpen(false);
+        profileButtonRef.current?.focus();
       }
     };
-    if (userMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('pointerdown', closeOutside);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
   }, [userMenuOpen]);
 
   return (

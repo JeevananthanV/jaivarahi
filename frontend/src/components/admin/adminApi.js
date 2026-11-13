@@ -95,7 +95,7 @@ const adminApi = {
   login: async (credentials) => (await api.post('/login', credentials)).data,
   
   // Dashboard
-  getDashboard: async (params = {}) => (await api.get('/dashboard', { ...withToken(), params })).data,
+  getDashboard: async (params = {}, requestConfig = {}) => (await api.get('/dashboard', { ...withToken(), ...requestConfig, params })).data,
   
   // Ashada Navarathiri Dashboard
   getAshadaDashboard: async (params = {}) => (await api.get('/ashada-navarathiri/dashboard', { ...withToken(), params })).data,
@@ -119,10 +119,11 @@ const adminApi = {
       document.body.appendChild(link);
       link.click();
       link.remove();
-      window.URL.revokeObjectURL(url);
+      window.setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+      return true;
     } catch (err) {
       console.error('Export CSV failed:', err);
-      alert('Export failed: ' + (err.response?.data?.error || err.message));
+      return false;
     }
   },
 

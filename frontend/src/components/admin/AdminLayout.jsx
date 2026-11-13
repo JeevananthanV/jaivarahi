@@ -24,7 +24,7 @@ const AdminLayout = () => {
   const { logout } = useAdminAuth();
 
   return (
-    <div className="admin-app" data-dark={isDark ? "1" : "0"}>
+    <div className="admin-app" data-dark={isDark ? '1' : '0'} data-sidebar-collapsed={sidebarCollapsed ? '1' : '0'}>
       <div className="shell">
         {/* Mobile Backdrop Overlay */}
         {sidebarOpen && (
