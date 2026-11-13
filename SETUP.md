@@ -133,3 +133,4 @@ Output is compiled into `frontend/dist/`.
 
 - **Database Table Not Found**: Run `node backend/migrations/vidyalayam_migration.js` to ensure all courses and admissions tables are created.
 - **Port Conflict (5005)**: Change `PORT=5005` in `backend/.env` and update `VITE_API_URL` in `frontend/.env`.
+
