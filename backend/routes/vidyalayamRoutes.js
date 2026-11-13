@@ -48,3 +48,4 @@ router.post("/admin/certificates", auth, requireRole(["Super Admin", "Admin"]), 
 router.delete("/admin/certificates/:id", auth, requireRole(["Super Admin"]), revokeCertificate);
 
 export default router;
+

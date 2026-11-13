@@ -346,3 +346,4 @@ const VidyalayamCertificates = () => {
 };
 
 export default VidyalayamCertificates;
+
